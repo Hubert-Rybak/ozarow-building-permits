@@ -1,0 +1,104 @@
+{
+  "juryId": "J3",
+  "assessments": [
+    {
+      "id": "P1",
+      "scores": { "mobile": 8.3, "hierarchy": 8.6, "accessibility": 8.5, "visual": 8.1, "robustness": 9.0 },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Najsilniejszy wariant pod względem ciągłości fokusu: własny Chromium 390×844 potwierdził Enter na mapowanym wierszu → .map-overview, Enter na poligonie → .detail-panel, zamknięcie Enter → .map-overview. P1 jako jedyny z P1–P4 ma również działający Escape inspektora na desktopie; src/App.tsx:305–374 i atlas.test.tsx zawierają odpowiadające temu regresje.",
+        "Desktop ma czytelny podział narzędzia/lista → mapa → inspektor, bez nakładania szczegółów na obrysy. desktop-selected.png potwierdza jednocześnie widoczny wybrany wiersz, dokładne zaznaczenie i semantykę decyzji. Źródło GUNB/RWDZ oraz zastrzeżenie przy mapie są widoczne bez otwierania metodologii.",
+        "Telefon jest zwarty, ale mniej mapocentryczny niż P5: parent-verification.json i własny odczyt DOM dają początek canvasu 375,17 px przy 390 px; przy 320 px na pierwszym ekranie widoczne jest 306,44 px mapy. Nie ma poziomego overflow. Wybranie działki przewija do szczegółów, przez co górne przełączniki mapy/listy znikają z ekranu.",
+        "Źródłowe styles.css ma sensownie wydzielone komponenty, tokeny i dwa reżimy responsywne; bez nowych zależności. Koszt utrzymania to rozbudowany pojedynczy App (823 linie) i trzykolumnowy układ zmieniający szerokość przy wyborze, ale resize/framing mapy został sprawdzony. Produkcyjne CSS 35991 B / gzip 11458 B, JS gzip 124215 B; razem 135673 B według pomiaru rodzica.",
+        "Drobny druk jest realną słabością: mobilne podpisy liczników i status importu mają 8 px, desktopowe wiersze 12 px oraz metadane 9–10 px (styles.css:86–114, 221–247). Główne kontrolki mają 44 px i widoczny focus; dobra obsługa klawiatury nie usuwa problemu czytelności małych etykiet.",
+        "Własny odczyt desktopu po wyborze pierwszego wpisu umieścił Wpis w źródle na y≈1117 wewnątrz przewijanego inspektora, poza jego pierwszą widoczną częścią. Link istnieje i działa, ale przegrywa z długą listą dowodów geometrii.",
+        "Model, loader, typy i trzy publiczne pliki danych są identyczne bajtowo we wszystkich pięciu wariantach. P1 zachowuje kalendarzowe trzy miesiące Europe/Warsaw, reset, wspólne filtrowanie/CSV, rekordy bez obrysu, partial i provenance. Rodzic potwierdził 80 testów, build/dist oraz regresję zaznaczeń przy 320/390/1440; verification.json zawiera rzeczywisty retry po HTTP 503. Własny przebieg klawiaturowy nie wykazał błędów JS."
+      ],
+      "requiredBeforeProduction": [
+        "Zalecenie produkcyjne, nie blocker hard gate: zwiększyć pomocnicze etykiety 8–10 px bez ponownego wypchnięcia mapy poniżej pierwszego ekranu.",
+        "Zalecenie produkcyjne, nie blocker hard gate: przenieść odsyłacz Wpis w źródle do górnej części inspektora, przed długą sekcję działek.",
+        "Zalecenie produkcyjne, nie blocker hard gate: ujednolicić desktopowy powrót fokusu dla przycisku × i Escape; obecnie jawne odtworzenie fokusu desktopu jest w ścieżce Escape."
+      ]
+    },
+    {
+      "id": "P2",
+      "scores": { "mobile": 7.5, "hierarchy": 7.8, "accessibility": 7.4, "visual": 8.3, "robustness": 8.3 },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Spójny, spokojny wariant obywatelski z większymi tytułami kart (15 px), pełnymi tytułami bez clamp i wyraźną akcją filtrów. Koszt hierarchii to duży nagłówek/hero i pionowe odstępy: desktopowy canvas zaczyna się na y=513, a mobilny na y=437. Przy 320×700 zostaje 261,5 px widocznej mapy. To przechodzi próg pierwszego ekranu, lecz gorzej wykorzystuje ekran niż P1/P3/P5.",
+        "Drawer jest rzeczywistą integracją daisyUI: package.json i lockfile mają tailwindcss/@tailwindcss/vite 4.3.3 oraz daisyui 5.7.47; Vite wywołuje tailwindcss(), CSS importuje Tailwind i plugin/theme daisyUI, JSX używa drawer/btn/select/card. Nie jest to atrapa nazw klas ani CDN. Filtry mają aria-controls/expanded, inert w zamkniętym panelu, cykl Tab/Shift+Tab, Escape i powrót do wyzwalacza (App.tsx:258–271, 457–545).",
+        "Cena integracji jest konkretna, nie ideologiczna: CSS 106975 B / gzip 22219 B, JS gzip 124354 B, razem 146573 B. To największy arkusz z pięciu; JS pozostaje zbliżony do innych, więc dodatkowa biblioteka nie jest runtime JS frameworkiem. Duża ilość własnego CSS poza warstwami jednocześnie nadpisuje komponenty daisyUI, co zwiększa powierzchnię utrzymania dwóch systemów stylowania.",
+        "Własny Chromium 390×844 potwierdził utratę fokusu do BODY po Enter na mapowanym wierszu i po zamknięciu szczegółów. Enter na poligonie przewija do szczegółów, ale fokus nadal jest na SVG path. Następny Tab po powrocie trafia do mapy, więc ścieżka nie jest całkowicie niedostępna; jest jednak mniej przewidywalna niż P1. Escape nie zamyka desktopowego inspektora.",
+        "Źródło GUNB/RWDZ jest jawne nad powierzchnią roboczą. Liczniki i ostrzeżenia na telefonie są przeniesione za mapę przez CSS order (styles.css:238–246), natomiast DOM zachowuje inną kolejność. mobile-selected.png pokazuje szczegóły pod mapą bez zasłaniania obrysów, ale duże nagłówki wymagają więcej przewijania. Link rekordu jest dopiero po działkach (App.tsx:177–181).",
+        "Loader/model i realne dane są wspólne, niezmienione; źródłowe statusy, kalendarzowy okres, reset, wszystkie filtry, CSV i dostęp do niemapowanych wpisów zostały zachowane. Rodzic potwierdził 77 testów, build/dist, brak overflow i regresję listy/mapy. verification.json ma pobrany CSV z dokładnymi ID, trap fokusu panelu i realny retry po przerwanym pobraniu. Własny test klawiaturowy nie wykazał błędów JS."
+      ],
+      "requiredBeforeProduction": [
+        "Zalecenie produkcyjne, nie blocker hard gate: przenosić fokus na mapę/szczegóły po zmianie powierzchni i odtwarzać go po zamknięciu inspektora; dodać regresję rzeczywistej klawiatury, nie tylko drawer.",
+        "Zalecenie produkcyjne, nie blocker hard gate: ograniczyć pionowy koszt hero/toolbar i pokazać krótkie zastrzeżenie semantyczne przed mapą także na telefonie.",
+        "Zalecenie produkcyjne, nie blocker hard gate: ograniczyć generowane komponenty/motywy CSS i uporządkować nadpisania daisyUI; przenieść odsyłacz rekordu przed długą geometrię."
+      ]
+    },
+    {
+      "id": "P3",
+      "scores": { "mobile": 7.9, "hierarchy": 8.5, "accessibility": 7.5, "visual": 8.3, "robustness": 8.7 },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Dobry kompromis warsztatu rejestru: zwarty command-bar, natychmiast widoczne liczniki i ostrzeżenie Decyzja ≠ pozwolenie, lista obok dużej mapy. Na desktopie wybranie wpisu skraca listę do 260 px i dokłada inspektor pod nią, bez zasłaniania mapy. Hierarchia jest mocniejsza niż P2, chociaż czytelność źródła konkretnego rekordu wymaga przewijania inspektora.",
+        "Telefon: canvas od y=408,5, wysokość 380 px; przy 320×700 widoczne 291,5 px. Screenshot mobile-selected.png potwierdza wyraźny status nieokreślony i daty, bez nakładki na obrysy. Ostrzeżenie o decyzji jest przed mapą, lecz to dodatkowy pionowy koszt względem P5. Parent i własny DOM nie wykazują document overflow.",
+        "Tailwind jest autentycznie zainstalowany i zablokowany wersją 4.3.3, użyty w Vite, @theme, @layer i @apply oraz utilities JSX. Struktura warstw i nazw komponentów jest uporządkowana, nie tylko zmiana nazw klas. CSS 46633 B / gzip 12782 B, JS gzip 123872 B, razem 136654 B; koszt jest niewiele większy od wariantów native CSS i znacznie mniejszy niż P2.",
+        "Inline filtry mają jawne hidden, aria-expanded/controls oraz Escape/Pokaż wyniki oddające fokus. Czyszczenie zapytania jest niezależne od innych filtrów (App.tsx:443–463, workspace.test.tsx). Bez modalnego drawer i bez osobnego stanu zatwierdzania filtrów: mniejsza złożoność interakcji niż P2.",
+        "Odrębny problem inspektora potwierdził własny Chromium 390×844: mapowany wiersz po Enter i zamknięcie szczegółów oddają fokus do BODY; wybór poligonu przewija do szczegółów, lecz fokus pozostaje na path. Escape nie zamyka szczegółów desktopu. Następny Tab po zamknięciu wraca do mapy, więc nie stwierdzam blokady całej ścieżki klawiaturowej, ale fokus nie podąża za prezentowaną treścią.",
+        "Realny mały druk: podpisy liczników 9 px i import 8 px na telefonie, desktopowe metadane 10–11 px. Główne kontrolki są 44 px z focus-visible. Po wyborze pierwszego rekordu odsyłacz Wpis w źródle jest poza pierwszym widocznym fragmentem inspektora (własny odczyt y≈1490; Detail źródło na końcu).",
+        "Niezmienione model/data/types i publiczne pliki zachowują prawdę danych, zakres Europe/Warsaw, reset, wspólne filtry/CSV, status geometrii i provenance. Rodzic potwierdził 79 testów, build/dist, dokładne zaznaczenia i powtarzanie ID w trzech szerokościach; loader ma wspólną obsługę błędu/abort/retry oraz niezgodnego snapshotu. Własny przebieg klawiatury nie wykazał błędów JS."
+      ],
+      "requiredBeforeProduction": [
+        "Zalecenie produkcyjne, nie blocker hard gate: rozciągnąć dobrą obsługę fokusu filtrów na listę → mapę → szczegóły → zamknięcie, wraz z Escape inspektora.",
+        "Zalecenie produkcyjne, nie blocker hard gate: pokazać Wpis w źródle w nagłówku inspektora i zwiększyć najmniejsze etykiety bez rozbudowy pionowego command-bar."
+      ]
+    },
+    {
+      "id": "P4",
+      "scores": { "mobile": 6.4, "hierarchy": 8.0, "accessibility": 7.8, "visual": 7.7, "robustness": 8.8 },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Najlepsza lista do porównywania rekordów: stałe kolumny, pełne tytuły, data 14 px, tytuł 15 px i lokalizacja 13 px, jawna informacja o obrysie. Zrzut desktop oraz styles.css:126–145 potwierdzają rzeczywisty układ, nie tylko opis autora. Wpis w źródle jest przed długimi dowodami; własny desktop po wyborze pierwszego rekordu ma ten link na y≈849, widoczny bez przewijania inspektora.",
+        "Telefon płaci największy koszt formularza: mapa zaczyna się na y=527,09 przy 390 px i 558,09 przy 320 px. Przy 320×700 widoczne jest tylko 141,91 px mapy. Nadal jest to realna mapa na pierwszym ekranie i przechodzi bramkę, ale słaby wariant dla szybkiej eksploracji mapowej; duży tytuł oraz rodzaj/okres/disclosure/metryki przed mapą dają mało miejsca na obszar.",
+        "Desktopowa mapa jest pomocnicza (320 px), a po wyborze kurczy się do 220 px (styles.css:158–159). Pozwala zachować listę i źródło rekordu, lecz utrudnia oglądanie przestrzennego kontekstu. mobile-selected.png pokazuje dobry kontrast zaznaczenia oraz źródło i uczciwą semantykę zgłoszenia.",
+        "Natywne details i jawne etykiety ograniczają koszt stanu; liczba dodatkowych filtrów pozostaje w summary. CSS jest komponentowo pogrupowany i używa tokenów, bez nowych zależności. CSS 34267 B / gzip 11080 B, JS gzip 123710 B; razem 134790 B, najniższy łączny wynik z pięciu w pomiarze rodzica.",
+        "Własny Chromium 390×844 potwierdził ten sam defekt ciągłości co P2/P3: BODY po mapowanym Enter i po zamknięciu; po Enter na poligonie fokus zostaje na path mimo przewinięcia do szczegółów. Desktopowy Escape nie zamyka inspektora. Wszystkie podstawowe przyciski nadal są klawiaturowo dostępne; nie stwierdziłem całkowitego zablokowania powrotu do mapy.",
+        "Model, loader, typy i publiczne dane są identyczne jak pozostałe warianty. Nie zmieniono okresu, resetu, wspólnej kolekcji dla CSV/mapy/listy, semantyki statusów ani źródeł. Rodzic potwierdził 78 testów, build/dist, brak overflow, dokładny highlight/frame i zachowanie instancji. Weryfikacja autora dodatkowo porównuje ID listy/CSV/geometrii dla wszystkich wymiarów filtrów. Własny przebieg nie wykazał błędów JS."
+      ],
+      "requiredBeforeProduction": [
+        "Zalecenie produkcyjne, nie blocker hard gate: skrócić stos nad mapą na telefonie, zwłaszcza 320 px; zachować dobre etykiety i dostępny rodzaj wpisu, lecz zastosować bardziej zwarte progressive disclosure.",
+        "Zalecenie produkcyjne, nie blocker hard gate: jawnie przenosić/odtwarzać fokus między mapą, szczegółami i listą; dodać regresję inspektora klawiaturą.",
+        "Zalecenie produkcyjne, nie blocker hard gate: nie zmniejszać mapy po wyborze do 220 px, jeśli finalny produkt ma służyć przede wszystkim eksploracji przestrzennej."
+      ]
+    },
+    {
+      "id": "P5",
+      "scores": { "mobile": 9.1, "hierarchy": 8.2, "accessibility": 8.0, "visual": 8.8, "robustness": 8.5 },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Najlepsze wykorzystanie telefonu: rzeczywisty canvas zaczyna się na y=180,875 i ma 566 px przy 390×844 oraz 422 px przy 320×700. Stała nawigacja 56 px, safe-area i zwarty formularz utrzymują mapę, przełączanie listy i filtry w zasięgu. Screenshot mobile-selected.png pokazuje widoczny wybrany obrys nad kompaktowym peek oraz nadal dostępne górne wyszukiwanie i dolne zakładki.",
+        "Progresywna inspekcja jest faktyczna, nie tylko wizualna: Detail ma własny inspectionOpen, natywne details, ponowne żądanie selectionDestination i focus regionu po pełnym wyborze. Własny Chromium 390×844 potwierdził Enter na poligonie → focus .detail-panel, zamknięcie Enter → focus .leaflet-map, a następny Tab → dostępny path. Escape zamyka inspektor również na desktopie.",
+        "Dwa potwierdzone niedociągnięcia fokusu: mobilny Enter na mapowanym wierszu wciąż oddaje fokus do BODY zamiast na mapę; desktopowy Escape z otwartych filtrów po 100 ms kończy na BODY, a następny Tab na Ograniczenia zbioru. Przyczyna drugiego jest źródłowa: App.tsx:369–375 skupia filterButtonRef, ale ten przycisk jest w .mobile-tabs, ukrytych na desktopie (styles.css:173). Nie jest to pełna blokada dostępu do kontrolek, lecz wymaga poprawy.",
+        "Najmniejszy CSS 33401 B / gzip 10747 B, JS gzip 124059 B, razem 134806 B. Brak nowych zależności i zdalnych fontów; ParcelMap względem P1 dodaje tylko tabIndex=0. CSS jest czytelnie pogrupowany, ale interakcja peek/full oraz absolutne dokowanie są bardziej złożone niż P1/P3 i zasłaniają część mapy. Testy obejmują ponowne otwarcie tego samego ID i ukrycie peek w liście; parent potwierdził realny touch i dokładne kadrowanie, więc nie uznaję samej nakładki za blocker.",
+        "Hierarchia słabiej eksponuje kontekst wiarygodności: import i ograniczenia są wizualnie za workspace przez CSS order, a źródło rekordu i wyjaśnienie semantyczne wewnątrz inspekcji. To zachowane, dostępne dane, ale w peek główny link wymaga rozwinięcia i dalszego scrolla. P4 ma lepsze położenie linku. Małe podpisy liczników mają 8 px, mimo dobrego 16 px inputu i większych głównych celów dotykowych.",
+        "Wygląd jest konsekwentny: systemowa typografia, powściągliwy akcent, wyciszony podkład i mała karta zamiast formularza nad mapą. Domyślny desktop nadal oferuje listę obok dużej mapy. W pełnym desktopowym wyborze inspektor ma 420×580 px i nakłada się na mapę; odsyłacz źródłowy pierwszego rekordu jest poza pierwszą widoczną częścią karty.",
+        "Wspólny, identyczny model/loader i rzeczywiste dane zachowują trzy miesiące kalendarzowe Europe/Warsaw, reset, wszystkie filtry i sort, CSV, źródła/provenance oraz dostęp do partial/unmapped. Rodzic potwierdził 78 testów, build/dist, brak overflow i poprawne powtarzane zaznaczenia w 320/390/1440. Własny przebieg klawiatury nie wykazał błędów JS. Nie traktuję braku formalnego audytu Safari/WCAG jako wykazanej usterki."
+      ],
+      "requiredBeforeProduction": [
+        "Zalecenie produkcyjne, nie blocker hard gate: po mobilnym wyborze mapowanego wiersza skupić widoczną kontrolkę mapy, a desktopowy Escape filtrów oddać do właściwego summary; nie do ukrytej dolnej akcji. Dodać rzeczywiste regresje obu ścieżek.",
+        "Zalecenie produkcyjne, nie blocker hard gate: umieścić Wpis w źródle i krótką interpretację statusu wcześnie w inspekcji; dać zwięzły kontekst źródła/importu bezpośrednio przy mapie zamiast wyłącznie niżej.",
+        "Zalecenie produkcyjne, nie blocker hard gate: powiększyć najmniejsze etykiety i utrzymać testy powtarzanego wyboru/partial oraz braku przechwytywania dotyku przez peek po przejściu na listę."
+      ]
+    }
+  ],
+  "preferred": "P5",
+  "summary": "Niezależna ocena J3 wszystkich pięciu kandydatów: preferuję P5 za największą użyteczną mapę na telefonie, stałe sterowanie i odwracalną inspekcję przy bardzo małym koszcie CSS; P1 jest najsilniejszą alternatywą pod względem ciągłości fokusu i jawnego kontekstu źródeł. Wszystkie pięć przechodzi hard gates; nie potwierdzono blockerów. Obniżenia dostępności wynikają z rzeczywiście odtworzonych niedociągnięć fokusu i małego druku, nie z samego braku formalnych audytów. Sprawdzono źródła, lockfile/integrację, zrzuty domyślne i mobilne wybrane, parent-verification oraz własne przebiegi Chromium na działających serwerach. Nie czytano innych głosów i nie zmieniono kandydatów. Wagi pozostają mobile 35%, hierarchy 20%, accessibility 20%, visual 15%, robustness 10%; zalecenia produkcyjne oddzielono od blockerów."
+}

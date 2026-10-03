@@ -1,0 +1,317 @@
+[
+  {
+    "id": "P1",
+    "checks": [
+      {
+        "name": "tests",
+        "exit": 0
+      },
+      {
+        "name": "build",
+        "exit": 0
+      },
+      {
+        "name": "dist",
+        "exit": 0
+      },
+      {
+        "name": "diff",
+        "exit": 0
+      }
+    ],
+    "selectionRegression": true,
+    "measurements": [
+      {
+        "width": 390,
+        "mapTop": 375.171875,
+        "mapHeight": 430.4375,
+        "visiblePixels": 430.4375,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      },
+      {
+        "width": 320,
+        "mapTop": 393.5625,
+        "mapHeight": 357,
+        "visiblePixels": 306.4375,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      },
+      {
+        "width": 1440,
+        "mapTop": 194.5,
+        "mapHeight": 706.5,
+        "visiblePixels": 706.5,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      }
+    ],
+    "assets": [
+      {
+        "name": "index-DwvaXOrR.css",
+        "bytes": 35991,
+        "gzip": 11458
+      },
+      {
+        "name": "index-CXLRdE68.js",
+        "bytes": 408405,
+        "gzip": 124215
+      }
+    ]
+  },
+  {
+    "id": "P2",
+    "checks": [
+      {
+        "name": "tests",
+        "exit": 0
+      },
+      {
+        "name": "build",
+        "exit": 0
+      },
+      {
+        "name": "dist",
+        "exit": 0
+      },
+      {
+        "name": "diff",
+        "exit": 0
+      }
+    ],
+    "selectionRegression": true,
+    "measurements": [
+      {
+        "width": 390,
+        "mapTop": 437,
+        "mapHeight": 365,
+        "visiblePixels": 365,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      },
+      {
+        "width": 320,
+        "mapTop": 438.5,
+        "mapHeight": 365,
+        "visiblePixels": 261.5,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      },
+      {
+        "width": 1440,
+        "mapTop": 513,
+        "mapHeight": 550,
+        "visiblePixels": 487,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      }
+    ],
+    "assets": [
+      {
+        "name": "index-DDW3-A92.css",
+        "bytes": 106975,
+        "gzip": 22219
+      },
+      {
+        "name": "index-CQtJJ-5p.js",
+        "bytes": 408496,
+        "gzip": 124354
+      }
+    ]
+  },
+  {
+    "id": "P3",
+    "checks": [
+      {
+        "name": "tests",
+        "exit": 0
+      },
+      {
+        "name": "build",
+        "exit": 0
+      },
+      {
+        "name": "dist",
+        "exit": 0
+      },
+      {
+        "name": "diff",
+        "exit": 0
+      }
+    ],
+    "selectionRegression": true,
+    "measurements": [
+      {
+        "width": 390,
+        "mapTop": 408.5,
+        "mapHeight": 380,
+        "visiblePixels": 380,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      },
+      {
+        "width": 320,
+        "mapTop": 408.5,
+        "mapHeight": 380,
+        "visiblePixels": 291.5,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      },
+      {
+        "width": 1440,
+        "mapTop": 323.890625,
+        "mapHeight": 600,
+        "visiblePixels": 600,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      }
+    ],
+    "assets": [
+      {
+        "name": "index-Cf-G2u4n.css",
+        "bytes": 46633,
+        "gzip": 12782
+      },
+      {
+        "name": "index-CTUxUQpJ.js",
+        "bytes": 406674,
+        "gzip": 123872
+      }
+    ]
+  },
+  {
+    "id": "P4",
+    "checks": [
+      {
+        "name": "tests",
+        "exit": 0
+      },
+      {
+        "name": "build",
+        "exit": 0
+      },
+      {
+        "name": "dist",
+        "exit": 0
+      },
+      {
+        "name": "diff",
+        "exit": 0
+      }
+    ],
+    "selectionRegression": true,
+    "measurements": [
+      {
+        "width": 390,
+        "mapTop": 527.09375,
+        "mapHeight": 360,
+        "visiblePixels": 316.90625,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      },
+      {
+        "width": 320,
+        "mapTop": 558.09375,
+        "mapHeight": 360,
+        "visiblePixels": 141.90625,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      },
+      {
+        "width": 1440,
+        "mapTop": 456.796875,
+        "mapHeight": 320,
+        "visiblePixels": 320,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      }
+    ],
+    "assets": [
+      {
+        "name": "index-D3jI4_mF.css",
+        "bytes": 34267,
+        "gzip": 11080
+      },
+      {
+        "name": "index-DwwZDXky.js",
+        "bytes": 406076,
+        "gzip": 123710
+      }
+    ]
+  },
+  {
+    "id": "P5",
+    "checks": [
+      {
+        "name": "tests",
+        "exit": 0
+      },
+      {
+        "name": "build",
+        "exit": 0
+      },
+      {
+        "name": "dist",
+        "exit": 0
+      },
+      {
+        "name": "diff",
+        "exit": 0
+      }
+    ],
+    "selectionRegression": true,
+    "measurements": [
+      {
+        "width": 390,
+        "mapTop": 180.875,
+        "mapHeight": 566,
+        "visiblePixels": 566,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      },
+      {
+        "width": 320,
+        "mapTop": 180.875,
+        "mapHeight": 422,
+        "visiblePixels": 422,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      },
+      {
+        "width": 1440,
+        "mapTop": 240,
+        "mapHeight": 700,
+        "visiblePixels": 700,
+        "records": 60,
+        "polygons": 127,
+        "noOverflow": true
+      }
+    ],
+    "assets": [
+      {
+        "name": "index-ZxZCL6La.css",
+        "bytes": 33401,
+        "gzip": 10747
+      },
+      {
+        "name": "index-D--VvjPX.js",
+        "bytes": 407375,
+        "gzip": 124059
+      }
+    ]
+  }
+]

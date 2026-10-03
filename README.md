@@ -19,6 +19,21 @@ Pełna metodologia, oficjalne źródła, weryfikacja TERYT, zakres i ograniczeni
 
 Na telefonie wybór wpisu z potwierdzonym obrysem na liście przełącza widok na mapę i pokazuje jego działki. Wpis bez dostępnej geometrii otwiera szczegóły, pozostając w widoku listy. Filtry nie zmieniają się; dotknięcie działki na mapie otwiera szczegóły, a ich zamknięcie przywraca mapę do widoku.
 
+## Interfejs Atlas GIS (P1)
+
+Układ Explore/GIS ma lewy panel wyszukiwania i wyników, trwałą mapę oraz inspektor po prawej. Na telefonie wyszukiwanie, okres, zwijane filtry i zakładki poprzedzają mapę; szczegóły znajdują się poniżej niej, nie zasłaniają obrysów. Etykiety pomocnicze mają co najmniej 11 px, mobilne wyszukiwanie 16 px, a podstawowe kontrolki co najmniej 44×44 px. Link „Wpis w źródle” występuje przed długimi identyfikatorami działek, po rzeczywistym statusie i jego zastrzeżeniu.
+
+Zamknięcie inspektora przyciskiem × i klawiszem Escape korzysta z tego samego powrotu fokusu: do wiersza po wyborze z listy na desktopie, do mapy po wyborze działki, a na telefonie do odpowiedniej aktualnie widocznej powierzchni. Powtórny wybór tego samego wpisu zachowuje działanie; filtry i instancja Leaflet nie są odmontowywane. Pusty inspektor zawiera krótką wskazówkę i ostrzeżenie, bez wysokiej dekoracji i wieloetapowej instrukcji.
+
+Weryfikacja lokalnej implementacji: **89 testów UI** (75 niezmienionych bazowych, 5 P1 i 9 uzupełniających), TypeScript/Vite build oraz rzeczywisty Chromium dla 320×700, 390×844, 820×1180 i 1440×1000. Sprawdzono oba obrysy pierwszego domyślnego wpisu, focus/close/Escape, wpisy wielodziałkowe, częściowe i bez geometrii, równość ID listy i CSV, HTTP 503 → retry do rzeczywistych danych oraz brak poziomego overflow względem `document.documentElement.clientWidth`. Dowody lokalne są w ignorowanym `.cache/atlas-production/`; nie stanowią publikacji. Nie testowano Safari, fizycznych urządzeń ani pełnego czytnika ekranu; podkład OSM pozostaje zewnętrzną zależnością.
+
+```bash
+npm test -- --maxWorkers=1
+npm run build
+# Ograniczony lokalny preview (zakończ po sprawdzeniu):
+npm run preview -- --host 127.0.0.1 --port 4182 --strictPort
+```
+
 ## Repozytorium i hosting
 
 Repozytorium: **[Hubert-Rybak/ozarow-building-permits](https://github.com/Hubert-Rybak/ozarow-building-permits)**.

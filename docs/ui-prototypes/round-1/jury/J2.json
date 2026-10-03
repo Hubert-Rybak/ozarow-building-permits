@@ -1,0 +1,127 @@
+{
+  "juryId": "J2",
+  "assessments": [
+    {
+      "id": "P1",
+      "scores": {
+        "mobile": 8.3,
+        "hierarchy": 8.2,
+        "accessibility": 7.7,
+        "visual": 8.3,
+        "robustness": 9.0
+      },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Desktop/default i desktop/selected: spójny trzykolumnowy warsztat; narzędzia i wyniki po lewej, dominująca mapa pośrodku, osobny inspektor po prawej. Wybór nie zasłania mapy ani nie wypiera całej listy.",
+        "Hierarchię budują ciemny masthead, wyraźne tytuły paneli i regularne reguły. Dodatkowe mikroetykiety EKSPLORUJ / REJESTR i OBSZAR EKSPLORACJI oraz pusty inspektor zwiększają obciążenie wizualne względem P3/P5.",
+        "Źródło GUNB/RWDZ jest jednoznaczne i wysoko w układzie. Pod mapą widnieje informacja, że wpis nie oznacza zatwierdzenia budowy; wybrane szczegóły jawnie opisują nieokreślony wynik decyzji.",
+        "Własny odczyt DOM przy 390×844: mapa od y=375,17, wysokość 430,44; pole wyszukiwania 11 px, tytuł wyniku 13 px, lokalizacja 11 px, etykiety liczników 8 px. Mały druk jest najsłabszą stroną czytelności, mimo wyraźnych liczb i dużych kontrolek.",
+        "Mobile/selected pokazuje obrysy bez nakładki; szczegóły dopiero pod mapą, więc źródło rekordu wymaga dalszego przewijania. Własny krótki smoke: prawdziwy wpis przełączył listę na mapę, otworzył semantycznie poprawne szczegóły, zamknięcie usunęło panel; brak overflow i błędów JS. Pełne bramki funkcjonalne oparto również na parent-verification.json i verification.json, bez ponawiania całego suite."
+      ],
+      "requiredBeforeProduction": [
+        "Nieblokujące ulepszenie: powiększyć mobilne pole wyszukiwania oraz opisy liczników i metadane; zachować zwarte grupowanie zamiast kompensować mały druk dodatkowymi nagłówkami.",
+        "Nieblokujące ulepszenie: przesunąć link Wpis w źródle bliżej początku inspektora, aby nie przegrywał z długą listą działek.",
+        "Kontrola przed produkcją, nie potwierdzony błąd: fizyczny telefon, Safari, czytnik ekranu i powiększenie tekstu; dostarczone dowody nie są pełnym audytem dostępności."
+      ]
+    },
+    {
+      "id": "P2",
+      "scores": {
+        "mobile": 7.7,
+        "hierarchy": 7.8,
+        "accessibility": 8.5,
+        "visual": 8.4,
+        "robustness": 9.0
+      },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Desktop/default: czytelne tytuły i większy rytm kart; wyniki 15 px i szczegóły 20 px mają więcej oddechu niż P1/P3. Spójna typografia systemowa i oszczędny akcent, nie sam efekt kolorystyczny.",
+        "Duży tytuł, szeroki formularz, liczniki, status, ostrzeżenia i nawigacja tworzą długi wstęp: mapa desktopowa zaczyna się na y=513 według parent-verification.json. Dobre lokalne grupowanie, lecz słabsza hierarchia całej przestrzeni roboczej.",
+        "Mobile/default: dwuwierszowy nagłówek i karta formularza wypychają mapę do y=437; własny DOM potwierdził 365 px mapy, input 12 px i tytuły wyników 15 px. Widoczne źródło i okres są mocną stroną, natomiast bieżące liczniki i ograniczenia znajdują się pod mapą.",
+        "Mobile/selected: mocny tytuł inwestycji i czytelna nota o nieokreślonym wyniku decyzji. Powierzchnie i duże odstępy powodują, że na ekranie mieści się mniej pól dowodowych niż w P3. Źródło rekordu jest później w szczegółach.",
+        "Źródło App.tsx zawiera dialog filtrów, inert, obsługę Tab/Shift+Tab i Escape; kandydat ma dowody sprawdzenia pułapki fokusu. Własny smoke 390 px: lista→mapa→szczegóły→zamknięcie działał na prawdziwym ID, bez overflow i błędów JS. Pozostałe bramki poparte parent-verification.json i verification.json; brak opcjonalnego desktop-selected.png nie traktowany jako wada funkcjonalna."
+      ],
+      "requiredBeforeProduction": [
+        "Nieblokujące ulepszenie: skrócić pionowy wstęp i ograniczyć pustą przestrzeń wokół statusu/importu, nie zmniejszając czytelności kart.",
+        "Nieblokujące ulepszenie: na telefonie pokazać zwięzłe ostrzeżenie o semantyce decyzji przy pierwszym kontakcie z mapą; nie polegać wyłącznie na ograniczeniach poniżej.",
+        "Kontrola przed produkcją, nie potwierdzony błąd: czytnik ekranu i fizyczny telefon/Safari, w szczególności otwieranie, zamykanie i powrót fokusu szuflady filtrów."
+      ]
+    },
+    {
+      "id": "P3",
+      "scores": {
+        "mobile": 8.1,
+        "hierarchy": 8.8,
+        "accessibility": 8.2,
+        "visual": 8.6,
+        "robustness": 9.0
+      },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Najbardziej wyrównana hierarchia robocza: krótki tytuł Eksploruj rejestr, pojedynczy pasek komend, typograficzne liczniki, lewa lista i szeroka mapa. Mniej konkurencyjnych nagłówków niż P1 i mniej kart/odstępów niż P2.",
+        "Ostrzeżenie Decyzja ≠ pozwolenie jest jawne jeszcze przed eksploracją. Dane rzeczywiste i interpretacja są rozdzielone; mała nota nie próbuje zastąpić wartości statusem pozytywnego pozwolenia.",
+        "Własny odczyt przy 390×844: mapa od y=408,5, wysokość 380; tytuł roboczy 16 px, input 13 px, wynik 14 px, lokalizacja 12 px, opisy liczników 9 px. Pionowy stos nadal zawiera kilka warstw, lecz podział na wyszukiwanie, wynik i ostrzeżenie jest czytelny.",
+        "Desktop/selected zachowuje bardzo dużą mapę, ale inspektor pod krótką listą wymaga przewijania i pokazuje niewiele wyników równocześnie. Mobile/selected nie zakrywa geometrii; wyraźna siatka danych pozwala zobaczyć więcej pól niż P1/P2.",
+        "Źródło CSS potwierdza lokalną typografię, kontrolki 44 px i widoczny fokus; małe metadane pozostają kosztem zwartego ledgeru. Własny smoke 390 px potwierdził prawdziwy wybór ID, mapę, semantykę szczegółów i zamknięcie, bez overflow/błędów JS. Pełne bramki mają dowody rodzica i verification.json; nie powtarzano testów/build."
+      ],
+      "requiredBeforeProduction": [
+        "Nieblokujące ulepszenie: zwiększyć czytelność opisów liczników/importu oraz mobilnego inputu, pozostawiając zwarty pasek komend.",
+        "Nieblokujące ulepszenie: udostępnić źródło rekordu wyżej w inspektorze i ograniczyć konieczność przewijania przy desktopowym porównywaniu kolejnych wpisów.",
+        "Kontrola przed produkcją, nie potwierdzony błąd: czytnik ekranu, Safari i powiększenie tekstu, szczególnie przy przejściu między listą, mapą i inspektorem."
+      ]
+    },
+    {
+      "id": "P4",
+      "scores": {
+        "mobile": 6.6,
+        "hierarchy": 8.9,
+        "accessibility": 8.7,
+        "visual": 8.8,
+        "robustness": 9.0
+      },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Najlepsza typografia porównawcza rejestru desktopowego: rzeczywiste kolumny Data / rodzaj, Inwestycja / lokalizacja, Działki / położenie; pełne tytuły i wspólne osie skanowania. Serifowe nagłówki i sans-serif danych tworzą hierarchię, nie tylko inny kolor.",
+        "Desktop/selected utrzymuje szerokość listy i eksponuje Wpis w źródle na początku inspektora. To najczytelniejsza droga do dowodu; mapa jest jednak niewielką powierzchnią kontekstu, szczególnie po wyborze.",
+        "Mobile/default ma największy pionowy koszt: tytuł 28 px, dwurzędowy formularz z dodatkowym stale widocznym rodzajem wpisu, liczniki 2×2 i status. Własny DOM: mapa od y=527,09, 360 px wysokości; parent-verification przy 320 px wykazał tylko 141,91 px mapy na pierwszym ekranie. To obniża ocenę mobilną, nie stanowi arbitralnej dyskwalifikacji.",
+        "Własny mobilny DOM: tytuł wyniku 15 px, lokalizacja 13 px, etykiety liczników 10 px; lepsza czytelność danych niż w bardziej skompresowanych wariantach. Mobile/selected pokazuje źródło i semantykę wpisu bez zasłaniania mapy.",
+        "Własny krótki smoke na pierwszym rzeczywistym rekordzie: lista→mapa→szczegóły→zamknięcie, poprawny opis nieokreślonej decyzji, brak overflow/błędów JS. Rodzic potwierdził także pełne bramki i działanie mniejszego kadru. Oceniona słabsza priorytetyzacja mapy, nie wywnioskowana awaria."
+      ],
+      "requiredBeforeProduction": [
+        "Nieblokujące ulepszenie: przenieść mobilny rodzaj wpisu za disclosure i zmniejszyć wysokość wstępu, zachowując wyraźne etykiety oraz większą typografię wierszy.",
+        "Nieblokujące ulepszenie: zapewnić więcej miejsca mapie przy inspekcji desktopowej, szczególnie dla wielu działek; utrzymać źródło rekordu na początku szczegółów.",
+        "Kontrola przed produkcją, nie potwierdzony błąd: Safari, fizyczny telefon, czytnik ekranu i powiększenie tekstu; nie utożsamiać dobrych rozmiarów tekstu z kompletnym audytem WCAG."
+      ]
+    },
+    {
+      "id": "P5",
+      "scores": {
+        "mobile": 9.4,
+        "hierarchy": 8.5,
+        "accessibility": 8.0,
+        "visual": 9.0,
+        "robustness": 9.0
+      },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Najlepszy priorytet mobilnego Explore: krótki nagłówek miejsca, wyszukiwanie, chip filtrów i niskie liczniki; pełna szerokość mapy oraz stała nawigacja Mapa / Lista / Filtry. Uproszczenie wynika z kompozycji i progressive disclosure, nie tylko zaokrągleń.",
+        "Własny odczyt 390×844: mapa od y=180,875 i 566 px wysokości, input 16 px. Parent-verification potwierdza 422 px widocznej mapy przy 320×700. Różnica względem pozostałych jest istotna dla faktycznej pracy z mapą na pierwszym ekranie.",
+        "Mobile/selected zachowuje nagłówek, mapę i dolne sterowanie; krótka karta pokazuje miejscowość/datę, kategorię wpisu, nieudostępniony wynik decyzji i tytuł. Pełne informacje i źródło mają jednoznaczny wyzwalacz. Nakładka zasłania dolny fragment mapy, lecz na obejrzanym wyborze nie zakrywa wyróżnionych działek.",
+        "Desktop/default: duża mapa i lista po prawej, mało powierzchni konkurujących z danymi. Koszt uproszczenia: źródła/metodologia i ograniczenia nie są na pierwszym ekranie; 8-pikselowe opisy liczników oraz drobny tekst karty źródłowej wymagają poprawy czytelności.",
+        "Własny smoke 390 px potwierdził rzeczywisty ID, przejście listy na mapę, kartę peek z natywnym disclosure, semantycznie poprawne dane w szczegółach i zamknięcie, bez overflow i błędów JS. App.tsx/CSS potwierdzają opisane stopniowanie informacji i bezpieczne strefy dolnej nawigacji. Pełne bramki mają dowody parent-verification.json i verification.json; opcjonalny desktop-selected.png nie był dostarczony."
+      ],
+      "requiredBeforeProduction": [
+        "Nieblokujące ulepszenie: powiększyć opisy liczników i drobne metadane; niska wysokość paska nie powinna zależeć od tekstu 8 px.",
+        "Nieblokujące ulepszenie: dodać krótki, zrozumiały sygnał źródła i ograniczenia interpretacji przy pierwszej mapie albo w karcie peek, bez przywracania rozbudowanego wstępu.",
+        "Kontrola przed produkcją, nie potwierdzony błąd: fizyczny telefon/Safari, czytnik ekranu, powiększenie tekstu oraz karta pełnych szczegółów i dolna nawigacja dla długiego tytułu/wielodziałkowego wpisu."
+      ]
+    }
+  ],
+  "preferred": "P5",
+  "summary": "J2: preferuję P5 za najlepszą mobilną hierarchię Explore→Inspect: mapa jest faktycznym pierwszym ekranem, a informacje rozwijają się dopiero przy wyborze. P3 jest najbardziej wyrównanym warsztatem, P4 ma najczytelniejszą typografię i porównywanie rejestru desktopowego, lecz na telefonie najmocniej odsuwa mapę. Oceniono wszystkie pięć wariantów według wspólnej rubryki; nie zmieniano wag 35/20/20/15/10 i nie liczono własnego alternatywnego rankingu. Obejrzano pełnowymiarowe wymagane screenshoty desktop/default, mobile/default i mobile/selected wszystkich kandydatów, dostępne dodatkowe desktop/selected oraz źródła i tokeny. Własny ograniczony Playwright smoke 390 px wszystkich pięciu potwierdził ładowanie 447 rekordów, domyślne 60 wyników, przejście rzeczywistego wiersza do mapy/szczegółów, zamknięcie i brak overflow/błędów JS. Rozszerzone bramki oparto na dostarczonych dowodach rodzica i kandydatów, bez ponawiania exhaustive suite. Wszystkie hard gates zaliczone; brak potwierdzonych problemów blokujących. Uwagi produkcyjne rozróżniają nieblokujące ulepszenia od zakresu nadal wymagającego audytu. Nie oglądano innych głosów ani nie modyfikowano kandydatów."
+}

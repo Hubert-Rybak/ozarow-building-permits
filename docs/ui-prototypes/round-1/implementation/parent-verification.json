@@ -1,0 +1,1181 @@
+{
+  "base": "http://127.0.0.1:4182/ozarow-building-permits/",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "initialMetrics": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "canvasTop": 194.75,
+        "canvasHeight": 703.5,
+        "searchFont": "12px",
+        "auxiliaryFonts": [
+          {
+            "class": "data-status",
+            "size": 11
+          },
+          {
+            "class": "status-date",
+            "size": 11
+          },
+          {
+            "class": "warnings",
+            "size": 11
+          },
+          {
+            "class": "eyebrow",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "eyebrow",
+            "size": 11
+          },
+          {
+            "class": "semantic-inline",
+            "size": 11
+          },
+          {
+            "class": "eyebrow",
+            "size": 11
+          }
+        ],
+        "secondaryFiltersClosed": true
+      },
+      "counterContainment": [
+        {
+          "cell": {
+            "left": 27,
+            "right": 94
+          },
+          "parts": [
+            {
+              "left": 27,
+              "right": 94
+            },
+            {
+              "left": 27,
+              "right": 94
+            }
+          ]
+        },
+        {
+          "cell": {
+            "left": 100,
+            "right": 167
+          },
+          "parts": [
+            {
+              "left": 100,
+              "right": 167
+            },
+            {
+              "left": 100,
+              "right": 167
+            }
+          ]
+        },
+        {
+          "cell": {
+            "left": 173,
+            "right": 240
+          },
+          "parts": [
+            {
+              "left": 173,
+              "right": 240
+            },
+            {
+              "left": 173,
+              "right": 240
+            }
+          ]
+        },
+        {
+          "cell": {
+            "left": 246,
+            "right": 313
+          },
+          "parts": [
+            {
+              "left": 246,
+              "right": 313
+            },
+            {
+              "left": 246,
+              "right": 313
+            }
+          ]
+        }
+      ],
+      "primaryTouchTargets": [
+        {
+          "label": "O danych ↗",
+          "width": 99.03125,
+          "height": 44
+        },
+        {
+          "label": "Źródło: GUNB / RWDZ ↗",
+          "width": 142.859375,
+          "height": 44
+        },
+        {
+          "label": "Ograniczenia zbioru (7)",
+          "width": 164.5625,
+          "height": 44
+        },
+        {
+          "label": "search",
+          "width": 238,
+          "height": 44
+        },
+        {
+          "label": "Ostatnie 3 miesiąceWszystkie daty",
+          "width": 186,
+          "height": 44
+        },
+        {
+          "label": "Filtry +",
+          "width": 80,
+          "height": 44
+        },
+        {
+          "label": "Wyczyść filtry",
+          "width": 86.078125,
+          "height": 44
+        },
+        {
+          "label": "Zoom in",
+          "width": 44,
+          "height": 44
+        },
+        {
+          "label": "Zoom out",
+          "width": 44,
+          "height": 44
+        },
+        {
+          "label": " Pokaż wyniki",
+          "width": 130.609375,
+          "height": 44
+        },
+        {
+          "label": "Legenda mapy",
+          "width": 216,
+          "height": 44
+        }
+      ],
+      "firstSelectedId": "permit:ST-MZ-OZ/WNIOSEK/26523/2026",
+      "firstPolygonHits": [
+        {
+          "id": "143206_4.0004.95/13",
+          "hit": {
+            "x": 672.41640625,
+            "y": 546.7488403320312
+          },
+          "bounds": {
+            "x": 669.56640625,
+            "y": 499.99884033203125,
+            "width": 57,
+            "height": 85
+          }
+        },
+        {
+          "id": "143206_4.0004.95/14",
+          "hit": {
+            "x": 718.46640625,
+            "y": 553.1988403320313
+          },
+          "bounds": {
+            "x": 715.56640625,
+            "y": 506.99884033203125,
+            "width": 58,
+            "height": 84
+          }
+        }
+      ],
+      "selectionFocus": {
+        "tag": "BUTTON",
+        "class": "result-row selected",
+        "id": "permit:ST-MZ-OZ/WNIOSEK/26523/2026",
+        "visible": true
+      },
+      "mobileCameraCloseChecks": [],
+      "reducedMotion": "reduce",
+      "csvIdsEqualList": 447,
+      "partialCsvIdsEqualList": 29,
+      "sameIdRepeated": true,
+      "unmappedListFocus": true,
+      "mapInstancePreserved": true,
+      "tilesLoaded": 20
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "initialMetrics": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "canvasTop": 384.6875,
+        "canvasHeight": 430.4375,
+        "searchFont": "16px",
+        "auxiliaryFonts": [
+          {
+            "class": "data-status",
+            "size": 11
+          },
+          {
+            "class": "status-date",
+            "size": 11
+          },
+          {
+            "class": "warnings",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "semantic-inline",
+            "size": 11
+          }
+        ],
+        "secondaryFiltersClosed": true
+      },
+      "counterContainment": [
+        {
+          "cell": {
+            "left": 10,
+            "right": 99.5
+          },
+          "parts": [
+            {
+              "left": 10,
+              "right": 31.265625
+            },
+            {
+              "left": 33.265625,
+              "right": 66.421875
+            }
+          ]
+        },
+        {
+          "cell": {
+            "left": 103.5,
+            "right": 193
+          },
+          "parts": [
+            {
+              "left": 103.5,
+              "right": 124.765625
+            },
+            {
+              "left": 126.765625,
+              "right": 185.765625
+            }
+          ]
+        },
+        {
+          "cell": {
+            "left": 197,
+            "right": 286.5
+          },
+          "parts": [
+            {
+              "left": 197,
+              "right": 207.640625
+            },
+            {
+              "left": 209.640625,
+              "right": 270.6875
+            }
+          ]
+        },
+        {
+          "cell": {
+            "left": 290.5,
+            "right": 380
+          },
+          "parts": [
+            {
+              "left": 290.5,
+              "right": 322.40625
+            },
+            {
+              "left": 324.40625,
+              "right": 361
+            }
+          ]
+        }
+      ],
+      "primaryTouchTargets": [
+        {
+          "label": "O danych ↗",
+          "width": 87.109375,
+          "height": 44
+        },
+        {
+          "label": "Źródło: GUNB / RWDZ ↗",
+          "width": 142.859375,
+          "height": 44
+        },
+        {
+          "label": "Ograniczenia zbioru (7)",
+          "width": 140.5625,
+          "height": 44
+        },
+        {
+          "label": "search",
+          "width": 284,
+          "height": 44
+        },
+        {
+          "label": "Ostatnie 3 miesiąceWszystkie daty",
+          "width": 262,
+          "height": 44
+        },
+        {
+          "label": "Filtry +",
+          "width": 100,
+          "height": 44
+        },
+        {
+          "label": "Wyczyść filtry",
+          "width": 44,
+          "height": 44
+        },
+        {
+          "label": "Mapa",
+          "width": 185,
+          "height": 44
+        },
+        {
+          "label": "Lista (60)",
+          "width": 185,
+          "height": 44
+        },
+        {
+          "label": "Zoom in",
+          "width": 44,
+          "height": 44
+        },
+        {
+          "label": "Zoom out",
+          "width": 44,
+          "height": 44
+        },
+        {
+          "label": " Pokaż wyniki",
+          "width": 130.609375,
+          "height": 44
+        },
+        {
+          "label": "Legenda mapy",
+          "width": 182,
+          "height": 44
+        }
+      ],
+      "firstSelectedId": "permit:ST-MZ-OZ/WNIOSEK/26523/2026",
+      "firstPolygonHits": [
+        {
+          "id": "143206_4.0004.95/13",
+          "hit": {
+            "x": 145.8163848876953,
+            "y": 254.08633422851562
+          },
+          "bounds": {
+            "x": 142.9663848876953,
+            "y": 207.33633422851562,
+            "width": 57,
+            "height": 85
+          }
+        },
+        {
+          "id": "143206_4.0004.95/14",
+          "hit": {
+            "x": 191.86638488769532,
+            "y": 260.5363342285156
+          },
+          "bounds": {
+            "x": 188.9663848876953,
+            "y": 214.33633422851562,
+            "width": 58,
+            "height": 84
+          }
+        }
+      ],
+      "selectionFocus": {
+        "tag": "BUTTON",
+        "class": "map-overview",
+        "id": null,
+        "visible": true
+      },
+      "mobileCameraCloseChecks": [
+        {
+          "action": "Escape",
+          "parcel": "143206_4.0004.95/13",
+          "camera": {
+            "pane": "translate3d(12px, 0px, 0px)",
+            "svg": "-51 -43 468 516",
+            "mapId": 3
+          }
+        },
+        {
+          "action": "Escape",
+          "parcel": "143206_4.0004.95/14",
+          "camera": {
+            "pane": "translate3d(0px, 0px, 0px)",
+            "svg": "-39 -43 468 516",
+            "mapId": 3
+          }
+        },
+        {
+          "action": "close",
+          "camera": {
+            "pane": "translate3d(0px, 0px, 0px)",
+            "svg": "-39 -43 468 516",
+            "mapId": 3
+          }
+        }
+      ],
+      "reducedMotion": "reduce",
+      "csvIdsEqualList": 447,
+      "partialCsvIdsEqualList": 29,
+      "sameIdRepeated": true,
+      "unmappedListFocus": true,
+      "mapInstancePreserved": true,
+      "tilesLoaded": 6
+    },
+    {
+      "width": 320,
+      "height": 700,
+      "initialMetrics": {
+        "clientWidth": 320,
+        "scrollWidth": 320,
+        "canvasTop": 394.09375,
+        "canvasHeight": 357,
+        "searchFont": "16px",
+        "auxiliaryFonts": [
+          {
+            "class": "data-status",
+            "size": 11
+          },
+          {
+            "class": "status-date",
+            "size": 11
+          },
+          {
+            "class": "warnings",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "semantic-inline",
+            "size": 11
+          }
+        ],
+        "secondaryFiltersClosed": true
+      },
+      "counterContainment": [
+        {
+          "cell": {
+            "left": 10,
+            "right": 82
+          },
+          "parts": [
+            {
+              "left": 10,
+              "right": 31.265625
+            },
+            {
+              "left": 33.265625,
+              "right": 66.421875
+            }
+          ]
+        },
+        {
+          "cell": {
+            "left": 86,
+            "right": 158
+          },
+          "parts": [
+            {
+              "left": 86,
+              "right": 107.265625
+            },
+            {
+              "left": 109.265625,
+              "right": 158
+            }
+          ]
+        },
+        {
+          "cell": {
+            "left": 162,
+            "right": 234
+          },
+          "parts": [
+            {
+              "left": 162,
+              "right": 172.640625
+            },
+            {
+              "left": 174.640625,
+              "right": 234
+            }
+          ]
+        },
+        {
+          "cell": {
+            "left": 238,
+            "right": 310
+          },
+          "parts": [
+            {
+              "left": 238,
+              "right": 269.90625
+            },
+            {
+              "left": 271.90625,
+              "right": 308.5
+            }
+          ]
+        }
+      ],
+      "primaryTouchTargets": [
+        {
+          "label": "O danych ↗",
+          "width": 87.109375,
+          "height": 44
+        },
+        {
+          "label": "Źródło: GUNB / RWDZ ↗",
+          "width": 142.859375,
+          "height": 44
+        },
+        {
+          "label": "Ograniczenia zbioru (7)",
+          "width": 140.5625,
+          "height": 44
+        },
+        {
+          "label": "search",
+          "width": 214,
+          "height": 44
+        },
+        {
+          "label": "Ostatnie 3 miesiąceWszystkie daty",
+          "width": 192,
+          "height": 44
+        },
+        {
+          "label": "Filtry +",
+          "width": 100,
+          "height": 44
+        },
+        {
+          "label": "Wyczyść filtry",
+          "width": 44,
+          "height": 44
+        },
+        {
+          "label": "Mapa",
+          "width": 150,
+          "height": 44
+        },
+        {
+          "label": "Lista (60)",
+          "width": 150,
+          "height": 44
+        },
+        {
+          "label": "Zoom in",
+          "width": 44,
+          "height": 44
+        },
+        {
+          "label": "Zoom out",
+          "width": 44,
+          "height": 44
+        },
+        {
+          "label": " Pokaż wyniki",
+          "width": 130.609375,
+          "height": 44
+        },
+        {
+          "label": "Legenda mapy",
+          "width": 182,
+          "height": 44
+        }
+      ],
+      "firstSelectedId": "permit:ST-MZ-OZ/WNIOSEK/26523/2026",
+      "firstPolygonHits": [
+        {
+          "id": "143206_4.0004.95/13",
+          "hit": {
+            "x": 110.8163848876953,
+            "y": 218.29257202148438
+          },
+          "bounds": {
+            "x": 107.96638488769531,
+            "y": 171.54257202148438,
+            "width": 57,
+            "height": 85
+          }
+        },
+        {
+          "id": "143206_4.0004.95/14",
+          "hit": {
+            "x": 156.86638488769532,
+            "y": 224.74257202148436
+          },
+          "bounds": {
+            "x": 153.9663848876953,
+            "y": 178.54257202148438,
+            "width": 58,
+            "height": 84
+          }
+        }
+      ],
+      "selectionFocus": {
+        "tag": "BUTTON",
+        "class": "map-overview",
+        "id": null,
+        "visible": true
+      },
+      "mobileCameraCloseChecks": [
+        {
+          "action": "Escape",
+          "parcel": "143206_4.0004.95/13",
+          "camera": {
+            "pane": "translate3d(47px, 0px, 0px)",
+            "svg": "-79 -36 384 428",
+            "mapId": 3
+          }
+        },
+        {
+          "action": "Escape",
+          "parcel": "143206_4.0004.95/14",
+          "camera": {
+            "pane": "translate3d(1px, 17px, 0px)",
+            "svg": "-33 -53 384 428",
+            "mapId": 3
+          }
+        },
+        {
+          "action": "close",
+          "camera": {
+            "pane": "translate3d(0px, 0px, 0px)",
+            "svg": "-32 -36 384 428",
+            "mapId": 3
+          }
+        }
+      ],
+      "reducedMotion": "reduce",
+      "csvIdsEqualList": 447,
+      "partialCsvIdsEqualList": 29,
+      "sameIdRepeated": true,
+      "unmappedListFocus": true,
+      "mapInstancePreserved": true,
+      "tilesLoaded": 6
+    },
+    {
+      "width": 820,
+      "height": 1180,
+      "initialMetrics": {
+        "clientWidth": 820,
+        "scrollWidth": 820,
+        "canvasTop": 194.75,
+        "canvasHeight": 883.5,
+        "searchFont": "12px",
+        "auxiliaryFonts": [
+          {
+            "class": "data-status",
+            "size": 11
+          },
+          {
+            "class": "status-date",
+            "size": 11
+          },
+          {
+            "class": "warnings",
+            "size": 11
+          },
+          {
+            "class": "eyebrow",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "",
+            "size": 11
+          },
+          {
+            "class": "eyebrow",
+            "size": 11
+          },
+          {
+            "class": "semantic-inline",
+            "size": 11
+          }
+        ],
+        "secondaryFiltersClosed": true
+      },
+      "counterContainment": [
+        {
+          "cell": {
+            "left": 27,
+            "right": 87
+          },
+          "parts": [
+            {
+              "left": 27,
+              "right": 87
+            },
+            {
+              "left": 27,
+              "right": 87
+            }
+          ]
+        },
+        {
+          "cell": {
+            "left": 93,
+            "right": 153
+          },
+          "parts": [
+            {
+              "left": 93,
+              "right": 153
+            },
+            {
+              "left": 93,
+              "right": 153
+            }
+          ]
+        },
+        {
+          "cell": {
+            "left": 159,
+            "right": 219
+          },
+          "parts": [
+            {
+              "left": 159,
+              "right": 219
+            },
+            {
+              "left": 159,
+              "right": 219
+            }
+          ]
+        },
+        {
+          "cell": {
+            "left": 225,
+            "right": 285
+          },
+          "parts": [
+            {
+              "left": 225,
+              "right": 285
+            },
+            {
+              "left": 225,
+              "right": 285
+            }
+          ]
+        }
+      ],
+      "primaryTouchTargets": [
+        {
+          "label": "O danych ↗",
+          "width": 99.03125,
+          "height": 44
+        },
+        {
+          "label": "Źródło: GUNB / RWDZ ↗",
+          "width": 142.859375,
+          "height": 44
+        },
+        {
+          "label": "Ograniczenia zbioru (7)",
+          "width": 164.5625,
+          "height": 44
+        },
+        {
+          "label": "search",
+          "width": 210,
+          "height": 44
+        },
+        {
+          "label": "Ostatnie 3 miesiąceWszystkie daty",
+          "width": 158,
+          "height": 44
+        },
+        {
+          "label": "Filtry +",
+          "width": 80,
+          "height": 44
+        },
+        {
+          "label": "Wyczyść filtry",
+          "width": 86.078125,
+          "height": 44
+        },
+        {
+          "label": "Zoom in",
+          "width": 44,
+          "height": 44
+        },
+        {
+          "label": "Zoom out",
+          "width": 44,
+          "height": 44
+        },
+        {
+          "label": " Pokaż wyniki",
+          "width": 130.609375,
+          "height": 44
+        },
+        {
+          "label": "Legenda mapy",
+          "width": 216,
+          "height": 44
+        }
+      ],
+      "firstSelectedId": "permit:ST-MZ-OZ/WNIOSEK/26523/2026",
+      "firstPolygonHits": [
+        {
+          "id": "143206_4.0004.95/13",
+          "hit": {
+            "x": 506.2163940429688,
+            "y": 636.7488403320312
+          },
+          "bounds": {
+            "x": 503.36639404296875,
+            "y": 589.9988403320312,
+            "width": 57,
+            "height": 85
+          }
+        },
+        {
+          "id": "143206_4.0004.95/14",
+          "hit": {
+            "x": 552.2663940429687,
+            "y": 643.1988403320313
+          },
+          "bounds": {
+            "x": 549.3663940429688,
+            "y": 596.9988403320312,
+            "width": 58,
+            "height": 84
+          }
+        }
+      ],
+      "selectionFocus": {
+        "tag": "BUTTON",
+        "class": "result-row selected",
+        "id": "permit:ST-MZ-OZ/WNIOSEK/26523/2026",
+        "visible": true
+      },
+      "mobileCameraCloseChecks": [],
+      "reducedMotion": "reduce",
+      "csvIdsEqualList": 447,
+      "partialCsvIdsEqualList": 29,
+      "sameIdRepeated": true,
+      "unmappedListFocus": true,
+      "mapInstancePreserved": true,
+      "tilesLoaded": 12
+    }
+  ],
+  "javascriptErrors": [],
+  "httpErrors": [],
+  "limits": [
+    "Chromium only; no Safari, physical device or full screen-reader validation.",
+    "OSM tiles are an external dependency."
+  ],
+  "networkErrorRetry": {
+    "injectedHttpStatus": 503,
+    "retryRestoredActualRows": 60,
+    "csvDisabledOnError": true
+  },
+  "listMapRegression": {
+    "base": "http://127.0.0.1:4182/ozarow-building-permits/",
+    "browser": [
+      {
+        "width": 390,
+        "cases": [
+          {
+            "id": "notification:ST-MZ-OZ/ZGŁOSZENIE/6890/2026",
+            "cycle": 0,
+            "parcels": [
+              "143206_4.0004.100",
+              "143206_4.0004.101",
+              "143206_4.0004.102",
+              "143206_4.0004.103",
+              "143206_4.0004.43/37",
+              "143206_4.0004.98",
+              "143206_4.0004.99"
+            ],
+            "geometryStatus": "matched"
+          },
+          {
+            "id": "notification:ST-MZ-OZ/ZGŁOSZENIE/6890/2026",
+            "cycle": 1,
+            "parcels": [
+              "143206_4.0004.100",
+              "143206_4.0004.101",
+              "143206_4.0004.102",
+              "143206_4.0004.103",
+              "143206_4.0004.43/37",
+              "143206_4.0004.98",
+              "143206_4.0004.99"
+            ],
+            "geometryStatus": "matched"
+          },
+          {
+            "id": "notification:ST-MZ-OZ/ZGŁOSZENIE/6888/2026",
+            "cycle": 0,
+            "parcels": [
+              "143206_4.0001.82/7",
+              "143206_4.0001.86/1",
+              "143206_4.0001.87/3",
+              "143206_4.0001.90/8"
+            ],
+            "geometryStatus": "matched"
+          },
+          {
+            "id": "notification:ST-MZ-OZ/ZGŁOSZENIE/6888/2026",
+            "cycle": 1,
+            "parcels": [
+              "143206_4.0001.82/7",
+              "143206_4.0001.86/1",
+              "143206_4.0001.87/3",
+              "143206_4.0001.90/8"
+            ],
+            "geometryStatus": "matched"
+          },
+          {
+            "id": "permit:ST-MZ-OZ/WNIOSEK/18157/2026",
+            "cycle": 0,
+            "parcels": [
+              "143206_5.0013.294/4",
+              "143206_5.0013.295/5",
+              "143206_5.0013.296/5",
+              "143206_5.0013.296/6"
+            ],
+            "geometryStatus": "partial"
+          },
+          {
+            "id": "permit:ST-MZ-OZ/WNIOSEK/18157/2026",
+            "cycle": 1,
+            "parcels": [
+              "143206_5.0013.294/4",
+              "143206_5.0013.295/5",
+              "143206_5.0013.296/5",
+              "143206_5.0013.296/6"
+            ],
+            "geometryStatus": "partial"
+          }
+        ],
+        "unmappedStaysList": true,
+        "sameIdPolygonOpensDetails": true,
+        "mapInstancePreserved": true,
+        "filtersPreserved": true,
+        "overflow": false
+      },
+      {
+        "width": 320,
+        "cases": [
+          {
+            "id": "notification:ST-MZ-OZ/ZGŁOSZENIE/6890/2026",
+            "cycle": 0,
+            "parcels": [
+              "143206_4.0004.100",
+              "143206_4.0004.101",
+              "143206_4.0004.102",
+              "143206_4.0004.103",
+              "143206_4.0004.43/37",
+              "143206_4.0004.98",
+              "143206_4.0004.99"
+            ],
+            "geometryStatus": "matched"
+          },
+          {
+            "id": "notification:ST-MZ-OZ/ZGŁOSZENIE/6890/2026",
+            "cycle": 1,
+            "parcels": [
+              "143206_4.0004.100",
+              "143206_4.0004.101",
+              "143206_4.0004.102",
+              "143206_4.0004.103",
+              "143206_4.0004.43/37",
+              "143206_4.0004.98",
+              "143206_4.0004.99"
+            ],
+            "geometryStatus": "matched"
+          },
+          {
+            "id": "notification:ST-MZ-OZ/ZGŁOSZENIE/6888/2026",
+            "cycle": 0,
+            "parcels": [
+              "143206_4.0001.82/7",
+              "143206_4.0001.86/1",
+              "143206_4.0001.87/3",
+              "143206_4.0001.90/8"
+            ],
+            "geometryStatus": "matched"
+          },
+          {
+            "id": "notification:ST-MZ-OZ/ZGŁOSZENIE/6888/2026",
+            "cycle": 1,
+            "parcels": [
+              "143206_4.0001.82/7",
+              "143206_4.0001.86/1",
+              "143206_4.0001.87/3",
+              "143206_4.0001.90/8"
+            ],
+            "geometryStatus": "matched"
+          },
+          {
+            "id": "permit:ST-MZ-OZ/WNIOSEK/18157/2026",
+            "cycle": 0,
+            "parcels": [
+              "143206_5.0013.294/4",
+              "143206_5.0013.295/5",
+              "143206_5.0013.296/5",
+              "143206_5.0013.296/6"
+            ],
+            "geometryStatus": "partial"
+          },
+          {
+            "id": "permit:ST-MZ-OZ/WNIOSEK/18157/2026",
+            "cycle": 1,
+            "parcels": [
+              "143206_5.0013.294/4",
+              "143206_5.0013.295/5",
+              "143206_5.0013.296/5",
+              "143206_5.0013.296/6"
+            ],
+            "geometryStatus": "partial"
+          }
+        ],
+        "unmappedStaysList": true,
+        "sameIdPolygonOpensDetails": true,
+        "mapInstancePreserved": true,
+        "filtersPreserved": true,
+        "overflow": false
+      },
+      {
+        "width": 1440,
+        "cases": [
+          {
+            "id": "notification:ST-MZ-OZ/ZGŁOSZENIE/6890/2026",
+            "cycle": 0,
+            "parcels": [
+              "143206_4.0004.100",
+              "143206_4.0004.101",
+              "143206_4.0004.102",
+              "143206_4.0004.103",
+              "143206_4.0004.43/37",
+              "143206_4.0004.98",
+              "143206_4.0004.99"
+            ],
+            "geometryStatus": "matched"
+          },
+          {
+            "id": "notification:ST-MZ-OZ/ZGŁOSZENIE/6888/2026",
+            "cycle": 0,
+            "parcels": [
+              "143206_4.0001.82/7",
+              "143206_4.0001.86/1",
+              "143206_4.0001.87/3",
+              "143206_4.0001.90/8"
+            ],
+            "geometryStatus": "matched"
+          },
+          {
+            "id": "permit:ST-MZ-OZ/WNIOSEK/18157/2026",
+            "cycle": 0,
+            "parcels": [
+              "143206_5.0013.294/4",
+              "143206_5.0013.295/5",
+              "143206_5.0013.296/5",
+              "143206_5.0013.296/6"
+            ],
+            "geometryStatus": "partial"
+          }
+        ],
+        "unmappedStaysList": true,
+        "sameIdPolygonOpensDetails": false,
+        "mapInstancePreserved": true,
+        "filtersPreserved": true,
+        "overflow": false
+      }
+    ],
+    "javascriptErrors": [],
+    "failedAppHttpResponses": []
+  },
+  "publicDataSha256BeforeAfter": {
+    "public/data/metadata.json": "70c9d04a1f9d0d99c2f5f1b02ed75ec86d1ef2a15a24fb60a6fdd269e0d0f6e0",
+    "public/data/parcels.geojson": "25bee40acbb34ea128ed3e339cd065a6bc58e1f709d1407a834a2293ff524745",
+    "public/data/permits.json": "01aaa1339e7105b618483e8b762e8cf836253d45c5ebd4c5af43ddb1708ceaa3"
+  },
+  "dataUnchanged": true
+}

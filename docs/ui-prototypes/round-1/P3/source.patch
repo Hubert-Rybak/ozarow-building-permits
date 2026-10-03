@@ -1,0 +1,2744 @@
+diff --git a/README.md b/README.md
+index 977c152..c35e07f 100644
+--- a/README.md
++++ b/README.md
+@@ -19,6 +19,36 @@ Pełna metodologia, oficjalne źródła, weryfikacja TERYT, zakres i ograniczeni
+ 
+ Na telefonie wybór wpisu z potwierdzonym obrysem na liście przełącza widok na mapę i pokazuje jego działki. Wpis bez dostępnej geometrii otwiera szczegóły, pozostając w widoku listy. Filtry nie zmieniają się; dotknięcie działki na mapie otwiera szczegóły, a ich zamknięcie przywraca mapę do widoku.
+ 
++## P3 · Tailwind Workspace (lokalny wariant UI)
++
++Ten worktree zawiera zwarty warsztat „Eksploruj rejestr”: pasek wyszukiwania i okresu,
++rozwijane filtry szczegółowe, listę po lewej i mapę po prawej. Po wyborze wpisu
++inspektor zajmuje dolną część lewego panelu; mapa nie jest tworzona ponownie.
++Na telefonie mapa i lista mają osobną nawigację. Jawna informacja „Decyzja ≠ pozwolenie”
++i rozwijane ograniczenia pozostają widoczne.
++
++Tailwind CSS **4.3.3** i `@tailwindcss/vite` **4.3.3** są dokładnie przypiętymi zależnościami
++kompilacji w lockfile. Vite kompiluje `@import "tailwindcss"`, tokeny `@theme`, komponenty
++`@apply` oraz klasy utility używane w JSX. Bez daisyUI, CDN CSS i pobieranych fontów.
++
++```bash
++npm ci
++npm test -- --maxWorkers=1
++npm run build
++npm run preview -- --host 127.0.0.1 --port 4193 --strictPort
++# Otwórz /ozarow-building-permits/ na lokalnym porcie 4193.
++```
++
++Filtry szczegółowe otwiera przycisk „Filtry”; „Pokaż wyniki” lub Escape zamyka panel
++bez resetowania wyborów i przywraca fokus. Przycisk czyszczenia wyszukiwania usuwa
++wyłącznie zapytanie. Reset przywraca bazowy zakres trzech miesięcy.
++
++Dowody lokalne (nie są publikowane): `.cache/design-output/SPEC.md`,
++`.cache/design-output/verification.json`, `desktop.png`, `mobile.png`,
++`mobile-selected.png`. `PLAYWRIGHT_BROWSERS_PATH=/opt/data/cache/scratch/ozarow-browser python .cache/p3_browser.py`
++uruchamia ograniczony czasowo preview, istniejącą regresję lista–mapa i dodatkowe
++kontrole Chromium, następnie zatrzymuje serwer. Nie wykonano commitów ani wdrożenia.
++
+ ## Repozytorium i hosting
+ 
+ Repozytorium: **[Hubert-Rybak/ozarow-building-permits](https://github.com/Hubert-Rybak/ozarow-building-permits)**.
+diff --git a/package-lock.json b/package-lock.json
+index 7ada88a..cd91d3d 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -13,6 +13,7 @@
+         "react-dom": "^19.2.0"
+       },
+       "devDependencies": {
++        "@tailwindcss/vite": "4.3.3",
+         "@testing-library/jest-dom": "^6.9.0",
+         "@testing-library/react": "^16.3.0",
+         "@types/geojson": "^7946.0.16",
+@@ -22,6 +23,7 @@
+         "@types/react-dom": "^19.2.0",
+         "@vitejs/plugin-react": "^5.0.0",
+         "jsdom": "^26.1.0",
++        "tailwindcss": "4.3.3",
+         "typescript": "^5.9.0",
+         "vite": "^7.0.0",
+         "vitest": "^4.1.11"
+@@ -1377,6 +1379,290 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/@tailwindcss/node": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/node/-/node-4.3.3.tgz",
++      "integrity": "sha512-/T8IKEsf9VTU6tLjgC7+sv2mOPtQxzE2jMw7u4Tt40Tx+QSZxpzh95/H6cMKoja9XuW7iMdLJYBB0o9G1CaAgg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@jridgewell/remapping": "^2.3.5",
++        "enhanced-resolve": "^5.24.1",
++        "jiti": "^2.7.0",
++        "lightningcss": "1.32.0",
++        "magic-string": "^0.30.21",
++        "source-map-js": "^1.2.1",
++        "tailwindcss": "4.3.3"
++      }
++    },
++    "node_modules/@tailwindcss/oxide": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/oxide/-/oxide-4.3.3.tgz",
++      "integrity": "sha512-krXjAikiaFSPaK/FkAQT5UTx3VormQaiZ5hBFlJZ9UFQGB/rwg1MZIhHAG9smMQRTdyJxP6Qt5MwMtdyU5FWrA==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">= 20"
++      },
++      "optionalDependencies": {
++        "@tailwindcss/oxide-android-arm64": "4.3.3",
++        "@tailwindcss/oxide-darwin-arm64": "4.3.3",
++        "@tailwindcss/oxide-darwin-x64": "4.3.3",
++        "@tailwindcss/oxide-freebsd-x64": "4.3.3",
++        "@tailwindcss/oxide-linux-arm-gnueabihf": "4.3.3",
++        "@tailwindcss/oxide-linux-arm64-gnu": "4.3.3",
++        "@tailwindcss/oxide-linux-arm64-musl": "4.3.3",
++        "@tailwindcss/oxide-linux-x64-gnu": "4.3.3",
++        "@tailwindcss/oxide-linux-x64-musl": "4.3.3",
++        "@tailwindcss/oxide-wasm32-wasi": "4.3.3",
++        "@tailwindcss/oxide-win32-arm64-msvc": "4.3.3",
++        "@tailwindcss/oxide-win32-x64-msvc": "4.3.3"
++      }
++    },
++    "node_modules/@tailwindcss/oxide-android-arm64": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-android-arm64/-/oxide-android-arm64-4.3.3.tgz",
++      "integrity": "sha512-Y85A2gmPSkl5Ve5qR86GL4HT509cFqQh1aes9p3sSkyTPwt0Pppf3GkwGe4JPACcRYjgJIEhQgM6dBClnr0NYw==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "android"
++      ],
++      "engines": {
++        "node": ">= 20"
++      }
++    },
++    "node_modules/@tailwindcss/oxide-darwin-arm64": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-darwin-arm64/-/oxide-darwin-arm64-4.3.3.tgz",
++      "integrity": "sha512-BiaWatpBcERQFDlOjRDpIVXuFK5PJez5SA4JMg6VYZdBYU+qKfV/vqjcIs+IYmtitf1xYQZTwXvU/8y4lfZUGw==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">= 20"
++      }
++    },
++    "node_modules/@tailwindcss/oxide-darwin-x64": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-darwin-x64/-/oxide-darwin-x64-4.3.3.tgz",
++      "integrity": "sha512-fAeUqfV5ndhxRwai8cXGzdLvul9utWOmeTkv69unv4ZXixjn61Z+p9lCWdwOwA3TYboG3BwdVuN/RDjhBRl0mw==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">= 20"
++      }
++    },
++    "node_modules/@tailwindcss/oxide-freebsd-x64": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-freebsd-x64/-/oxide-freebsd-x64-4.3.3.tgz",
++      "integrity": "sha512-iyf5bV6+wnAlflVeEy7R25dupxTNECZN5QMI0qNT6eT+EgaGdZcKhGkr5SdoaWiLJ3spLqIY9VCeSGrwmtg4kw==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "freebsd"
++      ],
++      "engines": {
++        "node": ">= 20"
++      }
++    },
++    "node_modules/@tailwindcss/oxide-linux-arm-gnueabihf": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-linux-arm-gnueabihf/-/oxide-linux-arm-gnueabihf-4.3.3.tgz",
++      "integrity": "sha512-aAYUprJAJQWWbRrPvtjdroZ56Md+JM8pMiopS6xGEwDfLhqj+2ver2p4nU4Mb3CRqcMmNBjo8KkUgcxhkzVQGQ==",
++      "cpu": [
++        "arm"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 20"
++      }
++    },
++    "node_modules/@tailwindcss/oxide-linux-arm64-gnu": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-linux-arm64-gnu/-/oxide-linux-arm64-gnu-4.3.3.tgz",
++      "integrity": "sha512-nDxldcEENOxZRzC2uu9jrutZdAAQtb+8WWDCSnWL1zvBk1+FN+x6MtDViPB5AJMfttVCUhehGWus3XBPgatM/w==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "libc": [
++        "glibc"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 20"
++      }
++    },
++    "node_modules/@tailwindcss/oxide-linux-arm64-musl": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-linux-arm64-musl/-/oxide-linux-arm64-musl-4.3.3.tgz",
++      "integrity": "sha512-Md44bD6veX/PC5iyF8cDVnw4HBIANZepRZZ7a8DQOvkfo5WUBwcp6iAuCUz23u+4SUkhJlD3eL7hNdW8ezd/kA==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "libc": [
++        "musl"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 20"
++      }
++    },
++    "node_modules/@tailwindcss/oxide-linux-x64-gnu": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-linux-x64-gnu/-/oxide-linux-x64-gnu-4.3.3.tgz",
++      "integrity": "sha512-tx7us1muwOKAKWao2v/GaafFeQboE6aj88vC6ziN2NCGcRm8gWUhwjzg+YdVB1e4boAtdtma4L43onunI6NS4w==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "libc": [
++        "glibc"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 20"
++      }
++    },
++    "node_modules/@tailwindcss/oxide-linux-x64-musl": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-linux-x64-musl/-/oxide-linux-x64-musl-4.3.3.tgz",
++      "integrity": "sha512-SJxX60smvHgasZoBy11dX6YRjXJFovwWBoedhbQPOBzgFWBHGB+TVPWB9BxzR7TTxU8FQZAI2AyiNCMzFm8Img==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "libc": [
++        "musl"
++      ],
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 20"
++      }
++    },
++    "node_modules/@tailwindcss/oxide-wasm32-wasi": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-wasm32-wasi/-/oxide-wasm32-wasi-4.3.3.tgz",
++      "integrity": "sha512-jx1+rPhY/5Ympkktd656HBWEBLxP7dH06losBLjjf5vgCODXvi9KhtftWcMIwTFIDqBr7cRnQkdLnAG+IOlGvQ==",
++      "bundleDependencies": [
++        "@napi-rs/wasm-runtime",
++        "@emnapi/core",
++        "@emnapi/runtime",
++        "@tybys/wasm-util",
++        "@emnapi/wasi-threads",
++        "tslib"
++      ],
++      "cpu": [
++        "wasm32"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "dependencies": {
++        "@emnapi/core": "^1.11.1",
++        "@emnapi/runtime": "^1.11.1",
++        "@emnapi/wasi-threads": "^1.2.2",
++        "@napi-rs/wasm-runtime": "^1.1.4",
++        "@tybys/wasm-util": "^0.10.2",
++        "tslib": "^2.8.1"
++      },
++      "engines": {
++        "node": ">=14.0.0"
++      }
++    },
++    "node_modules/@tailwindcss/oxide-win32-arm64-msvc": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-win32-arm64-msvc/-/oxide-win32-arm64-msvc-4.3.3.tgz",
++      "integrity": "sha512-3rc292Ca2ceK6Ulcc/bAVnTs/3nDtoPhyEKlgPv+yQJQi/JS/AMJlqzxvlDacL1nekbrcf6bTqp/jV4qgnPxNQ==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">= 20"
++      }
++    },
++    "node_modules/@tailwindcss/oxide-win32-x64-msvc": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-win32-x64-msvc/-/oxide-win32-x64-msvc-4.3.3.tgz",
++      "integrity": "sha512-yJ0pwIVc/nYeGoV02WtsN8KYyLQv7kyI2wDnkezyJlGGjkd4QLwDGAwl47YpPJeuI0M0ObaXGSPjvWDPeTPggw==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">= 20"
++      }
++    },
++    "node_modules/@tailwindcss/vite": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/@tailwindcss/vite/-/vite-4.3.3.tgz",
++      "integrity": "sha512-yYU8cogLeSh/ms2jh8Fj7jaba/EWa7Ja6GoUqYZaraEuCI5YS6ms6ObZgjjedm+jm6XZjdNRWBpPP6Z86oOxcw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@tailwindcss/node": "4.3.3",
++        "@tailwindcss/oxide": "4.3.3",
++        "tailwindcss": "4.3.3"
++      },
++      "peerDependencies": {
++        "vite": "^5.2.0 || ^6 || ^7 || ^8"
++      }
++    },
+     "node_modules/@testing-library/dom": {
+       "version": "10.4.2",
+       "resolved": "https://registry.npmjs.org/@testing-library/dom/-/dom-10.4.2.tgz",
+@@ -1929,6 +2215,16 @@
+         "node": ">=6"
+       }
+     },
++    "node_modules/detect-libc": {
++      "version": "2.1.2",
++      "resolved": "https://registry.npmjs.org/detect-libc/-/detect-libc-2.1.2.tgz",
++      "integrity": "sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==",
++      "dev": true,
++      "license": "Apache-2.0",
++      "engines": {
++        "node": ">=8"
++      }
++    },
+     "node_modules/dom-accessibility-api": {
+       "version": "0.5.16",
+       "resolved": "https://registry.npmjs.org/dom-accessibility-api/-/dom-accessibility-api-0.5.16.tgz",
+@@ -1944,6 +2240,20 @@
+       "dev": true,
+       "license": "ISC"
+     },
++    "node_modules/enhanced-resolve": {
++      "version": "5.26.0",
++      "resolved": "https://registry.npmjs.org/enhanced-resolve/-/enhanced-resolve-5.26.0.tgz",
++      "integrity": "sha512-9vhedylFonb2YGogzUKX6+Ja72gOJbN1QHAqdrvqLwhdl/QWbKopzoUC9EbQNVsAns/bx/4uyqalrQAoy1IByw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "graceful-fs": "^4.2.4",
++        "tapable": "^2.3.3"
++      },
++      "engines": {
++        "node": ">=10.13.0"
++      }
++    },
+     "node_modules/entities": {
+       "version": "6.0.1",
+       "resolved": "https://registry.npmjs.org/entities/-/entities-6.0.1.tgz",
+@@ -2079,6 +2389,13 @@
+         "node": ">=6.9.0"
+       }
+     },
++    "node_modules/graceful-fs": {
++      "version": "4.2.11",
++      "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz",
++      "integrity": "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==",
++      "dev": true,
++      "license": "ISC"
++    },
+     "node_modules/html-encoding-sniffer": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/html-encoding-sniffer/-/html-encoding-sniffer-4.0.0.tgz",
+@@ -2150,6 +2467,16 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/jiti": {
++      "version": "2.7.0",
++      "resolved": "https://registry.npmjs.org/jiti/-/jiti-2.7.0.tgz",
++      "integrity": "sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==",
++      "dev": true,
++      "license": "MIT",
++      "bin": {
++        "jiti": "lib/jiti-cli.mjs"
++      }
++    },
+     "node_modules/js-tokens": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz",
+@@ -2229,6 +2556,279 @@
+       "integrity": "sha512-nxS1ynzJOmOlHp+iL3FyWqK89GtNL8U8rvlMOsQdTTssxZwCXh8N2NB3GDQOL+YR3XnWyZAxwQixURb+FA74PA==",
+       "license": "BSD-2-Clause"
+     },
++    "node_modules/lightningcss": {
++      "version": "1.32.0",
++      "resolved": "https://registry.npmjs.org/lightningcss/-/lightningcss-1.32.0.tgz",
++      "integrity": "sha512-NXYBzinNrblfraPGyrbPoD19C1h9lfI/1mzgWYvXUTe414Gz/X1FD2XBZSZM7rRTrMA8JL3OtAaGifrIKhQ5yQ==",
++      "dev": true,
++      "license": "MPL-2.0",
++      "dependencies": {
++        "detect-libc": "^2.0.3"
++      },
++      "engines": {
++        "node": ">= 12.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/parcel"
++      },
++      "optionalDependencies": {
++        "lightningcss-android-arm64": "1.32.0",
++        "lightningcss-darwin-arm64": "1.32.0",
++        "lightningcss-darwin-x64": "1.32.0",
++        "lightningcss-freebsd-x64": "1.32.0",
++        "lightningcss-linux-arm-gnueabihf": "1.32.0",
++        "lightningcss-linux-arm64-gnu": "1.32.0",
++        "lightningcss-linux-arm64-musl": "1.32.0",
++        "lightningcss-linux-x64-gnu": "1.32.0",
++        "lightningcss-linux-x64-musl": "1.32.0",
++        "lightningcss-win32-arm64-msvc": "1.32.0",
++        "lightningcss-win32-x64-msvc": "1.32.0"
++      }
++    },
++    "node_modules/lightningcss-android-arm64": {
++      "version": "1.32.0",
++      "resolved": "https://registry.npmjs.org/lightningcss-android-arm64/-/lightningcss-android-arm64-1.32.0.tgz",
++      "integrity": "sha512-YK7/ClTt4kAK0vo6w3X+Pnm0D2cf2vPHbhOXdoNti1Ga0al1P4TBZhwjATvjNwLEBCnKvjJc2jQgHXH0NEwlAg==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MPL-2.0",
++      "optional": true,
++      "os": [
++        "android"
++      ],
++      "engines": {
++        "node": ">= 12.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/parcel"
++      }
++    },
++    "node_modules/lightningcss-darwin-arm64": {
++      "version": "1.32.0",
++      "resolved": "https://registry.npmjs.org/lightningcss-darwin-arm64/-/lightningcss-darwin-arm64-1.32.0.tgz",
++      "integrity": "sha512-RzeG9Ju5bag2Bv1/lwlVJvBE3q6TtXskdZLLCyfg5pt+HLz9BqlICO7LZM7VHNTTn/5PRhHFBSjk5lc4cmscPQ==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MPL-2.0",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">= 12.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/parcel"
++      }
++    },
++    "node_modules/lightningcss-darwin-x64": {
++      "version": "1.32.0",
++      "resolved": "https://registry.npmjs.org/lightningcss-darwin-x64/-/lightningcss-darwin-x64-1.32.0.tgz",
++      "integrity": "sha512-U+QsBp2m/s2wqpUYT/6wnlagdZbtZdndSmut/NJqlCcMLTWp5muCrID+K5UJ6jqD2BFshejCYXniPDbNh73V8w==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MPL-2.0",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">= 12.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/parcel"
++      }
++    },
++    "node_modules/lightningcss-freebsd-x64": {
++      "version": "1.32.0",
++      "resolved": "https://registry.npmjs.org/lightningcss-freebsd-x64/-/lightningcss-freebsd-x64-1.32.0.tgz",
++      "integrity": "sha512-JCTigedEksZk3tHTTthnMdVfGf61Fky8Ji2E4YjUTEQX14xiy/lTzXnu1vwiZe3bYe0q+SpsSH/CTeDXK6WHig==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MPL-2.0",
++      "optional": true,
++      "os": [
++        "freebsd"
++      ],
++      "engines": {
++        "node": ">= 12.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/parcel"
++      }
++    },
++    "node_modules/lightningcss-linux-arm-gnueabihf": {
++      "version": "1.32.0",
++      "resolved": "https://registry.npmjs.org/lightningcss-linux-arm-gnueabihf/-/lightningcss-linux-arm-gnueabihf-1.32.0.tgz",
++      "integrity": "sha512-x6rnnpRa2GL0zQOkt6rts3YDPzduLpWvwAF6EMhXFVZXD4tPrBkEFqzGowzCsIWsPjqSK+tyNEODUBXeeVHSkw==",
++      "cpu": [
++        "arm"
++      ],
++      "dev": true,
++      "license": "MPL-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 12.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/parcel"
++      }
++    },
++    "node_modules/lightningcss-linux-arm64-gnu": {
++      "version": "1.32.0",
++      "resolved": "https://registry.npmjs.org/lightningcss-linux-arm64-gnu/-/lightningcss-linux-arm64-gnu-1.32.0.tgz",
++      "integrity": "sha512-0nnMyoyOLRJXfbMOilaSRcLH3Jw5z9HDNGfT/gwCPgaDjnx0i8w7vBzFLFR1f6CMLKF8gVbebmkUN3fa/kQJpQ==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "libc": [
++        "glibc"
++      ],
++      "license": "MPL-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 12.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/parcel"
++      }
++    },
++    "node_modules/lightningcss-linux-arm64-musl": {
++      "version": "1.32.0",
++      "resolved": "https://registry.npmjs.org/lightningcss-linux-arm64-musl/-/lightningcss-linux-arm64-musl-1.32.0.tgz",
++      "integrity": "sha512-UpQkoenr4UJEzgVIYpI80lDFvRmPVg6oqboNHfoH4CQIfNA+HOrZ7Mo7KZP02dC6LjghPQJeBsvXhJod/wnIBg==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "libc": [
++        "musl"
++      ],
++      "license": "MPL-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 12.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/parcel"
++      }
++    },
++    "node_modules/lightningcss-linux-x64-gnu": {
++      "version": "1.32.0",
++      "resolved": "https://registry.npmjs.org/lightningcss-linux-x64-gnu/-/lightningcss-linux-x64-gnu-1.32.0.tgz",
++      "integrity": "sha512-V7Qr52IhZmdKPVr+Vtw8o+WLsQJYCTd8loIfpDaMRWGUZfBOYEJeyJIkqGIDMZPwPx24pUMfwSxxI8phr/MbOA==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "libc": [
++        "glibc"
++      ],
++      "license": "MPL-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 12.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/parcel"
++      }
++    },
++    "node_modules/lightningcss-linux-x64-musl": {
++      "version": "1.32.0",
++      "resolved": "https://registry.npmjs.org/lightningcss-linux-x64-musl/-/lightningcss-linux-x64-musl-1.32.0.tgz",
++      "integrity": "sha512-bYcLp+Vb0awsiXg/80uCRezCYHNg1/l3mt0gzHnWV9XP1W5sKa5/TCdGWaR/zBM2PeF/HbsQv/j2URNOiVuxWg==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "libc": [
++        "musl"
++      ],
++      "license": "MPL-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">= 12.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/parcel"
++      }
++    },
++    "node_modules/lightningcss-win32-arm64-msvc": {
++      "version": "1.32.0",
++      "resolved": "https://registry.npmjs.org/lightningcss-win32-arm64-msvc/-/lightningcss-win32-arm64-msvc-1.32.0.tgz",
++      "integrity": "sha512-8SbC8BR40pS6baCM8sbtYDSwEVQd4JlFTOlaD3gWGHfThTcABnNDBda6eTZeqbofalIJhFx0qKzgHJmcPTnGdw==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MPL-2.0",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">= 12.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/parcel"
++      }
++    },
++    "node_modules/lightningcss-win32-x64-msvc": {
++      "version": "1.32.0",
++      "resolved": "https://registry.npmjs.org/lightningcss-win32-x64-msvc/-/lightningcss-win32-x64-msvc-1.32.0.tgz",
++      "integrity": "sha512-Amq9B/SoZYdDi1kFrojnoqPLxYhQ4Wo5XiL8EVJrVsB8ARoC1PWW6VGtT0WKCemjy8aC+louJnjS7U18x3b06Q==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MPL-2.0",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">= 12.0.0"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/parcel"
++      }
++    },
+     "node_modules/lru-cache": {
+       "version": "5.1.1",
+       "resolved": "https://registry.npmjs.org/lru-cache/-/lru-cache-5.1.1.tgz",
+@@ -2615,6 +3215,27 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/tailwindcss": {
++      "version": "4.3.3",
++      "resolved": "https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.3.3.tgz",
++      "integrity": "sha512-gOhV3P7ufE62QDGg1zVaTgCR+EtPv92k2nIhVcVKcLmxT1sUBsQGhnZj175j+MqRt4zLF7ic+sCYjfhxMxj7YQ==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/tapable": {
++      "version": "2.3.3",
++      "resolved": "https://registry.npmjs.org/tapable/-/tapable-2.3.3.tgz",
++      "integrity": "sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=6"
++      },
++      "funding": {
++        "type": "opencollective",
++        "url": "https://opencollective.com/webpack"
++      }
++    },
+     "node_modules/tinybench": {
+       "version": "2.9.0",
+       "resolved": "https://registry.npmjs.org/tinybench/-/tinybench-2.9.0.tgz",
+diff --git a/package.json b/package.json
+index 123efc1..2e35206 100644
+--- a/package.json
++++ b/package.json
+@@ -15,6 +15,7 @@
+     "react-dom": "^19.2.0"
+   },
+   "devDependencies": {
++    "@tailwindcss/vite": "4.3.3",
+     "@testing-library/jest-dom": "^6.9.0",
+     "@testing-library/react": "^16.3.0",
+     "@types/geojson": "^7946.0.16",
+@@ -24,6 +25,7 @@
+     "@types/react-dom": "^19.2.0",
+     "@vitejs/plugin-react": "^5.0.0",
+     "jsdom": "^26.1.0",
++    "tailwindcss": "4.3.3",
+     "typescript": "^5.9.0",
+     "vite": "^7.0.0",
+     "vitest": "^4.1.11"
+diff --git a/src/App.tsx b/src/App.tsx
+index 11b82c1..e912260 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -255,6 +255,13 @@ export default function App() {
+   const [filters, setFilters] = useState<Filters>({ ...defaultFilters });
+   const [selectedId, setSelectedId] = useState<string | null>(null);
+   const [mobileView, setMobileView] = useState<"map" | "list">("map");
++  const [filtersOpen, setFiltersOpen] = useState(false);
++  const filterToggleRef = useRef<HTMLButtonElement>(null);
++  const searchRef = useRef<HTMLInputElement>(null);
++  const closeFilters = () => {
++    setFiltersOpen(false);
++    filterToggleRef.current?.focus();
++  };
+   const [selectionDestination, setSelectionDestination] = useState<{ surface: "map" | "detail" }>({ surface: "detail" });
+   const resultsRef = useRef<HTMLElement>(null);
+   const mapPanelRef = useRef<HTMLElement>(null);
+@@ -386,7 +393,7 @@ export default function App() {
+       }}>
+         Przejdź do wyników
+       </a>
+-      <header className="masthead">
++      <header className="masthead flex items-center justify-between gap-4">
+         <div className="brand">
+           <span className="brand-mark" aria-hidden="true">
+             <svg viewBox="0 0 32 32">
+@@ -397,7 +404,7 @@ export default function App() {
+             <h1>
+               Budowy <span>· Ożarów Mazowiecki</span>
+             </h1>
+-            <p>Publiczne wpisy budowlane · miasto i gmina</p>
++            <p>Rejestr publiczny / miasto i gmina</p>
+           </div>
+         </div>
+         <a className="header-link" href="#provenance" onClick={() => {
+@@ -410,10 +417,12 @@ export default function App() {
+       <main>
+         <section className="intro">
+           <div>
+-            <h2>Co powstaje w Twojej okolicy?</h2>
++            <h2>Eksploruj rejestr</h2>
+           </div>
++          <span className="workspace-label">WYSZUKAJ / SPRAWDŹ</span>
+         </section>
+         <section className="toolbar" aria-label="Wyszukiwanie i filtry">
++          <div className="command-bar">
+           <div className="search-wrap">
+             <label htmlFor="search">Szukaj w rejestrze</label>
+             <div className="search-input">
+@@ -425,21 +434,34 @@ export default function App() {
+               </span>
+               <input
+                 id="search"
++                ref={searchRef}
+                 type="search"
+                 value={filters.query}
+                 onChange={(e) => update("query", e.target.value)}
+-                placeholder="Miejscowość, ulica, działka lub inwestycja"
++                placeholder="Miejscowość, ulica, działka…"
+               />
++              {filters.query && <button className="search-clear" aria-label="Wyczyść wyszukiwanie" onClick={() => {
++                update("query", ""); searchRef.current?.focus();
++              }}>×</button>}
+             </div>
+           </div>
+-          <div className="filter-grid">
+-            <label>
++            <label className="period-control">
+               Okres
+               <select value={filters.period} onChange={(e) => update("period", e.target.value)}>
+                 <option value="3months">Ostatnie 3 miesiące</option>
+                 <option value="all">Wszystkie daty</option>
+               </select>
+             </label>
++            <button className="filter-toggle" ref={filterToggleRef} aria-label="Filtry szczegółowe" aria-expanded={filtersOpen} aria-controls="advanced-filters" onClick={() => setFiltersOpen(open => !open)}>
++              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 7h16M4 17h16M8 4v6M16 14v6" /></svg>
++              Filtry{activeFilters > 0 && <span className="filter-number">{activeFilters}</span>}
++            </button>
++            <button className="text-button" aria-label="Wyczyść filtry" onClick={reset}>Reset</button>
++          </div>
++          <div id="advanced-filters" className="advanced-filters" hidden={!filtersOpen} onKeyDown={(event) => {
++            if (event.key === "Escape") { event.preventDefault(); closeFilters(); }
++          }}>
++          <div className="filter-grid">
+             <label>
+               Rodzaj wpisu
+               <select
+@@ -502,21 +524,9 @@ export default function App() {
+             </label>
+           </div>
+           <div className="toolbar-bottom">
+-            <button
+-              className="text-button"
+-              aria-label="Wyczyść filtry"
+-              onClick={reset}
+-            >
+-              Wyczyść filtry
+-              {activeFilters > 0 && (
+-                <span
+-                  className="filter-number"
+-                  aria-label={`${activeFilters} aktywnych filtrów`}
+-                >
+-                  {activeFilters}
+-                </span>
+-              )}
+-            </button>
++            <span>Filtry działają wspólnie na mapie, liście i w CSV.</span>
++            <button className="primary-button" aria-label="Pokaż przefiltrowane wyniki" onClick={closeFilters}>Pokaż wyniki</button>
++          </div>
+           </div>
+         </section>
+         <section
+@@ -525,11 +535,11 @@ export default function App() {
+         >
+           <div>
+             <strong>{loading || data.error ? "—" : counts.total}</strong>
+-            <span>Wpisy w wynikach</span>
++            <span>Wyniki</span>
+           </div>
+           <div>
+             <strong>{loading || data.error ? "—" : counts.mapped}</strong>
+-            <span>Z obrysem na mapie</span>
++            <span>Z obrysem</span>
+           </div>
+           <div>
+             <strong>{loading || data.error ? "—" : counts.unmapped}</strong>
+@@ -537,7 +547,7 @@ export default function App() {
+           </div>
+           <div>
+             <strong>{loading || data.error ? "—" : counts.parcelCount}</strong>
+-            <span>Unikalne działki na mapie</span>
++            <span>Unikalne działki</span>
+           </div>
+         </section>
+         <div
+@@ -584,7 +594,7 @@ export default function App() {
+         {!loading && data.warnings.length > 0 && (
+           <details className="warnings">
+             <summary>
+-              Ograniczenia zbioru ({data.warnings.length})
++              <span>Decyzja ≠ pozwolenie.</span> Ograniczenia zbioru ({data.warnings.length})
+             </summary>
+             <ul>
+               {data.warnings.map((w, i) => (
+diff --git a/src/styles.css b/src/styles.css
+index 32a59a2..db2e984 100644
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -1,1520 +1,251 @@
+-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap");
++@import "tailwindcss";
+ 
+-:root {
+-  font-family:
+-    "DM Sans",
+-    system-ui,
+-    -apple-system,
+-    sans-serif;
+-  color: #18313a;
+-  background: #f5f7f5;
+-  font-synthesis: none;
+-  font-weight: 400;
+-  line-height: 1.5;
+-  --green: #245d4e;
+-  --navy: #18313a;
+-  --muted: #60716f;
+-  --line: #dfe6e1;
+-  --surface: #fff;
+-  --soft: #edf3ee;
+-  --radius: 12px;
++@theme {
++  --font-sans: "Inter", "Segoe UI", system-ui, sans-serif;
++  --color-ink: #17243c;
++  --color-workbench: #f5f4f0;
++  --color-command: #3456db;
++  --color-rule: #dcdedc;
+ }
+-* {
+-  box-sizing: border-box;
+-}
+-body {
+-  margin: 0;
+-}
+-button,
+-input,
+-select {
+-  font: inherit;
+-}
+-button,
+-a,
+-input,
+-select,
+-summary {
+-  -webkit-tap-highlight-color: transparent;
+-}
+-button {
+-  cursor: pointer;
+-}
+-button:disabled {
+-  cursor: not-allowed;
+-  opacity: 0.48;
+-}
+-a {
+-  color: var(--green);
+-  text-underline-offset: 3px;
+-}
+-button:focus-visible,
+-a:focus-visible,
+-summary:focus-visible,
+-input:focus-visible,
+-select:focus-visible,
+-[tabindex]:focus-visible {
+-  outline: 3px solid #ca9a39;
+-  outline-offset: 3px;
+-}
+-button {
+-  color: inherit;
+-}
+-h1,
+-h2,
+-h3,
+-h4,
+-p {
+-  margin: 0;
+-}
+-h1,
+-h2,
+-h3,
+-h4 {
+-  font-family: "Manrope", system-ui, sans-serif;
+-}
+-ul {
+-  margin: 0;
+-  padding: 0;
+-}
+-main {
+-  max-width: 1640px;
+-  margin: 0 auto;
+-  padding: 28px 36px 0;
+-}
+-.muted {
+-  color: var(--muted);
+-  font-size: 12px;
+-  line-height: 1.65;
+-}
+-.eyebrow {
+-  font-size: 10px;
+-  font-weight: 700;
+-  letter-spacing: 1.8px;
+-  color: var(--green);
+-}
+-.skip-link {
+-  position: fixed;
+-  left: 16px;
+-  top: -100px;
+-  z-index: 2000;
+-  background: white;
+-  padding: 14px;
+-}
+-.skip-link:focus {
+-  top: 10px;
+-}
+-.masthead {
+-  background: #153d36;
+-  color: #fff;
+-  min-height: 92px;
+-  padding: 21px max(36px, calc((100vw - 1568px) / 2));
+-  display: flex;
+-  align-items: center;
+-  justify-content: space-between;
+-  gap: 20px;
+-}
+-.brand {
+-  display: flex;
+-  gap: 15px;
+-  align-items: center;
+-}
+-.brand-mark {
+-  width: 46px;
+-  height: 46px;
+-  background: #2b5349;
+-  border: 1px solid #567669;
+-  border-radius: 10px;
+-  display: grid;
+-  place-items: center;
+-}
+-.brand-mark svg {
+-  width: 30px;
+-  height: 30px;
+-  fill: none;
+-  stroke: #dfeadd;
+-  stroke-width: 1.7;
+-  stroke-linecap: round;
+-  stroke-linejoin: round;
+-}
+-.masthead h1 {
+-  font-size: 21px;
+-  font-weight: 700;
+-  letter-spacing: -0.5px;
+-}
+-.masthead h1 span {
+-  color: #d8e4de;
+-  font-weight: 500;
+-}
+-.masthead p {
+-  font-size: 11px;
+-  margin-top: 4px;
+-  color: #bbd1c6;
+-  letter-spacing: 0.4px;
+-}
+-.header-link {
+-  color: #dfece5;
+-  font-size: 12px;
+-  text-decoration: none;
+-  border: 1px solid #537266;
+-  border-radius: 7px;
+-  padding: 9px 14px;
+-  white-space: nowrap;
+-  min-height: 40px;
+-}
+-.header-link:hover {
+-  background: #2b5349;
+-}
+-.intro {
+-  display: flex;
+-  justify-content: space-between;
+-  align-items: center;
+-  gap: 30px;
+-  margin-bottom: 23px;
+-}
+-.intro h2 {
+-  font-size: 27px;
+-  letter-spacing: -1px;
+-  font-weight: 800;
+-  margin: 5px 0 8px;
+-}
+-.intro > div > p {
+-  font-size: 13px;
+-  color: var(--muted);
+-}
+-.intro-note {
+-  display: flex;
+-  align-items: flex-start;
+-  gap: 10px;
+-  max-width: 280px;
+-  background: #ebf0e9;
+-  border-left: 3px solid #87a17a;
+-  border-radius: 0 8px 8px 0;
+-  padding: 13px 15px;
+-  font-size: 12px;
+-  color: #506750;
+-}
+-.intro-note span {
+-  font-size: 19px;
+-  line-height: 1.3;
+-}
+-.intro .intro-note p {
+-  font-size: 12px;
+-  line-height: 1.6;
+-  color: #496048;
+-}
+-.toolbar {
+-  border: 1px solid var(--line);
+-  background: white;
+-  border-radius: var(--radius);
+-  padding: 18px 20px 12px;
+-}
+-.search-wrap > label,
+-.filter-grid label,
+-.sort-control {
+-  font-size: 11px;
+-  font-weight: 600;
+-  color: #53675f;
+-}
+-.search-input {
+-  display: flex;
+-  align-items: center;
+-  border: 1px solid #cbd8d0;
+-  border-radius: 7px;
+-  margin-top: 6px;
+-  height: 45px;
+-  background: #fcfdfc;
+-}
+-.search-input:focus-within {
+-  border-color: var(--green);
+-  box-shadow: 0 0 0 2px #dce9df;
+-}
+-.search-input span {
+-  display: grid;
+-  place-items: center;
+-  width: 42px;
+-  flex-shrink: 0;
+-}
+-.search-input svg {
+-  height: 18px;
+-  width: 18px;
+-  stroke: #567769;
+-  fill: none;
+-  stroke-width: 1.8;
+-}
+-.search-input input {
+-  border: 0;
+-  outline: 0 !important;
+-  box-shadow: none;
+-  min-width: 0;
+-  flex: 1;
+-  height: 100%;
+-  padding: 0 13px 0 0;
+-  background: transparent;
+-  font-size: 13px;
+-}
+-.search-input input::placeholder {
+-  color: #8a9991;
+-}
+-.filter-grid {
+-  display: grid;
+-  grid-template-columns: repeat(6, minmax(0, 1fr));
+-  gap: 13px;
+-  margin-top: 15px;
+-}
+-.filter-grid label {
+-  display: flex;
+-  flex-direction: column;
+-  gap: 6px;
+-  min-width: 0;
+-}
+-select {
+-  height: 42px;
+-  border: 1px solid #d9e2dc;
+-  background: #fff;
+-  border-radius: 7px;
+-  color: var(--navy);
+-  padding: 0 28px 0 10px;
+-  font-size: 12px;
+-  min-width: 0;
+-  max-width: 100%;
+-  text-overflow: ellipsis;
+-}
+-.toolbar-bottom {
+-  display: flex;
+-  justify-content: flex-end;
+-  align-items: center;
+-  gap: 12px;
+-  margin-top: 8px;
+-}
+-.toolbar-bottom p {
+-  color: #718075;
+-  font-size: 10px;
+-}
+-.text-button {
+-  border: 0;
+-  background: transparent;
+-  color: var(--green);
+-  font-size: 11px;
+-  min-height: 35px;
+-  padding: 5px 0;
+-  font-weight: 600;
+-  white-space: nowrap;
+-}
+-.text-button:hover {
+-  text-decoration: underline;
+-}
+-.filter-number {
+-  background: var(--soft);
+-  padding: 1px 5px;
+-  margin-left: 6px;
+-  border-radius: 4px;
+-}
+-.summary-strip {
+-  display: grid;
+-  grid-template-columns: repeat(4, 1fr);
+-  margin: 19px 0 5px;
+-  border: 1px solid var(--line);
+-  background: white;
+-  border-radius: var(--radius);
+-  padding: 14px 8px;
+-}
+-.summary-strip > div {
+-  display: flex;
+-  gap: 12px;
+-  align-items: center;
+-  padding: 0 18px;
+-  border-right: 1px solid var(--line);
+-}
+-.summary-strip > div:last-child {
+-  border: 0;
+-}
+-.summary-strip strong {
+-  font-family: "Manrope", system-ui, sans-serif;
+-  font-weight: 800;
+-  font-size: 24px;
+-  letter-spacing: -0.8px;
+-  color: var(--green);
+-  line-height: 1.4;
+-  font-variant-numeric: tabular-nums;
+-}
+-.summary-strip span {
+-  font-size: 11px;
+-  color: #65796d;
+-}
+-.data-status {
+-  display: flex;
+-  align-items: center;
+-  gap: 7px;
+-  min-height: 36px;
+-  font-size: 10px;
+-  color: #6b7c71;
+-  padding: 0 2px;
+-}
+-.status-dot {
+-  width: 5px;
+-  height: 5px;
+-  border-radius: 50%;
+-  background: #548c66;
+-}
+-.status-date {
+-  margin-left: auto;
+-}
+-.coverage-note {
+-  margin: 4px 0 12px;
+-  padding: 12px 14px;
+-  border: 1px solid #dfd8bf;
+-  border-left: 3px solid #a0782b;
+-  border-radius: 8px;
+-  background: #fbf9ef;
+-  color: #5b4c29;
+-  font-size: 12px;
+-  line-height: 1.75;
+-  overflow-wrap: anywhere;
+-}
+-.warnings {
+-  margin: 4px 0 13px;
+-  border: 1px solid #dfd8bf;
+-  border-radius: 8px;
+-  background: #fbf9ef;
+-  color: #6e613b;
+-  font-size: 11px;
+-  padding: 10px 13px;
+-}
+-.warnings summary {
+-  cursor: pointer;
+-  font-weight: 600;
+-  min-height: 23px;
+-}
+-.warnings ul {
+-  padding-left: 18px;
+-  margin-top: 7px;
+-  line-height: 1.75;
+-  overflow-wrap: anywhere;
+-}
+-.error-state {
+-  background: #fff0ee;
+-  border: 1px solid #e7c0ba;
+-  border-radius: 10px;
+-  padding: 20px;
+-  margin: 6px 0 16px;
+-  color: #753d35;
+-}
+-.error-state h2 {
+-  font-size: 18px;
+-}
+-.error-state p {
+-  font-size: 13px;
+-  margin: 7px 0 15px;
+-  overflow-wrap: anywhere;
+-}
+-.primary-button {
+-  background: var(--green);
+-  color: white;
+-  border: 0;
+-  border-radius: 6px;
+-  padding: 10px 17px;
+-  font-size: 13px;
+-  min-height: 44px;
+-}
+-.mobile-tabs {
+-  display: none;
+-}
+-.workspace {
+-  display: grid;
+-  grid-template-columns: minmax(0, 1fr) 365px;
+-  gap: 17px;
+-  align-items: start;
+-}
+-.map-panel,
+-.results-panel,
+-.detail-panel {
+-  border-radius: var(--radius);
+-  background: white;
+-  border: 1px solid var(--line);
+-  overflow: hidden;
+-  min-width: 0;
+-}
+-.map-panel {
+-  position: sticky;
+-  top: 18px;
+-}
+-.map-shell {
+-  position: relative;
+-  height: 584px;
+-  background: #e8eee7;
+-}
+-.leaflet-map {
+-  height: 100%;
+-  width: 100%;
+-  z-index: 0;
+-}
+-.leaflet-container {
+-  font-family: "DM Sans", system-ui, sans-serif;
+-  background: #e8eee7;
+-}
+-.leaflet-container .leaflet-control-attribution {
+-  font-size: 9px;
+-  background: #ffffffe6;
+-  padding: 3px 6px;
+-  color: #56675b;
+-}
+-.leaflet-control-zoom {
+-  border: 1px solid #d2dbd2 !important;
+-  border-radius: 8px !important;
+-  overflow: hidden;
+-  box-shadow: 0 2px 5px #193e3114 !important;
+-}
+-.leaflet-control-zoom a {
+-  color: var(--navy) !important;
+-  width: 34px !important;
+-  height: 34px !important;
+-  line-height: 34px !important;
+-  font-size: 20px !important;
+-}
+-.map-overview {
+-  position: absolute;
+-  z-index: 400;
+-  left: 15px;
+-  top: 15px;
+-  display: flex;
+-  align-items: center;
+-  gap: 7px;
+-  border: 1px solid #d5ddd4;
+-  background: white;
+-  box-shadow: 0 2px 6px #263f2912;
+-  padding: 9px 12px;
+-  font-size: 11px;
+-  font-weight: 600;
+-  border-radius: 7px;
+-  min-height: 38px;
+-}
+-.map-overview:hover {
+-  background: #f5f8f3;
+-}
+-.map-overview span {
+-  font-size: 17px;
+-  line-height: 1;
+-}
+-.map-legend {
+-  position: absolute;
+-  z-index: 400;
+-  left: 15px;
+-  bottom: 23px;
+-  width: 212px;
+-  background: #fffffff5;
+-  border: 1px solid #dce3d9;
+-  border-radius: 8px;
+-  box-shadow: 0 2px 8px #1b332016;
+-  padding: 11px 12px;
+-  font-size: 10px;
+-}
+-.map-legend summary {
+-  font-weight: 700;
+-  color: #234435;
+-  cursor: pointer;
+-  font-size: 11px;
+-}
+-.map-legend ul {
+-  list-style: none;
+-  margin-top: 8px;
+-}
+-.map-legend li {
+-  display: flex;
+-  align-items: center;
+-  gap: 8px;
+-  line-height: 2;
+-  color: #4e6156;
+-}
+-.map-legend li span {
+-  width: 9px;
+-  height: 9px;
+-  border-radius: 2px;
+-}
+-.map-legend p {
+-  font-size: 9px;
+-  color: #6c7b70;
+-  line-height: 1.4;
+-  margin-top: 7px;
+-  border-top: 1px solid #e8ece4;
+-  padding-top: 7px;
+-}
+-.map-caption {
+-  display: flex;
+-  align-items: center;
+-  justify-content: space-between;
+-  gap: 12px;
+-  padding: 12px 15px;
+-  font-size: 10px;
+-  background: #fcfdfb;
+-}
+-.map-caption strong {
+-  font-weight: 600;
+-  color: #385746;
+-}
+-.map-caption span {
+-  color: #6f7d70;
+-}
+-.tile-warning {
+-  position: absolute;
+-  z-index: 400;
+-  bottom: 7px;
+-  right: 10px;
+-  max-width: 270px;
+-  background: #fff7d8;
+-  border: 1px solid #d9cb96;
+-  border-radius: 6px;
+-  padding: 7px 10px;
+-  font-size: 10px;
+-  color: #6d5a26;
+-}
+-.results-panel {
+-  display: flex;
+-  flex-direction: column;
+-  height: 630px;
+-}
+-.results-top {
+-  display: flex;
+-  align-items: center;
+-  justify-content: space-between;
+-  gap: 9px;
+-  padding: 19px 17px 12px;
+-}
+-.results-top .eyebrow {
+-  font-size: 9px;
+-  letter-spacing: 1.3px;
+-}
+-.results-top h2 {
+-  font-size: 21px;
+-  letter-spacing: -0.6px;
+-  margin-top: 2px;
+-}
+-.results-top h2 span {
+-  font-family: "DM Sans", system-ui, sans-serif;
+-  font-size: 11px;
+-  vertical-align: middle;
+-  color: #5a7965;
+-  font-weight: 500;
+-  margin-left: 9px;
+-  background: #edf3ee;
+-  padding: 3px 7px;
+-  border-radius: 5px;
+-}
+-.csv-button {
+-  border: 1px solid #d5e1d6;
+-  border-radius: 6px;
+-  padding: 7px 11px;
+-  background: #f9fbf8;
+-  color: var(--green);
+-  font-size: 10px;
+-  font-weight: 600;
+-  white-space: nowrap;
+-  min-height: 34px;
+-}
+-.csv-button:hover:not(:disabled) {
+-  background: #eaf2e8;
+-}
+-.sort-control {
+-  display: flex;
+-  justify-content: space-between;
+-  align-items: center;
+-  gap: 10px;
+-  background: #fafbf9;
+-  padding: 10px 17px;
+-  border-top: 1px solid #edf0eb;
+-  border-bottom: 1px solid #e3e9e0;
+-  font-size: 10px;
+-  color: #788374;
+-}
+-.sort-control select {
+-  font-size: 11px;
+-  height: 31px;
+-  padding: 0 20px 0 8px;
+-  border-color: #e2e7de;
+-  max-width: 180px;
+-}
+-.result-list {
+-  list-style: none;
+-  overflow: auto;
+-  flex: 1;
+-  overscroll-behavior: contain;
+-  scrollbar-width: thin;
+-  scrollbar-color: #cbd8cd transparent;
+-}
+-.result-list li + li {
+-  border-top: 1px solid #e8ede5;
+-}
+-.result-row {
+-  display: block;
+-  border: 0;
+-  border-left: 3px solid transparent;
+-  width: 100%;
+-  text-align: left;
+-  background: white;
+-  padding: 16px 15px 13px;
+-}
+-.result-row:hover {
+-  background: #f7faf5;
+-}
+-.result-row.selected {
+-  background: #edf4ec;
+-  border-left-color: #367953;
+-}
+-.result-row:focus-visible {
+-  outline-offset: -4px;
+-}
+-.row-top {
+-  display: flex;
+-  align-items: center;
+-  justify-content: space-between;
+-  gap: 10px;
+-}
+-.badge {
+-  display: inline-flex;
+-  font-size: 9px;
+-  font-weight: 600;
+-  border-radius: 4px;
+-  padding: 3px 7px;
+-  max-width: 100%;
+-  overflow-wrap: anywhere;
+-}
+-.badge.pending {
+-  background: #f6efdc;
+-  color: #876218;
+-}
+-.badge.approved {
+-  background: #e4f1e8;
+-  color: #2c704a;
+-}
+-.badge.refused {
+-  background: #f7e7e6;
+-  color: #a13f3f;
+-}
+-.badge.withdrawn {
+-  background: #eceef1;
+-  color: #616775;
+-}
+-.badge.unknown {
+-  background: #e8eef5;
+-  color: #45688d;
+-}
+-.badge.neutral {
+-  background: #f0f3f0;
+-  color: #647366;
+-}
+-.row-top time {
+-  font-size: 10px;
+-  color: #869081;
+-  font-variant-numeric: tabular-nums;
+-  white-space: nowrap;
+-}
+-.result-row h3 {
+-  font-size: 13px;
+-  font-weight: 700;
+-  line-height: 1.55;
+-  margin: 9px 0 4px;
+-  display: -webkit-box;
+-  -webkit-line-clamp: 2;
+-  -webkit-box-orient: vertical;
+-  overflow: hidden;
+-}
+-.row-place {
+-  font-size: 11px;
+-  color: #657c6b;
+-  line-height: 1.65;
+-}
+-.row-bottom {
+-  display: flex;
+-  justify-content: space-between;
+-  gap: 10px;
+-  margin-top: 10px;
+-  color: #73816f;
+-  font-size: 10px;
+-  align-items: flex-start;
+-}
+-.row-bottom > span:first-child {
+-  min-width: 0;
+-  overflow-wrap: anywhere;
+-}
+-.row-bottom > span:last-child {
+-  white-space: nowrap;
+-}
+-.mapped-label {
+-  color: #3e7654;
+-}
+-.unmapped-label {
+-  color: #7c8074;
+-}
+-.row-status {
+-  margin-top: 7px;
+-  font-size: 9px;
+-  color: #7b8378;
+-  overflow-wrap: anywhere;
+-}
+-.empty-state {
+-  padding: 54px 23px;
+-  text-align: center;
+-  flex: 1;
+-  display: flex;
+-  flex-direction: column;
+-  justify-content: center;
+-  align-items: center;
+-  gap: 11px;
+-}
+-.empty-state > span:not(.loading-ring) {
+-  font-size: 45px;
+-  color: #809678;
+-}
+-.empty-state h3 {
+-  font-size: 15px;
+-  line-height: 1.6;
+-}
+-.empty-state p {
+-  color: #74836f;
+-  font-size: 12px;
+-  max-width: 290px;
+-  line-height: 1.75;
+-}
+-.loading-ring {
+-  display: block;
+-  width: 28px;
+-  height: 28px;
+-  border: 2px solid #dfeadc;
+-  border-top-color: #4f845e;
+-  border-radius: 50%;
+-  animation: spin 1s linear infinite;
+-}
+-@keyframes spin {
+-  to {
+-    transform: rotate(360deg);
+-  }
+-}
+-.detail-panel {
+-  padding: 20px;
+-  max-height: 630px;
+-  overflow: auto;
+-  scrollbar-width: thin;
+-  scrollbar-color: #cbd8cd transparent;
+-}
+-.detail-top {
+-  display: flex;
+-  justify-content: space-between;
+-  align-items: center;
+-  gap: 10px;
+-  margin-bottom: 19px;
+-}
+-.detail-top h2 {
+-  font-size: 18px;
+-  letter-spacing: -0.5px;
+-  margin-top: 3px;
+-}
+-.detail-top .eyebrow {
+-  font-size: 9px;
+-}
+-.icon-button {
+-  width: 34px;
+-  height: 34px;
+-  display: grid;
+-  place-items: center;
+-  font-size: 25px;
+-  line-height: 1;
+-  background: #f4f7f2;
+-  border: 1px solid #dfe6dc;
+-  border-radius: 6px;
+-  color: #54725d;
+-  flex-shrink: 0;
+-}
+-.icon-button:hover {
+-  background: #e6efe4;
+-}
+-.record-tags {
+-  display: flex;
+-  flex-wrap: wrap;
+-  gap: 6px;
+-  margin-bottom: 13px;
+-}
+-.detail-panel > h3 {
+-  font-size: 17px;
+-  line-height: 1.6;
+-  margin-bottom: 11px;
+-  overflow-wrap: anywhere;
+-}
+-.semantic-note {
+-  font-size: 11px;
+-  background: #eff4ee;
+-  border-left: 2px solid #749370;
+-  color: #4d674d;
+-  padding: 11px 12px;
+-  margin-bottom: 17px;
+-  line-height: 1.75;
+-}
+-.description {
+-  font-size: 12px;
+-  color: #637463;
+-  line-height: 1.85;
+-  margin-bottom: 18px;
+-  white-space: pre-line;
+-  overflow-wrap: anywhere;
+-}
+-.detail-grid {
+-  display: grid;
+-  grid-template-columns: 1fr 1fr;
+-  gap: 15px 18px;
+-  margin: 0 0 21px;
+-  padding: 17px 0;
+-  border-top: 1px solid var(--line);
+-  border-bottom: 1px solid var(--line);
+-}
+-.detail-grid dt {
+-  font-size: 9px;
+-  color: #7a8878;
+-  margin-bottom: 4px;
+-}
+-.detail-grid dd {
+-  margin: 0;
+-  font-size: 11px;
+-  font-weight: 500;
+-  overflow-wrap: anywhere;
+-}
+-.detail-panel h4 {
+-  font-size: 12px;
+-  line-height: 1.65;
+-  margin: 8px 0;
+-}
+-.parcel-numbers {
+-  font-size: 11px;
+-  color: #677863;
+-  line-height: 1.75;
+-  overflow-wrap: anywhere;
+-}
+-.geometry-note {
+-  font-size: 11px;
+-  line-height: 1.8;
+-  color: #6c7b66;
+-  margin: 11px 0;
+-}
+-.parcel-list {
+-  list-style: none;
+-}
+-.parcel-list li {
+-  display: flex;
+-  flex-direction: column;
+-  gap: 4px;
+-  border: 1px solid #e0e8dc;
+-  background: #f7faf4;
+-  border-radius: 7px;
+-  padding: 12px;
+-  margin: 10px 0;
+-  font-size: 10px;
+-  color: #5a745b;
+-  overflow-wrap: anywhere;
+-}
+-.parcel-list strong {
+-  font-size: 11px;
+-  color: #345f3b;
+-}
+-.parcel-list code,
+-.parcel-identifiers code {
+-  font-size: 9px;
+-  overflow-wrap: anywhere;
+-}
+-.parcel-list a {
+-  margin-top: 5px;
+-}
+-.parcel-identifiers {
+-  font-size: 11px;
+-  color: #687c63;
+-  margin: 13px 0;
+-}
+-.parcel-identifiers summary {
+-  cursor: pointer;
+-  min-height: 30px;
+-}
+-.parcel-identifiers ul {
+-  padding-left: 15px;
+-}
+-.detail-source {
+-  margin-top: 20px;
+-  border-top: 1px solid var(--line);
+-  padding-top: 15px;
+-}
+-.source-button {
+-  display: inline-block;
+-  border: 1px solid #bfd2bd;
+-  background: #eef5eb;
+-  border-radius: 6px;
+-  font-size: 11px;
+-  font-weight: 600;
+-  padding: 9px 13px;
+-  text-decoration: none;
+-  min-height: 36px;
+-}
+-.source-button:hover {
+-  background: #e3eedf;
+-}
+-.detail-source small {
+-  display: block;
+-  font-size: 9px;
+-  color: #8c9686;
+-  margin-top: 11px;
+-  overflow-wrap: anywhere;
+-}
+-.data-disclosure {
+-  margin-top: 24px;
+-  border-top: 1px solid var(--line);
+-  padding: 16px 0;
+-}
+-.data-disclosure > summary {
+-  cursor: pointer;
+-  font-size: 13px;
+-  font-weight: 600;
+-  min-height: 44px;
+-  padding: 10px 2px;
+-}
+-.provenance {
+-  display: grid;
+-  grid-template-columns: 1fr 1fr;
+-  gap: 70px;
+-  padding: 12px 0;
+-}
+-.provenance h2 {
+-  font-size: 20px;
+-  letter-spacing: -0.5px;
+-  margin: 5px 0 11px;
+-}
+-.provenance p {
+-  font-size: 11px;
+-  color: #6b7b67;
+-  line-height: 1.85;
+-  margin: 9px 0;
+-  overflow-wrap: anywhere;
+-}
+-.provenance .eyebrow {
+-  font-size: 9px;
+-  letter-spacing: 1.4px;
+-}
+-.source-info h3 {
+-  font-size: 12px;
+-  font-weight: 700;
+-  margin: 6px 0 8px;
+-}
+-.source-info a {
+-  font-size: 11px;
+-}
+-.source-info .muted {
+-  font-size: 10px;
+-}
+-.data-disclosure:target {
+-  scroll-margin-top: 20px;
+-}
+-.parcel-popup > strong {
+-  font-family: "Manrope", system-ui, sans-serif;
+-  font-size: 13px;
+-  color: var(--green);
+-}
+-.parcel-popup > p {
+-  font-size: 9px !important;
+-  color: #788570;
+-  overflow-wrap: anywhere;
+-  margin: 7px 0 !important;
+-}
+-.parcel-popup button {
+-  display: block;
+-  width: 100%;
+-  text-align: left;
+-  border: 1px solid #d5e1d0;
+-  padding: 9px;
+-  background: #f4f8f1;
+-  margin-top: 7px;
+-  border-radius: 5px;
+-  font-size: 11px;
+-  line-height: 1.6;
+-  min-height: 44px;
+-}
+-.parcel-popup button:hover {
+-  background: #e8f0e2;
+-}
+-.leaflet-interactive:focus-visible {
+-  outline: 3px solid #ca9a39;
+-  outline-offset: 1px;
+-}
+-footer {
+-  max-width: 1640px;
+-  margin: 0 auto;
+-  border-top: 1px solid var(--line);
+-  padding: 15px 36px 22px;
+-  display: flex;
+-  justify-content: space-between;
+-  gap: 18px;
+-  font-size: 10px;
+-  color: #76846f;
+-}
+-footer > span {
+-  font-size: 9px;
+-}
+-.workspace.has-detail {
+-  grid-template-columns: minmax(0, 1fr) 310px 340px;
+-}
+-@media (min-width: 1700px) {
+-  .map-shell {
+-    height: 660px;
+-  }
+-  .results-panel,
+-  .detail-panel {
+-    height: 706px;
+-    max-height: 706px;
+-  }
++
++@layer base {
++  :root { font-family: var(--font-sans); color: #17243c; background: #f5f4f0; font-synthesis: none; line-height: 1.5; --line: #dcdedc; --muted: #606a79; }
++  * { box-sizing: border-box; }
++  body { margin: 0; }
++  button, input, select { font: inherit; }
++  button { cursor: pointer; color: inherit; }
++  button:disabled { cursor: not-allowed; opacity: .45; }
++  a { color: #3456db; text-underline-offset: 3px; }
++  h1, h2, h3, h4, p, ul { margin: 0; }
++  ul { padding: 0; }
++  button, a, input, select, summary { -webkit-tap-highlight-color: transparent; }
++  button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px solid #3456db; outline-offset: 3px; }
++  [hidden] { display: none !important; }
+ }
+-@media (max-width: 1350px) {
+-  .workspace.has-detail {
+-    grid-template-columns: minmax(0, 1fr) 355px;
+-  }
+-  .workspace.has-detail .detail-panel {
+-    grid-column: 1/-1;
+-    max-height: none;
+-    display: block;
+-  }
+-  .workspace.has-detail .detail-grid {
+-    grid-template-columns: repeat(4, 1fr);
+-  }
+-  .workspace.has-detail .parcel-list {
+-    display: grid;
+-    grid-template-columns: repeat(3, 1fr);
+-    gap: 12px;
+-  }
+-  .intro-note {
+-    max-width: 245px;
+-  }
+-  .summary-strip > div {
+-    padding: 0 14px;
+-    gap: 10px;
+-  }
+-  .summary-strip span {
+-    font-size: 10px;
+-  }
+-  .filter-grid {
+-    gap: 10px;
+-  }
++
++@layer components {
++  .masthead { @apply border-b border-rule bg-white px-6; min-height: 68px; }
++  .brand { @apply flex min-w-0 items-center gap-3; }
++  .brand-mark { @apply grid shrink-0 place-items-center rounded-md bg-ink text-white; width: 36px; height: 36px; }
++  .brand-mark svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; }
++  .masthead h1 { font-size: 16px; font-weight: 750; letter-spacing: -.45px; }
++  .masthead h1 span { font-weight: 500; color: #596477; }
++  .masthead p { font-size: 10px; color: #697386; letter-spacing: .35px; }
++  .header-link { @apply inline-flex items-center gap-2 rounded-md px-3 text-xs font-semibold no-underline; min-height: 44px; color: #3c4962; }
++  .header-link:hover { background: #eef1fa; }
++  main { @apply mx-auto px-6; max-width: 1700px; }
++  .intro { @apply flex items-center justify-between gap-4; min-height: 52px; }
++  .intro h2 { font-size: 20px; font-weight: 750; letter-spacing: -.6px; }
++  .workspace-label { font-size: 9px; letter-spacing: 1.6px; color: #7b8390; }
++  .toolbar { @apply rounded-lg border border-rule bg-white p-2; }
++  .command-bar { @apply grid items-center gap-2; grid-template-columns: minmax(0, 1fr) 210px auto auto; }
++  .search-wrap { min-width: 0; }
++  .search-wrap > label { @apply sr-only; }
++  .search-input { @apply flex items-center rounded-md border border-rule bg-white; height: 44px; }
++  .search-input:focus-within { border-color: #3456db; box-shadow: 0 0 0 2px #3456db22; }
++  .search-input > span { @apply grid shrink-0 place-items-center; width: 42px; }
++  .search-input svg { width: 18px; height: 18px; fill: none; stroke: #59677c; stroke-width: 1.8; }
++  .search-input input { @apply min-w-0 flex-1 border-0 bg-transparent text-sm; height: 100%; outline: none; padding-right: 8px; }
++  .search-input input::placeholder { color: #768194; }
++  .search-clear { @apply shrink-0 border-0 bg-transparent text-xl; width: 44px; height: 44px; }
++  .period-control { @apply flex min-w-0 items-center gap-2 rounded-md border border-rule px-2; font-size: 10px; color: #677386; }
++  .period-control select { border: 0; padding-left: 0; flex: 1; width: 100%; }
++  select { @apply rounded-md border border-rule bg-white px-2 text-ink; height: 44px; min-width: 0; max-width: 100%; font-size: 12px; text-overflow: ellipsis; }
++  .filter-toggle { @apply inline-flex items-center justify-center gap-2 rounded-md border border-rule bg-white px-3 text-xs font-semibold; min-height: 44px; }
++  .filter-toggle[aria-expanded="true"] { background: #edf0ff; border-color: #3456db; color: #3456db; }
++  .filter-number { @apply rounded bg-command px-1.5 text-white; font-size: 10px; }
++  .text-button { @apply rounded-md border-0 bg-transparent px-3 text-xs font-semibold; min-height: 44px; color: #596477; }
++  .text-button:hover { background: #f0f2f7; }
++  .advanced-filters { @apply mt-2 border-t border-rule pt-3; }
++  .filter-grid { @apply grid gap-3; grid-template-columns: repeat(5, minmax(0, 1fr)); }
++  .filter-grid label { @apply flex flex-col gap-1.5 text-xs; min-width: 0; color: #576176; }
++  .filter-grid select { width: 100%; }
++  .toolbar-bottom { @apply mt-3 flex items-center justify-between gap-3; font-size: 11px; color: #697386; }
++  .primary-button { @apply rounded-md border-0 bg-command px-4 text-xs font-semibold text-white; min-height: 44px; }
++  .summary-strip { @apply grid border-b border-rule; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 6px; }
++  .summary-strip > div { @apply flex items-baseline gap-2 py-2.5; }
++  .summary-strip strong { font-size: 23px; font-weight: 750; letter-spacing: -.8px; font-variant-numeric: tabular-nums; line-height: 1.3; }
++  .summary-strip span { font-size: 11px; color: #616b7d; }
++  .data-status { @apply flex flex-wrap items-center gap-1.5; min-height: 28px; font-size: 10px; color: #667080; }
++  .status-dot { width: 5px; height: 5px; background: #388465; border-radius: 50%; }
++  .status-date { margin-left: auto; }
++  .warnings { @apply mb-2 rounded-md border; border-color: #e2d9b8; color: #706037; background: #faf7eb; font-size: 11px; }
++  .warnings summary { cursor: pointer; min-height: 44px; padding: 12px; }
++  .warnings summary span { font-weight: 650; margin-right: 5px; }
++  .warnings ul { padding: 0 22px 14px 30px; line-height: 1.8; overflow-wrap: anywhere; }
++  .mobile-tabs { display: none; }
++  .workspace { @apply grid items-start gap-3; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); }
++  .map-panel, .results-panel, .detail-panel { @apply min-w-0 overflow-hidden rounded-lg border border-rule bg-white; }
++  .map-panel { grid-column: 2; grid-row: 1 / span 2; }
++  .results-panel { @apply flex flex-col; grid-column: 1; grid-row: 1; height: 640px; }
++  .map-shell { position: relative; height: 600px; background: #e5e9e5; }
++  .leaflet-map { width: 100%; height: 100%; z-index: 0; }
++  .leaflet-container { font-family: var(--font-sans); background: #e5e9e5; }
++  .leaflet-container .leaflet-control-attribution { font-size: 9px; background: #fffffff0; padding: 3px 5px; }
++  .leaflet-control-zoom { border: 1px solid #dcdedc !important; border-radius: 6px !important; overflow: hidden; box-shadow: 0 2px 10px #17243c18 !important; }
++  .leaflet-control-zoom a { width: 44px !important; height: 44px !important; line-height: 44px !important; color: #17243c !important; }
++  .map-overview { @apply absolute flex items-center gap-2 rounded-md border border-rule bg-white px-3 text-xs font-semibold; left: 12px; top: 12px; z-index: 400; min-height: 44px; box-shadow: 0 2px 10px #17243c14; }
++  .map-overview:hover { background: #edf0ff; }
++  .map-legend { @apply absolute rounded-md border border-rule bg-white; left: 12px; bottom: 26px; z-index: 400; max-width: 215px; font-size: 11px; box-shadow: 0 2px 10px #17243c14; }
++  .map-legend summary { cursor: pointer; min-height: 44px; padding: 12px; font-weight: 600; }
++  .map-legend ul { list-style: none; padding: 0 12px; }
++  .map-legend li { @apply flex items-center gap-2; line-height: 2; }
++  .map-legend li span { width: 9px; height: 9px; border-radius: 2px; }
++  .map-legend p { font-size: 10px; color: #697386; padding: 8px 12px 12px; }
++  .map-caption { @apply flex items-center justify-between gap-2 border-t border-rule px-3; min-height: 38px; font-size: 10px; color: #667080; }
++  .map-caption strong { color: #3e4d64; font-weight: 600; }
++  .tile-warning { @apply absolute rounded border px-2 py-1; right: 8px; bottom: 24px; z-index: 400; max-width: 250px; font-size: 10px; background: #fff3cf; border-color: #d9c48b; }
++  .results-top { @apply flex items-center justify-between gap-2 border-b border-rule px-3 py-2; }
++  .results-top h2 { font-size: 14px; font-weight: 700; }
++  .results-top h2 span { @apply ml-2 rounded bg-workbench px-1.5 py-0.5; font-size: 11px; font-variant-numeric: tabular-nums; }
++  .csv-button { @apply rounded-md border border-rule bg-white px-2.5 text-xs font-semibold; min-height: 44px; color: #3456db; }
++  .csv-button:hover:not(:disabled) { background: #edf0ff; }
++  .sort-control { @apply flex min-w-0 items-center justify-between gap-2 border-b border-rule bg-workbench px-3 py-1; font-size: 10px; color: #697386; }
++  .sort-control select { font-size: 11px; background: transparent; border: 0; max-width: 185px; }
++  .result-list { @apply min-h-0 flex-1 overflow-auto; list-style: none; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #ccd1db transparent; }
++  .result-list li + li { border-top: 1px solid #e7e8e7; }
++  .result-row { @apply block w-full border-0 bg-white px-3 py-3 text-left; border-left: 3px solid transparent; }
++  .result-row:hover { background: #f7f8fc; }
++  .result-row.selected { background: #eef1ff; border-left-color: #3456db; }
++  .result-row:focus-visible { outline-offset: -3px; }
++  .row-top { @apply flex items-center justify-between gap-2; }
++  .row-top time { font-size: 10px; color: #697386; font-variant-numeric: tabular-nums; white-space: nowrap; }
++  .badge { @apply inline-flex max-w-full rounded px-1.5 py-0.5; font-size: 10px; font-weight: 600; overflow-wrap: anywhere; }
++  .badge.pending { background: #f5ecd7; color: #7c5d17; }
++  .badge.approved { background: #e4f1e8; color: #2c704a; }
++  .badge.refused { background: #f7e7e6; color: #a13f3f; }
++  .badge.withdrawn { background: #eceef1; color: #616775; }
++  .badge.unknown { background: #e8edf8; color: #456088; }
++  .badge.neutral { background: #f0f1f4; color: #576176; }
++  .result-row h3 { margin: 6px 0 3px; font-size: 13px; font-weight: 650; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
++  .row-place { font-size: 11px; color: #526078; overflow-wrap: anywhere; }
++  .row-bottom { @apply mt-2 flex items-start justify-between gap-2; font-size: 10px; color: #697386; }
++  .row-bottom > span:first-child { min-width: 0; overflow-wrap: anywhere; }
++  .row-bottom > span:last-child { white-space: nowrap; }
++  .mapped-label { color: #3456a4; }
++  .unmapped-label { color: #6b7280; }
++  .workspace.has-detail .results-panel { height: 260px; }
++  .detail-panel { @apply p-4; grid-column: 1; grid-row: 2; height: 368px; overflow: auto; scrollbar-width: thin; }
++  .detail-top { @apply mb-3 flex items-center justify-between gap-2; }
++  .eyebrow { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; color: #3456db; }
++  .detail-top h2 { font-size: 16px; font-weight: 700; letter-spacing: -.3px; }
++  .icon-button { @apply grid shrink-0 place-items-center rounded-md border border-rule bg-workbench text-2xl; width: 44px; height: 44px; }
++  .record-tags { @apply mb-3 flex flex-wrap gap-1.5; }
++  .detail-panel > h3 { font-size: 15px; font-weight: 650; line-height: 1.6; margin-bottom: 10px; overflow-wrap: anywhere; }
++  .semantic-note { border-left: 2px solid #3456db; background: #f1f3fc; color: #475571; padding: 9px 11px; font-size: 11px; line-height: 1.7; margin-bottom: 12px; }
++  .description { font-size: 12px; color: #606a79; line-height: 1.8; margin-bottom: 14px; white-space: pre-line; overflow-wrap: anywhere; }
++  .detail-grid { @apply grid grid-cols-2 gap-3 border-y border-rule py-3; margin: 0 0 14px; }
++  .detail-grid dt { font-size: 10px; color: #697386; }
++  .detail-grid dd { margin: 3px 0 0; font-size: 12px; font-weight: 550; overflow-wrap: anywhere; }
++  .detail-panel h4 { font-size: 12px; font-weight: 650; margin: 10px 0 6px; }
++  .parcel-numbers, .geometry-note { font-size: 11px; line-height: 1.8; color: #5f6b7d; overflow-wrap: anywhere; }
++  .geometry-note { margin: 8px 0; }
++  .parcel-list { list-style: none; }
++  .parcel-list li { @apply my-2 flex flex-col gap-1 rounded-md border border-rule bg-workbench p-3; font-size: 11px; overflow-wrap: anywhere; }
++  .parcel-list code, .parcel-identifiers code { font-size: 10px; overflow-wrap: anywhere; }
++  .parcel-list a { min-height: 44px; display: flex; align-items: center; }
++  .parcel-identifiers { font-size: 11px; margin: 12px 0; }
++  .parcel-identifiers summary { cursor: pointer; min-height: 44px; padding: 11px 0; }
++  .parcel-identifiers ul { padding-left: 15px; }
++  .detail-source { @apply mt-4 border-t border-rule pt-3; }
++  .source-button { @apply inline-flex items-center rounded-md border border-rule bg-workbench px-3 text-xs font-semibold no-underline; min-height: 44px; }
++  .detail-source small { display: block; margin-top: 8px; color: #697386; font-size: 10px; overflow-wrap: anywhere; }
++  .data-disclosure { @apply mt-4 border-t border-rule; }
++  .data-disclosure > summary { cursor: pointer; font-size: 12px; font-weight: 600; min-height: 44px; padding: 12px 0; }
++  .provenance { @apply grid grid-cols-2 gap-8 pb-5; }
++  .provenance h2 { font-size: 18px; font-weight: 650; }
++  .provenance h3 { font-size: 13px; font-weight: 650; }
++  .provenance p { font-size: 12px; line-height: 1.8; color: #5f6b7d; margin: 8px 0; overflow-wrap: anywhere; }
++  .provenance a { font-size: 12px; display: inline-flex; align-items: center; min-height: 44px; }
++  .coverage-note { background: #faf7eb; border-left: 3px solid #b99b50; padding: 10px 12px; }
++  .muted { font-size: 11px; color: #697386; line-height: 1.7; }
++  .error-state { @apply mb-3 rounded-md border p-4; background: #fff0ee; border-color: #e7c0ba; color: #753d35; }
++  .error-state h2 { font-size: 18px; font-weight: 650; }
++  .error-state p { font-size: 12px; margin: 8px 0 12px; overflow-wrap: anywhere; }
++  .empty-state { @apply flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center; }
++  .empty-state h3 { font-size: 14px; font-weight: 650; }
++  .empty-state p { font-size: 12px; color: #697386; line-height: 1.8; max-width: 300px; }
++  .empty-state > span:not(.loading-ring) { font-size: 36px; }
++  .loading-ring { width: 28px; height: 28px; border: 2px solid #dfe3f0; border-top-color: #3456db; border-radius: 50%; animation: spin 1s linear infinite; }
++  .parcel-popup > strong { font-size: 13px; }
++  .parcel-popup > p { font-size: 10px !important; color: #697386; overflow-wrap: anywhere; }
++  .parcel-popup button { @apply mt-2 block w-full rounded-md border border-rule bg-workbench p-2 text-left; font-size: 11px; min-height: 44px; }
++  .leaflet-interactive:focus-visible { outline: 3px solid #3456db; outline-offset: 1px; }
++  .skip-link { @apply fixed rounded-md bg-white p-3; left: 12px; top: -100px; z-index: 2000; }
++  .skip-link:focus { top: 12px; }
++  footer { @apply mx-auto flex justify-between gap-4 border-t border-rule px-6 py-3; max-width: 1700px; font-size: 10px; color: #697386; }
+ }
+-@media (max-width: 1000px) {
+-  main {
+-    padding: 25px 22px 0;
+-  }
+-  .masthead {
+-    padding: 20px 22px;
+-  }
+-  .masthead h1 {
+-    font-size: 18px;
+-  }
+-  .intro-note {
+-    display: none;
+-  }
+-  .workspace,
+-  .workspace.has-detail {
+-    grid-template-columns: minmax(0, 1fr) 315px;
+-    gap: 12px;
+-  }
+-  .map-caption {
+-    flex-direction: column;
+-    align-items: flex-start;
+-    gap: 4px;
+-  }
+-  .summary-strip > div {
+-    display: block;
+-    padding: 0 15px;
+-  }
+-  .summary-strip strong {
+-    display: block;
+-  }
+-  .summary-strip span {
+-    font-size: 10px;
+-  }
+-  .filter-grid {
+-    grid-template-columns: 1fr 1fr 1fr;
+-  }
+-  .map-shell {
+-    height: 575px;
+-  }
+-  .results-panel {
+-    height: 630px;
+-  }
+-  .provenance {
+-    gap: 35px;
+-  }
+-  .map-legend {
+-    width: 190px;
+-    font-size: 9px;
+-    left: 10px;
+-  }
+-  .workspace.has-detail .parcel-list {
+-    grid-template-columns: 1fr 1fr;
+-  }
+-  footer {
+-    padding: 15px 22px 22px;
+-  }
++
++@keyframes spin { to { transform: rotate(360deg); } }
++@media (min-width: 1500px) { .map-shell { height: 660px; } .results-panel { height: 700px; } .detail-panel { height: 428px; } }
++@media (min-width: 721px) and (max-width: 1000px) {
++  .workspace { grid-template-columns: minmax(0, 320px) minmax(0, 1fr); }
++  .filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
++  .map-caption { flex-direction: column; justify-content: center; align-items: flex-start; min-height: 38px; gap: 0; }
+ }
+ @media (max-width: 720px) {
+-  main {
+-    padding: 20px 14px 0;
+-  }
+-  .masthead {
+-    padding: 16px 14px;
+-    min-height: 83px;
+-    gap: 10px;
+-  }
+-  .brand {
+-    gap: 9px;
+-    min-width: 0;
+-  }
+-  .brand-mark {
+-    width: 37px;
+-    height: 37px;
+-    flex-shrink: 0;
+-  }
+-  .brand-mark svg {
+-    width: 26px;
+-    height: 26px;
+-  }
+-  .masthead h1 {
+-    font-size: 17px;
+-    line-height: 1.5;
+-    letter-spacing: -0.4px;
+-  }
+-  .masthead h1 span {
+-    display: block;
+-    font-size: 13px;
+-  }
+-  .masthead p {
+-    display: none;
+-  }
+-  .header-link {
+-    font-size: 10px;
+-    padding: 10px 11px;
+-    min-height: 44px;
+-  }
+-  .intro {
+-    margin-bottom: 18px;
+-  }
+-  .intro h2 {
+-    font-size: 23px;
+-    line-height: 1.45;
+-    letter-spacing: -0.8px;
+-    margin: 4px 0 8px;
+-  }
+-  .intro > div > p {
+-    font-size: 12px;
+-    line-height: 1.75;
+-  }
+-  .eyebrow {
+-    font-size: 9px;
+-    letter-spacing: 1.4px;
+-  }
+-  .toolbar {
+-    padding: 14px 12px 9px;
+-    border-radius: 10px;
+-  }
+-  .search-input {
+-    height: 46px;
+-  }
+-  .search-input input {
+-    font-size: 13px;
+-  }
+-  .filter-grid {
+-    grid-template-columns: 1fr 1fr;
+-    gap: 12px 10px;
+-    margin-top: 12px;
+-  }
+-  .filter-grid label {
+-    font-size: 10px;
+-  }
+-  .filter-grid select {
+-    height: 44px;
+-    font-size: 11px;
+-  }
+-  .toolbar-bottom {
+-    gap: 8px;
+-    margin-top: 7px;
+-    align-items: flex-start;
+-  }
+-  .toolbar-bottom p {
+-    font-size: 9px;
+-    padding-top: 12px;
+-    max-width: 200px;
+-  }
+-  .text-button {
+-    min-height: 44px;
+-    font-size: 10px;
+-  }
+-  .summary-strip {
+-    grid-template-columns: 1fr 1fr;
+-    padding: 5px 10px;
+-    margin-top: 14px;
+-  }
+-  .summary-strip > div {
+-    display: flex;
+-    align-items: center;
+-    gap: 12px;
+-    padding: 10px 5px;
+-    border-right: none;
+-  }
+-  .summary-strip > div:nth-child(-n + 2) {
+-    border-bottom: 1px solid var(--line);
+-  }
+-  .summary-strip strong {
+-    font-size: 21px;
+-    min-width: 30px;
+-  }
+-  .summary-strip span {
+-    font-size: 10px;
+-    line-height: 1.5;
+-    max-width: 115px;
+-  }
+-  .data-status {
+-    font-size: 9px;
+-    min-height: 40px;
+-    gap: 6px;
+-    flex-wrap: wrap;
+-    padding: 8px 0;
+-  }
+-  .status-date {
+-    margin-left: 11px;
+-    font-size: 8px;
+-  }
+-  .warnings {
+-    font-size: 10px;
+-    padding: 9px 11px;
+-  }
+-  .warnings summary {
+-    min-height: 44px;
+-    display: list-item;
+-    padding-top: 5px;
+-  }
+-  .mobile-tabs {
+-    display: flex;
+-    padding: 4px;
+-    border: 1px solid #d7e2d6;
+-    border-radius: 8px;
+-    background: #eaf0e7;
+-    margin: 6px 0 12px;
+-    gap: 4px;
+-  }
+-  .mobile-tabs button {
+-    flex: 1;
+-    border: 0;
+-    background: transparent;
+-    border-radius: 5px;
+-    font-size: 12px;
+-    color: #62775e;
+-    min-height: 44px;
+-    font-weight: 600;
+-  }
+-  .mobile-tabs button[aria-pressed="true"] {
+-    background: white;
+-    color: #2d6845;
+-    box-shadow: 0 1px 4px #27402415;
+-  }
+-  .workspace,
+-  .workspace.has-detail {
+-    display: flex;
+-    flex-direction: column;
+-    gap: 12px;
+-  }
+-  .workspace > section {
+-    width: 100%;
+-  }
+-  .view-map .results-panel {
+-    display: none;
+-  }
+-  .view-list .map-panel {
+-    display: none;
+-  }
+-  .map-panel {
+-    position: relative;
+-    top: auto;
+-  }
+-  .map-shell {
+-    height: 430px;
+-    min-height: 52vh;
+-    max-height: 620px;
+-  }
+-  .map-overview {
+-    left: 10px;
+-    top: 10px;
+-    min-height: 44px;
+-    font-size: 10px;
+-    padding: 10px;
+-  }
+-  .leaflet-control-zoom a {
+-    width: 40px !important;
+-    height: 40px !important;
+-    line-height: 40px !important;
+-  }
+-  .map-caption {
+-    font-size: 10px;
+-    padding: 11px 13px;
+-  }
+-  .map-legend {
+-    width: 192px;
+-    padding: 9px 11px;
+-    bottom: 25px;
+-    left: 10px;
+-    font-size: 9px;
+-  }
+-  .map-legend summary {
+-    min-height: 29px;
+-    padding-top: 3px;
+-    font-size: 10px;
+-  }
+-  .map-legend ul {
+-    margin-top: 3px;
+-  }
+-  .map-legend li {
+-    line-height: 1.9;
+-  }
+-  .map-legend p {
+-    font-size: 8px;
+-  }
+-  .results-panel {
+-    height: auto;
+-    max-height: none;
+-    min-height: 360px;
+-  }
+-  .result-list {
+-    max-height: 650px;
+-  }
+-  .results-top {
+-    padding: 16px 14px 12px;
+-  }
+-  .csv-button {
+-    min-height: 44px;
+-    font-size: 10px;
+-    padding: 8px 10px;
+-  }
+-  .sort-control {
+-    padding: 9px 14px;
+-  }
+-  .sort-control select {
+-    height: 44px;
+-    max-width: 200px;
+-    font-size: 11px;
+-  }
+-  .result-row {
+-    padding: 16px 14px 14px;
+-  }
+-  .result-row h3 {
+-    font-size: 14px;
+-  }
+-  .row-place {
+-    font-size: 12px;
+-  }
+-  .row-status {
+-    font-size: 10px;
+-  }
+-  .row-bottom {
+-    font-size: 11px;
+-  }
+-  .row-top time {
+-    font-size: 11px;
+-  }
+-  .badge {
+-    font-size: 10px;
+-  }
+-  .detail-panel {
+-    padding: 18px;
+-    max-height: none;
+-    overflow: visible;
+-  }
+-  .detail-top .icon-button {
+-    width: 44px;
+-    height: 44px;
+-  }
+-  .detail-panel > h3 {
+-    font-size: 18px;
+-  }
+-  .workspace.has-detail .detail-grid {
+-    grid-template-columns: 1fr 1fr;
+-  }
+-  .detail-grid dt {
+-    font-size: 10px;
+-  }
+-  .detail-grid dd {
+-    font-size: 12px;
+-  }
+-  .workspace.has-detail .parcel-list {
+-    display: block;
+-  }
+-  .semantic-note,
+-  .geometry-note,
+-  .parcel-numbers,
+-  .description {
+-    font-size: 12px;
+-  }
+-  .parcel-list li {
+-    font-size: 11px;
+-  }
+-  .parcel-list strong {
+-    font-size: 12px;
+-  }
+-  .parcel-list a,
+-  .source-button {
+-    font-size: 12px;
+-    min-height: 44px;
+-    display: flex;
+-    align-items: center;
+-  }
+-  .provenance {
+-    grid-template-columns: 1fr;
+-    gap: 12px;
+-    padding: 12px 2px;
+-  }
+-  .provenance h2 {
+-    font-size: 20px;
+-  }
+-  .provenance p {
+-    font-size: 12px;
+-  }
+-  .source-info h3 {
+-    font-size: 13px;
+-  }
+-  .source-info a {
+-    font-size: 12px;
+-    display: inline-block;
+-    min-height: 36px;
+-    padding: 6px 0;
+-  }
+-  .source-info .muted {
+-    font-size: 11px;
+-  }
+-  footer {
+-    padding: 14px 16px 20px;
+-    display: block;
+-    font-size: 10px;
+-  }
+-  footer > span {
+-    display: block;
+-    margin-top: 6px;
+-    font-size: 9px;
+-  }
+-  .tile-warning {
+-    bottom: 5px;
+-    right: 5px;
+-    max-width: 150px;
+-    font-size: 9px;
+-  }
+-  .empty-state {
+-    min-height: 280px;
+-    padding: 35px 20px;
+-  }
++  .masthead { min-height: 64px; padding: 8px 12px; gap: 4px; }
++  .brand { gap: 8px; }
++  .brand-mark { width: 32px; height: 32px; }
++  .masthead h1 { font-size: 15px; line-height: 1.4; }
++  .masthead h1 span { display: block; font-size: 11px; }
++  .masthead p { display: none; }
++  .header-link { font-size: 11px; padding: 0 8px; }
++  main { padding: 0 12px; }
++  .intro { min-height: 38px; }
++  .intro h2 { font-size: 16px; }
++  .workspace-label { font-size: 8px; letter-spacing: .8px; }
++  .toolbar { padding: 6px; }
++  .command-bar { grid-template-columns: minmax(0, 1fr) auto 52px; gap: 6px; }
++  .search-wrap { grid-column: 1 / -1; }
++  .search-input input { font-size: 13px; }
++  .period-control { font-size: 0; gap: 0; padding: 0 6px; }
++  .period-control select { font-size: 11px; }
++  .filter-toggle { font-size: 11px; padding: 0 10px; gap: 6px; }
++  .text-button { font-size: 11px; padding: 0 5px; }
++  .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
++  .filter-grid label { font-size: 11px; }
++  .filter-grid label:last-child { grid-column: 1 / -1; }
++  .toolbar-bottom span { max-width: 170px; font-size: 10px; }
++  .summary-strip { margin-top: 5px; }
++  .summary-strip > div { display: flex; flex-direction: column; gap: 1px; padding: 6px 0; }
++  .summary-strip strong { font-size: 20px; }
++  .summary-strip span { font-size: 9px; }
++  .data-status { min-height: 32px; font-size: 9px; gap: 4px; }
++  .status-date { font-size: 8px; }
++  .warnings { margin-bottom: 6px; font-size: 10px; }
++  .warnings summary { padding: 13px 8px; }
++  .warnings summary span { margin-right: 0; }
++  .mobile-tabs { display: flex; gap: 4px; margin-bottom: 8px; border-bottom: 1px solid #dcdedc; }
++  .mobile-tabs button { flex: 1; background: transparent; border: 0; border-bottom: 2px solid transparent; min-height: 44px; font-size: 12px; font-weight: 650; color: #606a79; }
++  .mobile-tabs button[aria-pressed="true"] { border-bottom-color: #3456db; color: #3456db; }
++  .workspace, .workspace.has-detail { display: flex; flex-direction: column; gap: 10px; }
++  .workspace > section { width: 100%; }
++  .view-map .results-panel { display: none; }
++  .view-list .map-panel { display: none; }
++  .map-panel { order: 0; scroll-margin-top: 8px; }
++  .results-panel { order: 0; }
++  .detail-panel { order: 1; scroll-margin-top: 8px; }
++  .map-shell { height: 380px; min-height: 45svh; max-height: 560px; }
++  .map-caption { flex-direction: column; align-items: flex-start; justify-content: center; gap: 0; min-height: 44px; }
++  .map-overview { font-size: 11px; top: 10px; left: 10px; }
++  .map-legend { font-size: 10px; left: 10px; }
++  .map-legend summary { padding: 12px 10px; }
++  .results-panel, .workspace.has-detail .results-panel { height: auto; min-height: 350px; }
++  .result-list { max-height: 580px; }
++  .result-row { padding: 12px; }
++  .result-row h3 { font-size: 14px; }
++  .row-place { font-size: 12px; }
++  .row-bottom, .row-top time { font-size: 11px; }
++  .detail-panel { height: auto; max-height: none; overflow: visible; padding: 16px; }
++  .detail-panel > h3 { font-size: 17px; }
++  .semantic-note, .geometry-note, .parcel-numbers { font-size: 12px; }
++  .provenance { grid-template-columns: minmax(0, 1fr); gap: 16px; }
++  .tile-warning { max-width: 135px; font-size: 9px; }
++  footer { padding: 12px; display: block; }
++  footer span { display: block; margin-top: 4px; }
+ }
+ @media (prefers-reduced-motion: reduce) {
+-  *,
+-  *::before,
+-  *::after {
+-    scroll-behavior: auto !important;
+-    animation-duration: 0.01ms !important;
+-    transition: none !important;
+-  }
+-  .loading-ring {
+-    animation: none;
+-  }
++  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation-duration: .01ms !important; }
++  .loading-ring { animation: none; }
+ }
+diff --git a/vite.config.ts b/vite.config.ts
+index 8af7009..6bddf9f 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -1,9 +1,10 @@
+ import { defineConfig } from "vitest/config";
+ import react from "@vitejs/plugin-react";
++import tailwindcss from "@tailwindcss/vite";
+ 
+ export default defineConfig({
+   base: "/ozarow-building-permits/",
+-  plugins: [react()],
++  plugins: [react(), tailwindcss()],
+   test: {
+     environment: "jsdom",
+     setupFiles: ["./tests/ui/setup.ts"],
+diff --git a/tests/ui/workspace.test.tsx b/tests/ui/workspace.test.tsx
+new file mode 100644
+index 0000000..1e29ad4
+--- /dev/null
++++ b/tests/ui/workspace.test.tsx
+@@ -0,0 +1,61 @@
++import { fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, expect, it, vi } from "vitest";
++import { readFileSync } from "node:fs";
++import App from "../../src/App";
++import { dataset, metadata, parcels } from "./fixtures";
++vi.mock("../../src/ParcelMap", () => ({ default: () => <div aria-label="Mapa testowa" /> }));
++afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
++async function workspace() {
++  vi.stubGlobal("fetch", vi.fn(async (url: string) => ({ ok: true, json: async () => url.includes("permits.json") ? dataset : url.includes("parcels.geojson") ? parcels : metadata })));
++  const result = render(<App />);
++  await waitFor(() => expect(screen.getByTestId("data-status")).toHaveAttribute("data-state", "ready"));
++  fireEvent.change(screen.getByLabelText("Okres"), { target: { value: "all" } });
++  return result;
++}
++it("opens secondary filters explicitly and applies without resetting values", async () => {
++  const { container } = await workspace();
++  const toggle = screen.getByRole("button", { name: "Filtry szczegółowe" });
++  expect(toggle).toHaveAttribute("aria-expanded", "false");
++  expect(container.querySelector("#advanced-filters")).not.toBeVisible();
++  fireEvent.click(toggle);
++  expect(toggle).toHaveAttribute("aria-expanded", "true");
++  fireEvent.change(screen.getByLabelText("Miejscowość"), { target: { value: "Duchnice" } });
++  expect(screen.getByTestId("data-status")).toHaveAttribute("data-filtered-count", "1");
++  fireEvent.click(screen.getByRole("button", { name: "Pokaż przefiltrowane wyniki" }));
++  expect(toggle).toHaveAttribute("aria-expanded", "false");
++  expect(toggle).toHaveFocus();
++  expect(screen.getByLabelText("Miejscowość")).toHaveValue("Duchnice");
++  expect(screen.getByLabelText("Okres")).toHaveValue("all");
++});
++it("closes filter workbench with Escape and returns keyboard focus", async () => {
++  await workspace();
++  const toggle = screen.getByRole("button", { name: "Filtry szczegółowe" });
++  fireEvent.click(toggle);
++  const locality = screen.getByLabelText("Miejscowość");
++  locality.focus();
++  fireEvent.keyDown(locality, { key: "Escape" });
++  expect(toggle).toHaveAttribute("aria-expanded", "false");
++  expect(toggle).toHaveFocus();
++});
++it("clears search independently of period and secondary filters", async () => {
++  await workspace();
++  fireEvent.click(screen.getByRole("button", { name: "Filtry szczegółowe" }));
++  fireEvent.change(screen.getByLabelText("Miejscowość"), { target: { value: "Duchnice" } });
++  fireEvent.change(screen.getByLabelText("Szukaj w rejestrze"), { target: { value: "missing" } });
++  expect(screen.getByTestId("data-status")).toHaveAttribute("data-filtered-count", "0");
++  fireEvent.click(screen.getByRole("button", { name: "Wyczyść wyszukiwanie" }));
++  expect(screen.getByLabelText("Szukaj w rejestrze")).toHaveValue("");
++  expect(screen.getByLabelText("Szukaj w rejestrze")).toHaveFocus();
++  expect(screen.getByLabelText("Miejscowość")).toHaveValue("Duchnice");
++  expect(screen.getByLabelText("Okres")).toHaveValue("all");
++  expect(screen.getByTestId("data-status")).toHaveAttribute("data-filtered-count", "1");
++});
++it("uses local compiled Tailwind for components and a two-pane workspace", () => {
++  const css = readFileSync("src/styles.css", "utf8");
++  const config = readFileSync("vite.config.ts", "utf8");
++  expect(config).toContain("tailwindcss()");
++  expect(css).toContain('@import "tailwindcss"');
++  expect(css).toContain("@apply");
++  expect(css).not.toContain("fonts.googleapis.com");
++  expect(css).toMatch(/\.workspace\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*380px\)\s*minmax\(0,\s*1fr\)/);
++});
