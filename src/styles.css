@@ -287,6 +287,7 @@ footer { display: flex; justify-content: space-between; gap: 16px; margin: 0 16p
 .investment-summary { grid-template-columns: minmax(0,1.35fr) repeat(2,minmax(0,1fr)); }
 .investment-alert { border: 1px solid #d4ad69; background: #fff5df; color: #755022; padding: 10px 14px; margin-bottom: 10px; font-size: 12px; overflow-wrap: anywhere; }
 .investment-alert ul { margin: 6px 0 0 18px; }
+.investment-alert > a { display: inline-flex; align-items: center; min-height: 44px; }
 .investment-facts { list-style: none; font-size: 12px; overflow-wrap: anywhere; }
 .investment-facts li, .investment-facts > div { display: flex; flex-direction: column; gap: 5px; border: 1px solid var(--line); border-radius: 5px; padding: 10px; margin: 8px 0; min-width: 0; }
 .investment-facts dd { margin: 0; }
