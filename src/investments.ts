@@ -1,3 +1,4 @@
+import { searchTerms } from "./model";
 import type {
   Feature,
   Point,
@@ -103,8 +104,13 @@ export interface InvestmentDataset {
     bySource: Record<string, number>;
   };
 }
+export type Stage = "plan" | "preparation" | "tender" | "progress" | "done" | "other";
+export type MapStage = "upcoming" | "progress" | "done" | "other";
 export interface InvestmentFilters {
   query: string;
+  stages: MapStage[];
+  group: string;
+  locality: string;
   source: string;
   investor: string;
   category: string;
@@ -115,6 +121,9 @@ export interface InvestmentFilters {
 }
 export const investmentDefaults: InvestmentFilters = {
   query: "",
+  stages: ["upcoming", "progress", "other"],
+  group: "",
+  locality: "",
   source: "",
   investor: "",
   category: "",
@@ -593,6 +602,83 @@ export async function loadInvestments(
     signal?.removeEventListener("abort", abort);
   }
 }
+export const stageLabels: Record<Stage, string> = {
+  plan: "Plan",
+  preparation: "Przygotowanie",
+  tender: "Przetarg i umowa",
+  progress: "W realizacji",
+  done: "Ukończone",
+  other: "Inne / bez etapu",
+};
+export const mapStageLabels: Record<MapStage, string> = {
+  upcoming: "Zapowiedziane",
+  progress: "W realizacji",
+  done: "Ukończone",
+  other: "Komunikaty i inne",
+};
+export const mapStageColors: Record<MapStage, string> = {
+  upcoming: "#6A4BB5",
+  progress: "#C8442F",
+  done: "#98A2AC",
+  other: "#5B6875",
+};
+/** Display grouping of 30 source status sentences; the original sentence stays in details. */
+export function investmentStage(status: string): Stage {
+  const s = normalized(status);
+  if (/invalidated|zawieszon|niezakwalifikowan|komunikat zrodlowy|historyczne|ofercie|prospekt deklaruje/.test(s)) return "other";
+  if (/^ukonczon|prace zakonczon/.test(s)) return "done";
+  if (/^realizowan/.test(s)) return "progress";
+  if (/wykazie fe|srodowiskow|lokalizacyjn|dokumentacj|nowy termin|decyzjach drogowych/.test(s)) return "preparation";
+  if (/umow|przetarg|postepowanie wszczete|publikacje zamowienia/.test(s)) return "tender";
+  if (/plan|wybrany do realizacji|zaplanowan|zapowiedz|prospekcie/.test(s)) return "plan";
+  return "other";
+}
+export function mapStage(stage: Stage): MapStage {
+  return stage === "plan" || stage === "preparation" || stage === "tender" ? "upcoming" : stage;
+}
+export const recordMapStage = (r: InvestmentRecord) => mapStage(investmentStage(r.status));
+const groupRules: [string, RegExp][] = [
+  ["Drogi i transport", /drog|transport|kolej/],
+  ["Woda i kanalizacja", /kanalizac|wodoci|wod-kan|gospodarka wodna/],
+  ["Oświetlenie", /oswietl/],
+  ["Sport i rekreacja", /sport|rekreac/],
+  ["Szkoły i przedszkola", /oswiat/],
+  ["Środowisko i odpady", /srodowisk|odpad/],
+  ["Społeczne, kultura, zdrowie", /spoleczn|kultur|zdrowi|bezpieczen/],
+  ["Fundusze UE", /fundusze europejskie/],
+  ["Zabudowa prywatna", /mieszkaln|magazyn|centra danych|uslugi/],
+  ["Energia i gaz", /energi|gaz/],
+];
+/** 28 source labels → 11 display groups. Only for filtering; details keep the source label. */
+export function categoryGroup(category: string): string {
+  const c = normalized(category);
+  return groupRules.find(([, rule]) => rule.test(c))?.[0] || "Inne";
+}
+const stopwords = new Set(["budowa", "przebudowa", "rozbudowa", "modernizacja", "remont", "ulicy", "ulica", "gminie", "gmina", "wraz", "oraz", "przy", "zadanie", "projekt", "realizacja", "mazowiecki", "mazowieckim", "ozarow", "ozarowie", "miejscowosci", "zakresie", "wykonanie", "dokumentacji", "projektowej"]);
+const genericStems = new Set(["szkol", "podst", "infra", "popra", "doste", "inwes", "obiek", "zadan", "proje"]);
+function nameTokens(title: string): Set<string> {
+  return new Set(normalized(title).split(/[^a-z0-9]+/)
+    .filter(w => w.length >= 4 && !stopwords.has(w))
+    .map(w => w.slice(0, 5))
+    .filter(stem => !genericStems.has(stem)));
+}
+/** Records with similar names. Never merged and never summed — shown as hints only. */
+export function similarRecords(record: InvestmentRecord, all: InvestmentRecord[], limit = 3): InvestmentRecord[] {
+  const own = nameTokens(record.title);
+  if (own.size < 2) return [];
+  return all
+    .filter(r => r.id !== record.id)
+    .map(r => {
+      const other = nameTokens(r.title);
+      let shared = 0;
+      for (const token of other) if (own.has(token)) shared++;
+      return { r, shared, score: shared / Math.min(own.size, other.size || 1) };
+    })
+    .filter(x => x.shared >= 2 && x.score >= 0.6)
+    .sort((a, b) => b.score - a.score || b.shared - a.shared)
+    .slice(0, limit)
+    .map(x => x.r);
+}
 function normalized(v: string) {
   return v
     .normalize("NFD")
@@ -605,7 +691,7 @@ export function filterInvestments(
   records: InvestmentRecord[],
   filters: InvestmentFilters,
 ): InvestmentRecord[] {
-  const words = normalized(filters.query).trim().split(/\s+/).filter(Boolean);
+  const words = searchTerms(filters.query);
   const result = records.filter((r) => {
     const haystack = normalized(
       [
@@ -621,6 +707,9 @@ export function filterInvestments(
     );
     return (
       words.every((w) => haystack.includes(w)) &&
+      (!filters.stages || filters.stages.includes(recordMapStage(r))) &&
+      (!filters.group || categoryGroup(r.category) === filters.group) &&
+      (!filters.locality || (filters.locality === "-" ? !r.locality : r.locality === filters.locality)) &&
       (!filters.source || r.sourceId === filters.source) &&
       (!filters.investor || r.investor === filters.investor) &&
       (!filters.category || r.category === filters.category) &&

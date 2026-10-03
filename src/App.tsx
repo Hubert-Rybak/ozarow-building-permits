@@ -1,820 +1,480 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { emptyParcels, loadData } from "./data";
-import {
-  defaultFilters,
-  exportCsv,
-  filterRecords,
-  formatDate,
-  getRecordParcels,
-  kindLabels,
-  recordDate,
-  safeUrl,
-  semanticStatus,
-  statusLabels,
-  summarize,
-} from "./model";
-import type { Filters, LoadedData, ParcelCollection, Permit } from "./types";
-import ParcelMap from "./ParcelMap";
-import InvestmentsAtlas from "./InvestmentsAtlas";
+import type { Geometry } from "geojson";
+import RadarMap, { type Insets, type Layer, type MapItem } from "./RadarMap";
+import { PermitDetail, PermitList, placeLine, usePermits, type Nearby } from "./PermitPanel";
+import { InvestmentDetail, InvestmentList, freshness, useInvestments } from "./InvestmentPanel";
+import { defaultFilters, formatDate, getRecordParcels, kindColors, kindLabels, kindPlural } from "./model";
+import { investmentDefaults, mapStageColors, mapStageLabels, recordMapStage, type MapStage } from "./investments";
+import { centerOf, nearest, type LatLng } from "./geo";
+import { readHash, shareUrl, writeHash, type Mode } from "./hash";
+import { useIsMobile } from "./ui";
+import type { RecordKind } from "./types";
 
-function SourceLink({
-  url,
-  children,
-  className = "",
-}: {
-  url: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  const href = safeUrl(url);
-  return href ? (
-    <a
-      className={className}
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      {children}
-      <span aria-hidden="true"> ↗</span>
-    </a>
-  ) : (
-    <span className="muted">Link źródłowy niedostępny</span>
-  );
-}
-function Detail({
-  record,
-  parcels,
-  onClose,
-}: {
-  record: Permit;
-  parcels: ParcelCollection;
-  onClose: () => void;
-}) {
-  const features = getRecordParcels(record, parcels);
-  return (
-    <section
-      className="detail-panel"
-      aria-labelledby="detail-title"
-      data-selected-id={record.id}
-      tabIndex={-1}
-    >
-      <div className="detail-top">
-        <div>
-          <span className="eyebrow">WYBRANY WPIS</span>
-          <h2 id="detail-title">Szczegóły wpisu</h2>
-        </div>
-        <button
-          className="icon-button"
-          onClick={onClose}
-          aria-label="Zamknij szczegóły"
-        >
-          ×
-        </button>
-      </div>
-      <div className="record-tags">
-        <span className={`badge ${semanticStatus(record)}`}>
-          {kindLabels[record.kind]}
-        </span>
-        <span className="badge neutral">
-          {record.status || "Brak statusu w źródle"}
-        </span>
-      </div>
-      <h3>{record.title || "Bez tytułu"}</h3>
-      {record.kind === "application" && (
-        <p className="semantic-note">Wniosek nie jest pozwoleniem na budowę.</p>
-      )}
-      {record.kind === "notification" && (
-        <p className="semantic-note">
-          Zgłoszenie nie jest decyzją o pozwoleniu na budowę. Sprawdź jego
-          przebieg w źródle.
-        </p>
-      )}
-      {record.kind === "decision" && (
-        <p className="semantic-note">
-          Wynik: {statusLabels[semanticStatus(record)].toLocaleLowerCase("pl")}.
-          Status i treść decyzji należy potwierdzić w źródle.
-        </p>
-      )}
-      <div className="detail-source">
-        <SourceLink url={record.sourceUrl} className="source-button">
-          Wpis w źródle
-        </SourceLink>
-        <small>ID: {record.id}</small>
-      </div>
-      {record.description && record.description !== "Bezpieczny skrót rodzaju inwestycji. Swobodny opis GUNB pominięto ze względu na możliwość występowania danych osobowych." && (
-        <p className="description">{record.description}</p>
-      )}
-      <dl className="detail-grid">
-        <div>
-          <dt>Miejscowość</dt>
-          <dd>{record.locality || "Brak danych"}</dd>
-        </div>
-        <div>
-          <dt>Ulica</dt>
-          <dd>{record.street || "Nie podano"}</dd>
-        </div>
-        <div>
-          <dt>Data wniosku</dt>
-          <dd>{formatDate(record.applicationDate)}</dd>
-        </div>
-        <div>
-          <dt>Data decyzji</dt>
-          <dd>{formatDate(record.decisionDate)}</dd>
-        </div>
-        <div>
-          <dt>Numer decyzji</dt>
-          <dd>{record.decisionNumber || "Nie podano"}</dd>
-        </div>
-        <div>
-          <dt>Kategoria obiektu</dt>
-          <dd>{record.category || "Nie podano"}</dd>
-        </div>
-        <div>
-          <dt>Gmina</dt>
-          <dd>{record.municipality || "Nie podano"}</dd>
-        </div>
-        <div>
-          <dt>Obręb w rejestrze</dt>
-          <dd>{record.cadastralRegion || "Nie podano"}</dd>
-        </div>
-      </dl>
-      <h4>Działki i ich położenie</h4>
-      <p className="parcel-numbers">
-        Numery w rejestrze:{" "}
-        <strong>{record.parcelNumbers.join(", ") || "Nie podano"}</strong>
-      </p>
-      {features.length === 0 ? (
-        <p className="geometry-note">
-          Brak potwierdzonej geometrii — wpis pozostaje dostępny na liście.
-        </p>
-      ) : (
-        <>
-          <p className="geometry-note">
-            Potwierdzone obrysy: <strong>{features.length}</strong>.{" "}
-            {record.geometryStatus === "partial"
-              ? "Dopasowanie częściowe — nie wszystkie działki mają geometrię."
-              : "Mapa pokazuje tylko dostępne, potwierdzone obrysy."}
-          </p>
-          <ul className="parcel-list">
-            {features.map((f) => (
-              <li key={f.properties.id}>
-                <strong>Działka {f.properties.parcelNumber}</strong>
-                <span>Obręb {f.properties.region || "nie podano"}</span>
-                <code>{f.properties.id}</code>
-                <SourceLink url={f.properties.sourceUrl}>
-                  Źródło geometrii
-                </SourceLink>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-      {record.geometryNote && <p className="muted">{record.geometryNote}</p>}
-      {record.parcelIds.length > features.length && (
-        <details className="parcel-identifiers">
-          <summary>Identyfikatory działek w danych</summary>
-          <ul>
-            {record.parcelIds.map((id, index) => (
-              <li key={`${id}-${index}`}>
-                <code>{id}</code>
-              </li>
-            ))}
-          </ul>
-        </details>
-      )}
-    </section>
-  );
-}
-function ResultRow({
-  record,
-  mapped,
-  selected,
-  onSelect,
-}: {
-  record: Permit;
-  mapped: boolean;
-  selected: boolean;
-  onSelect: () => void;
-}) {
-  return (
-    <li>
-      <button
-        className={`result-row ${selected ? "selected" : ""}`}
-        aria-pressed={selected}
-        data-record-id={record.id}
-        onClick={onSelect}
-      >
-        <div className="row-top">
-          <span className={`badge ${semanticStatus(record)}`}>
-            {kindLabels[record.kind]}
-          </span>
-          <time dateTime={recordDate(record) || undefined}>
-            {formatDate(recordDate(record))}
-          </time>
-        </div>
-        <h3>{record.title || "Bez tytułu"}</h3>
-        <p className="row-place">
-          {[record.locality, record.street].filter(Boolean).join(" · ") ||
-            "Brak adresu w źródle"}
-        </p>
-        <div className="row-bottom">
-          <span>
-            Działki: {record.parcelNumbers.join(", ") || "nie podano"}
-          </span>
-          <span className={mapped ? "mapped-label" : "unmapped-label"}>
-            <span aria-hidden="true">{mapped ? "◈" : "○"}</span>{" "}
-            {mapped ? record.geometryStatus === "partial" ? "Częściowy obrys" : "Na mapie" : "Bez obrysu"}
-          </span>
-        </div>
-      </button>
-    </li>
-  );
-}
-function downloadCsv(records: Permit[], parcels: ParcelCollection, coverage: string | undefined) {
-  const blob = new Blob([exportCsv(records, parcels, coverage)], {
-    type: "text/csv;charset=utf-8",
-  });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = "budowy-ozarow-wyniki.csv";
-  document.body.append(anchor);
-  anchor.click();
-  anchor.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-const initialData: LoadedData = {
-  dataset: null,
-  parcels: emptyParcels,
-  metadata: null,
-  warnings: [],
-  error: null,
-};
-function PermitAtlas({active}: {active: boolean}) {
-  const [data, setData] = useState<LoadedData>(initialData);
-  const [loading, setLoading] = useState(true);
-  const [attempt, setAttempt] = useState(0);
-  const [filters, setFilters] = useState<Filters>({ ...defaultFilters });
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [mobileView, setMobileView] = useState<"map" | "list">("map");
-  const [selectionDestination, setSelectionDestination] = useState<{ surface: "map" | "detail" }>({ surface: "detail" });
-  const resultsRef = useRef<HTMLElement>(null);
-  const mapPanelRef = useRef<HTMLElement>(null);
-  const selectionOrigin = useRef<"map" | "list">("list");
-  const returnAfterClose = useRef<{
-    view: "map" | "list";
-    id: string;
-  } | null>(null);
-  const [focusResults, setFocusResults] = useState(0);
+type Sheet = "peek" | "half" | "full";
+interface Selection { layer: Layer; id: string }
+const HEADER = 52;
+const PEEK = 196;
+
+function useViewportHeight() {
+  const [height, setHeight] = useState(() => window.innerHeight || 800);
   useEffect(() => {
-    if (focusResults) resultsRef.current?.focus();
-  }, [focusResults]);
-  useEffect(() => {
-    const controller = new AbortController();
-    setLoading(true);
-    setSelectedId(null);
-    loadData(fetch, controller.signal).then((result) => {
-      if (!controller.signal.aborted) {
-        setData(result);
-        setLoading(false);
-      }
-    });
-    return () => controller.abort();
-  }, [attempt]);
-  const allRecords = data.dataset?.records || [];
-  const filtered = useMemo(
-    () => filterRecords(allRecords, filters, data.parcels),
-    [data.dataset, filters, data.parcels],
-  );
-  const counts = useMemo(
-    () => summarize(filtered, data.parcels),
-    [filtered, data.parcels],
-  );
-  const allCounts = useMemo(
-    () => summarize(allRecords, data.parcels),
-    [data.dataset, data.parcels],
-  );
-  const selected = filtered.find((r) => r.id === selectedId) || null;
-  useEffect(() => {
-    if (selectedId && !filtered.some((r) => r.id === selectedId))
-      setSelectedId(null);
-  }, [filtered, selectedId]);
-  useEffect(() => {
-    const isMobile = typeof window.matchMedia === "function" && window.matchMedia("(max-width: 720px)").matches;
-    if (selected && (!isMobile || mobileView === "list"))
-      resultsRef.current?.querySelector<HTMLElement>(".result-row.selected")?.scrollIntoView?.({block:"nearest", behavior:"auto"});
-  }, [selected?.id, mobileView]);
-  useEffect(() => {
-    if (
-      selected &&
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(max-width: 720px)").matches
-    ) {
-      const target = selectionDestination.surface === "map"
-        ? mapPanelRef.current
-        : document.querySelector(".detail-panel");
-      target?.scrollIntoView({ block: "start", behavior: "auto" });
-      const focusTarget = selectionDestination.surface === "map"
-        ? mapPanelRef.current?.querySelector<HTMLElement>(".map-overview")
-        : target as HTMLElement | null;
-      focusTarget?.focus({ preventScroll: true });
-    }
-  }, [selected?.id, selectionDestination]);
-  useEffect(() => {
-    const destination = returnAfterClose.current;
-    if (selected || !destination) return;
-    returnAfterClose.current = null;
-    const row = Array.from(
-      resultsRef.current?.querySelectorAll<HTMLElement>(".result-row") || [],
-    ).find(element => element.dataset.recordId === destination.id);
-    const target = destination.view === "map"
-      ? mapPanelRef.current
-      : row || resultsRef.current;
-    target?.scrollIntoView?.({ block: "start", behavior: "auto" });
-    const focusTarget = destination.view === "map"
-      ? mapPanelRef.current?.querySelector<HTMLElement>(".map-overview")
-      : row || resultsRef.current;
-    focusTarget?.focus({ preventScroll: true });
-  }, [selected?.id]);
-  const closeDetail = useCallback(() => {
-    if (!selected) return;
-    const isMobile = typeof window.matchMedia === "function"
-      && window.matchMedia("(max-width: 720px)").matches;
-    // Never return focus to the list/map hidden by the mobile tabs.
-    returnAfterClose.current = {
-      view: isMobile ? mobileView : selectionOrigin.current,
-      id: selected.id,
-    };
-    setSelectedId(null);
-  }, [selected, mobileView]);
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape" || !selected || !active) return;
-      event.preventDefault();
-      closeDetail();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [selected, closeDetail, active]);
-  const select = useCallback((id: string) => {
-    selectionOrigin.current = "map";
-    setSelectionDestination({ surface: "detail" });
-    setSelectedId(id);
+    const update = () => setHeight(window.innerHeight || 800);
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, []);
-  const selectFromList = (record: Permit) => {
-    selectionOrigin.current = "list";
-    const showMap = typeof window.matchMedia === "function"
-      && window.matchMedia("(max-width: 720px)").matches
-      && getRecordParcels(record, data.parcels).length > 0;
-    setSelectionDestination({ surface: showMap ? "map" : "detail" });
-    if (showMap) setMobileView("map");
-    setSelectedId(record.id);
-  };
-  const update = (key: keyof Filters, value: string) =>
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  const reset = () => {
-    setFilters({ ...defaultFilters });
-    setSelectedId(null);
-  };
-  const activeFilters = Object.entries(filters).filter(
-    ([key, value]) =>
-      key !== "sort" && value !== defaultFilters[key as keyof Filters],
-  ).length;
-  const options = useMemo(
-    () => ({
-      years: [
-        ...new Set(
-          allRecords
-            .map((r) => recordDate(r)?.slice(0, 4))
-            .filter((v): v is string => !!v),
-        ),
-      ]
-        .sort()
-        .reverse(),
-      statuses: [
-        ...new Set(allRecords.map((r) => r.status).filter(Boolean)),
-      ].sort((a, b) => a.localeCompare(b, "pl")),
-      localities: [
-        ...new Set(allRecords.map((r) => r.locality).filter(Boolean)),
-      ].sort((a, b) => a.localeCompare(b, "pl")),
-    }),
-    [data.dataset],
-  );
+  return height;
+}
+
+function AboutDialog({ onClose, permits, investments }: {
+  onClose: () => void;
+  permits: ReturnType<typeof usePermits>;
+  investments: ReturnType<typeof useInvestments>;
+}) {
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { heading.current?.focus(); }, []);
+  const { data, loading } = permits;
+  const records = permits.all;
+  const invData = investments.data;
+  const invWarnings = [
+    ...(invData?.warnings || []),
+    ...(invData?.sources.flatMap(s => [
+      ...(s.status === "retained" || s.status === "unavailable" ? [`${s.name}: ${freshness[s.status]}`] : []),
+      ...s.warnings.map(w => `${s.name}: ${w}`),
+    ]) || []),
+  ];
   return (
-    <>
-      <a className="skip-link" href="#results" onClick={(event) => {
-        event.preventDefault();
-        setMobileView("list");
-        setFocusResults(n => n + 1);
-      }}>
-        Przejdź do wyników
-      </a>
-      <main>
-        <div className="source-ribbon">
-          <div className="source-identity"><span className="source-kicker">DANE PUBLICZNE</span>
-            {data.dataset ? <SourceLink url={data.dataset.source.url}>Źródło: GUNB / RWDZ</SourceLink> : <span>Źródło: GUNB / RWDZ</span>}
-          </div>
-        <div
-          className="data-status"
-          role="status"
-          aria-live="polite"
-          data-testid="data-status"
-          data-loading={loading}
-          data-record-count={loading ? "" : allCounts.total}
-          data-filtered-count={loading ? "" : counts.total}
-          data-mapped-count={loading ? "" : allCounts.mapped}
-          data-parcel-count={loading ? "" : allCounts.parcelCount}
-          data-state={loading ? "loading" : data.error ? "error" : "ready"}
-        >
-          {loading ? (
-            <span>Ładowanie danych…</span>
-          ) : data.error ? (
-            <span>Dane nie zostały wczytane.</span>
-          ) : (
-            <>
-              <span className="status-dot" aria-hidden="true" />
-              <span>
-                Wczytano {allCounts.total} wpisów · {allCounts.parcelCount}{" "}
-                potwierdzonych działek
-              </span>
-              <span className="status-date">
-                Import: {formatDate(data.dataset?.generatedAt)}
-              </span>
-            </>
-          )}
+    <div className="about-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
+      <section className="about" role="dialog" aria-modal="true" aria-labelledby="about-title" id="provenance">
+        <div className="about-bar">
+          <h2 id="about-title" ref={heading} tabIndex={-1}>O danych</h2>
+          <button type="button" className="round-button" onClick={onClose} aria-label="Zamknij informacje o danych">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+          </button>
         </div>
-        {data.error && !loading && (
-          <section className="error-state" role="alert">
-            <h2>Dane są chwilowo niedostępne</h2>
-            <p>{data.error}</p>
-            <button
-              className="primary-button"
-              onClick={() => setAttempt((n) => n + 1)}
-            >
-              Spróbuj ponownie
-            </button>
-          </section>
-        )}
-        {!loading && data.warnings.length > 0 && (
-          <details className="warnings">
-            <summary>
-              Ograniczenia zbioru ({data.warnings.length})
-            </summary>
-            <ul>
-              {data.warnings.map((w, i) => (
-                <li key={i}>{w}</li>
-              ))}
+        <div className="about-body">
+          <section aria-labelledby="about-permits">
+            <h3 id="about-permits">Budowy — rejestr GUNB</h3>
+            <ul className="about-points">
+              <li>Wpis w rejestrze nie oznacza zatwierdzenia ani rozpoczęcia budowy. Eksport GUNB nie podaje wyniku decyzji.</li>
+              <li>Kolor na mapie to rodzaj wpisu (decyzja, zgłoszenie), nie wynik.</li>
+              <li>Mapa pokazuje działki z wpisu (ULDK), nie budynki ani postęp prac. Brak działki na mapie to brak potwierdzonej geometrii, a nie brak inwestycji.</li>
+              <li>Okres i kolejność liczymy według daty decyzji, a gdy jej brak — daty wniosku. „Ostatnie 3 miesiące” liczymy od dzisiejszej daty w Polsce.</li>
+              <li>„Nowe od ostatniej wizyty” zapamiętuje tylko Twoja przeglądarka.</li>
             </ul>
-          </details>
-        )}
-        </div>
-        {!loading && data.warnings.some(w => /^(Niespójny zestaw plików|Nie udało się wczytać)/.test(w)) && (
-          <section className="investment-alert" role="alert">
-            <strong>Ograniczenia odczytu pozwoleń</strong>
-            <ul>{data.warnings.filter(w => /^(Niespójny zestaw plików|Nie udało się wczytać)/.test(w)).map((w,i) => <li key={i}>{w}</li>)}</ul>
-            <button className="primary-button" onClick={() => setAttempt(n => n + 1)}>Ponów odczyt pozwoleń</button>
-          </section>
-        )}
-        <div className={`workspace view-${mobileView} ${selected ? "has-detail" : ""}`}>
-          <aside className="explore-rail" aria-label="Narzędzia eksploracji">
-            <div className="explore-heading"><span className="eyebrow">EKSPLORUJ / REJESTR</span><h2>Znajdź w okolicy</h2></div>
-        <section className="toolbar" aria-label="Wyszukiwanie i filtry">
-          <div className="search-wrap">
-            <label htmlFor="search">Szukaj w rejestrze</label>
-            <div className="search-input">
-              <span aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <circle cx="10" cy="10" r="6" />
-                  <path d="m15 15 5 5" />
-                </svg>
-              </span>
-              <input
-                id="search"
-                type="search"
-                value={filters.query}
-                onChange={(e) => update("query", e.target.value)}
-                placeholder="Miejscowość, ulica, działka lub inwestycja"
-              />
-            </div>
-          </div>
-          <div className="period-tools">
-            <label>
-              Okres
-              <select value={filters.period} onChange={(e) => update("period", e.target.value)}>
-                <option value="3months">Ostatnie 3 miesiące</option>
-                <option value="all">Wszystkie daty</option>
-              </select>
-            </label>
-            <details className="advanced-filters">
-              <summary>Filtry <span className="filter-count">{activeFilters || "+"}</span></summary>
-              <div className="filter-grid">
-            <label>
-              Rodzaj wpisu
-              <select
-                value={filters.kind}
-                onChange={(e) => update("kind", e.target.value)}
-              >
-                <option value="">Wszystkie rodzaje</option>
-                <option value="application">Wnioski</option>
-                <option value="decision">Decyzje</option>
-                <option value="notification">Zgłoszenia</option>
-              </select>
-            </label>
-            <label>
-              Rok wpisu
-              <select
-                value={filters.year}
-                onChange={(e) => update("year", e.target.value)}
-              >
-                <option value="">Wszystkie lata</option>
-                {options.years.map((y) => (
-                  <option key={y}>{y}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Status w źródle
-              <select
-                value={filters.status}
-                onChange={(e) => update("status", e.target.value)}
-              >
-                <option value="">Wszystkie statusy</option>
-                {options.statuses.map((s) => (
-                  <option key={s}>{s}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Miejscowość
-              <select
-                value={filters.locality}
-                onChange={(e) => update("locality", e.target.value)}
-              >
-                <option value="">Cała gmina</option>
-                {options.localities.map((l) => (
-                  <option key={l}>{l}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Położenie na mapie
-              <select
-                value={filters.mapping}
-                onChange={(e) => update("mapping", e.target.value)}
-              >
-                <option value="all">Wszystkie wpisy</option>
-                <option value="mapped">Z potwierdzonym obrysem</option>
-                <option value="partial">Z częściowym dopasowaniem</option>
-                <option value="unmapped">Bez potwierdzonego obrysu</option>
-              </select>
-            </label>
-              </div>
-            </details>
-          </div>
-          <div className="toolbar-bottom">
-            <button
-              className="text-button"
-              aria-label="Wyczyść filtry"
-              onClick={reset}
-            >
-              Wyczyść filtry
-              {activeFilters > 0 && (
-                <span
-                  className="filter-number"
-                  aria-label={`${activeFilters} aktywnych filtrów`}
-                >
-                  {activeFilters}
-                </span>
-              )}
-            </button>
-          </div>
-        </section>
-        <section
-          className="summary-strip"
-          aria-label="Liczby dla bieżących filtrów"
-        >
-          <div>
-            <strong>{loading || data.error ? "—" : counts.total}</strong>
-            <span aria-label="Wpisy w wynikach">Wpisy</span>
-          </div>
-          <div>
-            <strong>{loading || data.error ? "—" : counts.mapped}</strong>
-            <span aria-label="Z obrysem na mapie">Z obrysem</span>
-          </div>
-          <div>
-            <strong>{loading || data.error ? "—" : counts.unmapped}</strong>
-            <span>Bez obrysu</span>
-          </div>
-          <div>
-            <strong>{loading || data.error ? "—" : counts.parcelCount}</strong>
-            <span aria-label="Unikalne działki na mapie">Działki</span>
-          </div>
-        </section>
-        <div className="mobile-tabs" role="group" aria-label="Widok">
-          <button
-            aria-pressed={mobileView === "map"}
-            onClick={() => setMobileView("map")}
-          >
-            Mapa
-          </button>
-          <button
-            aria-pressed={mobileView === "list"}
-            onClick={() => setMobileView("list")}
-          >
-            Lista{!loading && !data.error && ` (${counts.total})`}
-          </button>
-        </div>
-          <section
-            id="results"
-            ref={resultsRef}
-            className="results-panel"
-            aria-labelledby="results-title"
-            tabIndex={-1}
-          >
-            <div className="results-top">
-              <div>
-                <h2 id="results-title">
-                  Wpisy{!loading && !data.error && <span>{counts.total}</span>}
-                </h2>
-              </div>
-              <button
-                className="csv-button"
-                disabled={loading || !!data.error || !filtered.length}
-                onClick={() => downloadCsv(filtered, data.parcels, data.dataset?.source.coverage)}
-              >
-                Eksport CSV
-              </button>
-            </div>
-            <label className="sort-control">
-              Sortowanie
-              <select
-                value={filters.sort}
-                onChange={(e) => update("sort", e.target.value)}
-              >
-                <option value="newest">Najnowsze najpierw</option>
-                <option value="oldest">Najstarsze najpierw</option>
-              </select>
-            </label>
-            {loading ? (
-              <div className="empty-state">
-                <span className="loading-ring" aria-hidden="true" />
-                <h3>Wczytujemy publiczny rejestr</h3>
-                <p>Dane pojawią się po odczytaniu plików źródłowych.</p>
-              </div>
-            ) : data.error ? (
-              <div className="empty-state">
-                <h3>Lista niedostępna</h3>
-                <p>Nie można ustalić liczby wpisów. Spróbuj ponownie.</p>
-              </div>
-            ) : !filtered.length ? (
-              <div className="empty-state">
-                <span aria-hidden="true">⌕</span>
-                <h3>
-                  {allRecords.length
-                    ? "Brak wyników dla tych filtrów."
-                    : "Brak wpisów w załadowanym zbiorze."}
-                </h3>
-                <p>
-                  {allRecords.length
-                    ? "Zmień zapytanie lub wyczyść filtry."
-                    : "To nie jest potwierdzenie braku inwestycji w gminie. Sprawdź zakres i źródło danych poniżej."}
-                </p>
-              </div>
-            ) : (
-              <ul className="result-list">
-                {filtered.map((r) => (
-                  <ResultRow
-                    key={r.id}
-                    record={r}
-                    mapped={getRecordParcels(r, data.parcels).length > 0}
-                    selected={selected?.id === r.id}
-                    onSelect={() => selectFromList(r)}
-                  />
-                ))}
-              </ul>
+            {!loading && !data.error && records.length > 0 && !records.some(r => r.kind === "application") && (
+              <p className="coverage-note">W tym zbiorze nie ma samodzielnych wniosków. Nie oznacza to braku nierozpatrzonych wniosków w gminie — eksport CSV nie gwarantuje ich kompletności.</p>
             )}
+            <h4>Zakres załadowanego zbioru</h4>
+            <p>{data.dataset?.source.coverage || "Zakres danych nie jest jeszcze dostępny."}</p>
+            {data.dataset && (
+              <p className="muted">Pobranie źródła: {formatDate(data.dataset.source.downloadedAt)} · Wygenerowanie zbioru: {formatDate(data.dataset.generatedAt)}</p>
+            )}
+            {!loading && data.warnings.length > 0 && (
+              <>
+                <h4>Ograniczenia zbioru ({data.warnings.length})</h4>
+                <ul className="about-warnings">{data.warnings.map((w, i) => <li key={i}>{w}</li>)}</ul>
+              </>
+            )}
+            <ul className="about-links">
+              {data.dataset && <li><a href={data.dataset.source.url} target="_blank" rel="noopener noreferrer">{data.dataset.source.name}</a></li>}
+              {data.metadata?.sources?.map((s, i) => <li key={i}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.name}</a></li>)}
+            </ul>
+            <p className="muted">Dane inwestorów i projektantów są wyłączone z publicznego zbioru. CSV zawiera bieżące wyniki filtrów; wartości chronimy przed interpretacją jako formuły arkusza.</p>
           </section>
-          </aside>
-          <section
-            className="map-panel"
-            ref={mapPanelRef}
-            aria-label="Mapa potwierdzonych działek"
-          >
-            <div className="map-heading">
-              <div><span className="eyebrow">OBSZAR EKSPLORACJI</span><h2>Mapa działek</h2></div>
-              <span className="map-region">Ożarów Mazowiecki · gmina</span>
-            </div>
-            <ParcelMap
-              records={filtered}
-              parcels={data.parcels}
-              selectedId={selected?.id || null}
-              onSelect={select}
-              visible={mobileView === "map"}
-            />
-            <div className="map-caption">
-              <div><strong>Tylko potwierdzone obrysy</strong><p className="semantic-inline">Wpis nie oznacza zatwierdzenia budowy.</p></div>
-              <span>
-                {loading
-                  ? "Czekamy na dane źródłowe"
-                  : counts.mapped
-                    ? "Wybierz działkę lub wpis na liście"
-                    : "Brak obrysów dla bieżących wyników — sprawdź listę"}
-              </span>
-            </div>
-          </section>
-          {selected ? (
-            <Detail record={selected} parcels={data.parcels} onClose={closeDetail} />
-          ) : (
-            <aside className="inspector-idle" aria-label="Inspektor wpisu">
-              <span className="eyebrow">INSPEKTOR / SZCZEGÓŁY</span>
-              <h2>Wybierz wpis lub działkę</h2>
-              <p>Daty, status i źródło wybranego wpisu.</p>
-              <small>Mapa pokazuje działki, nie budynki ani postęp prac.</small>
-            </aside>
-          )}
-        </div>
-        <details className="data-disclosure" id="provenance">
-          <summary>O danych</summary>
-          <section
-            className="provenance"
-            aria-labelledby="provenance-title"
-          >
-            <div>
-              <h2 id="provenance-title">Jak czytać te dane?</h2>
-              <p>Wpis w rejestrze nie oznacza zatwierdzenia ani rozpoczęcia budowy.</p>
-              <p>Okres, rok i kolejność: data decyzji, a przy jej braku data wniosku. Ostatnie 3 miesiące liczymy od dzisiejszej daty w Polsce.</p>
-              <p>
-                Mapa przedstawia działki powiązane z wpisami, nie obrysy budynków
-                ani postęp prac. Brak działki na mapie oznacza brak potwierdzonej
-                geometrii, a nie brak inwestycji.
-              </p>
-              <p>
-                Kolor opisuje rodzaj lub wynik wpisu w źródle. Przy kilku różnych
-                wpisach na jednej działce kolor jest neutralny; szczegóły są
-                dostępne po jej wybraniu.
-              </p>
-            </div>
-            <div className="source-info">
-              {!loading && !data.error && allRecords.length > 0 && !allRecords.some(r => r.kind === "application") && (
-                <p className="coverage-note">
-                  W tym zbiorze nie ma samodzielnych wniosków. Nie oznacza to braku nierozpatrzonych wniosków w gminie — eksport CSV nie gwarantuje ich kompletności.
-                </p>
-              )}
-              <h3>Zakres załadowanego zbioru</h3>
-              <p>
-                {data.dataset?.source.coverage ||
-                  "Zakres danych nie jest jeszcze dostępny."}
-              </p>
-              {data.dataset && (
-                <>
-                  <SourceLink url={data.dataset.source.url}>
-                    {data.dataset.source.name}
-                  </SourceLink>
-                  <p className="muted">
-                    Pobranie źródła:{" "}
-                    {formatDate(data.dataset.source.downloadedAt)} · Wygenerowanie
-                    zbioru: {formatDate(data.dataset.generatedAt)}
-                  </p>
-                </>
-              )}
-              {data.metadata?.sources?.map((s, i) => (
-                <div key={i}>
-                  <SourceLink url={s.url}>{s.name}</SourceLink>
-                </div>
+          <section aria-labelledby="about-investments" id="investment-provenance">
+            <h3 id="about-investments">Inwestycje — niezależne źródła</h3>
+            <ul className="about-points">
+              <li>Liczymy rekordy źródłowe, nie unikalne budowy. Różne dokumenty mogą opisywać to samo przedsięwzięcie — pokazujemy je obok siebie jako „podobne”, ale nie łączymy.</li>
+              <li>Etap (Zapowiedziane, W realizacji, Ukończone) to grupowanie zdań statusu ze źródła; oryginalny status jest w karcie rekordu. Ukończone są domyślnie ukryte.</li>
+              <li>Punkt, działka i trasa mają różną dokładność. Brak lokalizacji nie oznacza braku inwestycji.</li>
+              <li>Budżet, propozycja BO, grant, zamówienie i sprawa środowiskowa nie potwierdzają rozpoczęcia prac. Kwot nie sumujemy; koszt projektu wielogminnego nie jest kosztem samej gminy.</li>
+              <li>Import inwestycji: {invData ? formatDate(invData.generatedAt) : "nie wczytano"}.</li>
+            </ul>
+            {invWarnings.length > 0 && (
+              <>
+                <h4>Ograniczenia aktualności i integralności</h4>
+                <ul className="about-warnings">{invWarnings.map((w, i) => <li key={i}>{w}</li>)}</ul>
+              </>
+            )}
+            <div className="about-sources">
+              {invData?.sources.map(s => (
+                <article key={s.id}>
+                  <h4><a href={s.url} target="_blank" rel="noopener noreferrer">{s.name}</a></h4>
+                  <p>{freshness[s.status]} · {s.recordCount} rekordów</p>
+                  <p className="muted">{s.coverage}</p>
+                </article>
               ))}
-              <p className="muted">
-                Dane inwestorów i projektantów są wyłączone z publicznego zbioru.
-                CSV nie gwarantuje kompletności nierozpatrzonych wniosków.
-              </p>
-              <p className="muted">
-                CSV zawiera bieżące wyniki filtrów. Statusy zachowujemy zgodnie ze
-                źródłem; wartości chronimy przed interpretacją jako formuły
-                arkusza.
-              </p>
             </div>
           </section>
-        </details>
-      </main>
-      <footer>
-        Budowy · Ożarów Mazowiecki
-        <span>Informacja pomocnicza — rozstrzygają dokumenty źródłowe.</span>
-      </footer>
-    </>
+        </div>
+      </section>
+    </div>
   );
 }
 
 export default function App() {
-  const [mode,setMode]=useState<"permits"|"investments">("permits");
-  const [investmentsVisited,setInvestmentsVisited]=useState(false);
-  const changeMode=(next:typeof mode)=>{if(next==="investments")setInvestmentsVisited(true);setMode(next);};
-  const disclosureId=mode==="permits"?"provenance":"investment-provenance";
-  return <>
-    <header className="masthead">
-      <div className="brand"><span className="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="m4 11 12-7 12 7-12 7-12-7Zm0 7 12 7 12-7M4 25l12 7 12-7"/></svg></span><div><h1>Radar Ożarów</h1><p>Atlas GIS · Ożarów Mazowiecki</p></div></div>
-      <nav className="mode-switch" aria-label="Rodzaj danych"><button aria-pressed={mode==="permits"} onClick={()=>changeMode("permits")}>Pozwolenia</button><button aria-pressed={mode==="investments"} onClick={()=>changeMode("investments")}>Inwestycje</button></nav>
-      <a className="header-link" href={`#${disclosureId}`} onClick={()=>{const disclosure=document.getElementById(disclosureId) as HTMLDetailsElement|null;if(disclosure)disclosure.open=true;}}>O danych <span aria-hidden="true">↗</span></a>
-    </header>
-    <div className="atlas-mode" hidden={mode!=="permits"}><PermitAtlas active={mode==="permits"}/></div>
-    <div className="atlas-mode" hidden={mode!=="investments"}>{investmentsVisited&&<InvestmentsAtlas active={mode==="investments"}/>}</div>
-  </>;
+  const permits = usePermits();
+  const investments = useInvestments();
+  const mobile = useIsMobile();
+  const viewport = useViewportHeight();
+  const initialHash = useRef(readHash(window.location.hash));
+  const [mode, setMode] = useState<Mode>(initialHash.current.mode);
+  const [layers, setLayers] = useState({ permits: true, investments: true });
+  const [selection, setSelection] = useState<Selection | null>(null);
+  const [sheet, setSheet] = useState<Sheet>("peek");
+  const [dragHeight, setDragHeight] = useState<number | null>(null);
+  const [about, setAbout] = useState(false);
+  const [legendOpen, setLegendOpen] = useState(false);
+  const [fitToken, setFitToken] = useState(0);
+  const [fitAllToken, setFitAllToken] = useState(0);
+  const origin = useRef<"list" | "map">("list");
+  const restore = useRef<{ origin: "list" | "map"; id: string } | null>(null);
+  const aboutOpener = useRef<HTMLElement | null>(null);
+  const overview = useRef<HTMLButtonElement>(null);
+  const panelBody = useRef<HTMLDivElement>(null);
+
+  const permitGeo = useMemo(() => {
+    const result = new Map<string, { at: LatLng; areas: Geometry[] }>();
+    for (const record of permits.all) {
+      const areas = getRecordParcels(record, permits.data.parcels).map(f => f.geometry);
+      const at = centerOf(areas);
+      if (at) result.set(record.id, { at, areas });
+    }
+    return result;
+  }, [permits.data]);
+  const investmentGeo = useMemo(() => {
+    const result = new Map<string, { at: LatLng; areas: Geometry[] }>();
+    for (const record of investments.all) {
+      const geometries = record.geometries.map(g => g.geometry);
+      const at = centerOf(geometries);
+      if (at) result.set(record.id, { at, areas: geometries.filter(g => !/Point/.test(g.type)) });
+    }
+    return result;
+  }, [investments.data]);
+
+  const selectedPermit = selection?.layer === "permits" ? permits.all.find(r => r.id === selection.id) || null : null;
+  const selectedInvestment = selection?.layer === "investments" ? investments.all.find(r => r.id === selection.id) || null : null;
+  const selectedKey = selectedPermit ? `p:${selectedPermit.id}` : selectedInvestment ? `i:${selectedInvestment.id}` : null;
+
+  const items = useMemo(() => {
+    const result: MapItem[] = [];
+    const permitRows = layers.permits ? permits.filtered : [];
+    const investmentRows = layers.investments ? investments.filtered : [];
+    const extraPermit = selectedPermit && !permitRows.includes(selectedPermit) ? [selectedPermit] : [];
+    const extraInvestment = selectedInvestment && !investmentRows.includes(selectedInvestment) ? [selectedInvestment] : [];
+    for (const record of [...permitRows, ...extraPermit]) {
+      const geo = permitGeo.get(record.id);
+      if (geo) result.push({
+        key: `p:${record.id}`, layer: "permits", id: record.id, at: geo.at, areas: geo.areas,
+        color: kindColors[record.kind], shape: "square",
+        label: `${kindLabels[record.kind]} · ${record.title} · ${placeLine(record)}`,
+      });
+    }
+    for (const record of [...investmentRows, ...extraInvestment]) {
+      const geo = investmentGeo.get(record.id);
+      const stage = recordMapStage(record);
+      if (geo) result.push({
+        key: `i:${record.id}`, layer: "investments", id: record.id, at: geo.at, areas: geo.areas,
+        color: mapStageColors[stage], shape: "circle", hollow: stage === "other",
+        label: `${mapStageLabels[stage]} · ${record.title}`,
+      });
+    }
+    return result;
+  }, [permits.filtered, investments.filtered, layers, permitGeo, investmentGeo, selectedPermit, selectedInvestment]);
+
+  const selectedOnMap = !!selectedKey && items.some(item => item.key === selectedKey);
+  const sheetHeights = { peek: PEEK, half: Math.round((viewport - HEADER) * 0.55), full: viewport - HEADER - 8 };
+  const sheetHeight = dragHeight ?? sheetHeights[sheet];
+  const insets: Insets = mobile
+    ? { left: 0, top: 56, bottom: Math.min(sheetHeight, sheetHeights.half) }
+    : { left: 432, top: 0, bottom: 0 };
+
+  const select = useCallback((layer: Layer, id: string, from: "list" | "map" = "map") => {
+    origin.current = from;
+    setMode(layer);
+    setLayers(prev => ({ ...prev, [layer]: true }));
+    setSelection({ layer, id });
+    setSheet("half");
+    setFitToken(n => n + 1);
+  }, []);
+  /** Selecting a record that current filters hide (a nearby or similar one) widens the filters. */
+  const pick = useCallback((layer: Layer, id: string) => {
+    if (layer === "permits" && !permits.filtered.some(r => r.id === id)) {
+      permits.setFilters({ ...defaultFilters, period: "all" });
+      permits.setOnlyNew(false);
+    }
+    if (layer === "investments" && !investments.filtered.some(r => r.id === id)) {
+      investments.setFilters({ ...investmentDefaults, stages: ["upcoming", "progress", "done", "other"] });
+      investments.setOnlyNew(false);
+    }
+    select(layer, id, "list");
+  }, [permits.filtered, investments.filtered, select]);
+  const close = useCallback(() => {
+    if (!selection) return;
+    restore.current = { origin: origin.current, id: selection.id };
+    setSelection(null);
+    if (mobile) setSheet(origin.current === "list" ? "half" : "peek");
+  }, [selection, mobile]);
+
+  // A filter change that hides the selected record closes its card.
+  useEffect(() => {
+    if (selectedPermit && !permits.loading && !permits.filtered.includes(selectedPermit)) setSelection(null);
+  }, [permits.filtered]);
+  useEffect(() => {
+    if (selectedInvestment && !investments.loading && !investments.filtered.includes(selectedInvestment)) setSelection(null);
+  }, [investments.filtered]);
+  // Reframe the map when the result set changes.
+  const firstFilter = useRef(true);
+  useEffect(() => {
+    if (firstFilter.current) { firstFilter.current = false; return; }
+    if (!selection) setFitToken(n => n + 1);
+  }, [permits.filters, permits.onlyNew, investments.filters, investments.onlyNew, layers]);
+
+  // The sheet covers the lower map, so keep the results (or the selection) in the visible part.
+  const firstSheet = useRef(true);
+  useEffect(() => {
+    if (firstSheet.current) { firstSheet.current = false; return; }
+    if (mobile && sheet !== "full") setFitToken(n => n + 1);
+  }, [sheet]);
+  useEffect(() => {
+    if (selection) {
+      const detail = panelBody.current?.querySelector<HTMLElement>(".detail-panel");
+      detail?.scrollIntoView?.({ block: "start", behavior: "auto" });
+      detail?.focus({ preventScroll: true });
+      return;
+    }
+    const target = restore.current;
+    if (!target) return;
+    restore.current = null;
+    if (target.origin === "list") {
+      const row = Array.from(panelBody.current?.querySelectorAll<HTMLElement>(".result-row") || [])
+        .find(element => element.dataset.recordId === target.id);
+      row?.scrollIntoView?.({ block: "nearest", behavior: "auto" });
+      row?.focus({ preventScroll: true });
+    } else overview.current?.focus({ preventScroll: true });
+  }, [selection]);
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (about) { event.preventDefault(); setAbout(false); aboutOpener.current?.focus(); }
+      else if (selection) { event.preventDefault(); close(); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [about, selection, close]);
+
+  // Shareable links: apply the hash once its dataset is loaded, then mirror the state.
+  const hashApplied = useRef(false);
+  const applyHash = useCallback((hash: string) => {
+    const state = readHash(hash);
+    setMode(state.mode);
+    if (state.permitId && permits.all.some(r => r.id === state.permitId)) {
+      if (!permits.filtered.some(r => r.id === state.permitId)) permits.setFilters(prev => ({ ...prev, period: "all" }));
+      select("permits", state.permitId);
+    } else if (state.investmentId && investments.all.some(r => r.id === state.investmentId)) {
+      if (!investments.filtered.some(r => r.id === state.investmentId))
+        investments.setFilters({ ...investmentDefaults, stages: ["upcoming", "progress", "done", "other"] });
+      select("investments", state.investmentId);
+    }
+  }, [permits.all, permits.filtered, investments.all, investments.filtered, select]);
+  useEffect(() => {
+    if (hashApplied.current) return;
+    const wanted = initialHash.current;
+    if (wanted.permitId ? permits.loading : wanted.investmentId ? investments.loading : false) return;
+    hashApplied.current = true;
+    if (wanted.permitId || wanted.investmentId) applyHash(window.location.hash);
+  }, [permits.loading, investments.loading, applyHash]);
+  useEffect(() => {
+    if (!hashApplied.current) return;
+    const next = writeHash({ mode, id: selection?.id ?? null });
+    if (window.location.hash !== next && (window.location.hash || next !== "#budowy"))
+      window.history.replaceState(null, "", next);
+  }, [mode, selection]);
+  useEffect(() => {
+    const onHash = () => applyHash(window.location.hash);
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, [applyHash]);
+
+  const changeMode = (next: Mode) => {
+    if (next === mode) return;
+    if (selection && selection.layer !== next) setSelection(null);
+    setMode(next);
+    setLayers(prev => ({ ...prev, [next]: true }));
+  };
+  const openAbout = (event: React.MouseEvent<HTMLElement>) => {
+    aboutOpener.current = event.currentTarget;
+    setAbout(true);
+  };
+
+  // Bottom sheet: tap the handle to step through sizes, or drag it.
+  const drag = useRef<{ y: number; height: number; moved: boolean } | null>(null);
+  const suppressClick = useRef(false);
+  const snapTo = (height: number) => {
+    const entries = Object.entries(sheetHeights) as [Sheet, number][];
+    entries.sort((a, b) => Math.abs(a[1] - height) - Math.abs(b[1] - height));
+    setSheet(entries[0][0]);
+  };
+
+  const nearbyFor = (at: LatLng | undefined): Nearby => {
+    if (!at) return { permits: [], investments: [] };
+    const permitPoints = permits.all.flatMap(r => {
+      const geo = permitGeo.get(r.id);
+      return geo && r.id !== selection?.id ? [{ item: r, at: geo.at }] : [];
+    });
+    const investmentPoints = investments.all.flatMap(r => {
+      const geo = investmentGeo.get(r.id);
+      return geo && r.id !== selection?.id && recordMapStage(r) !== "done" ? [{ item: r, at: geo.at }] : [];
+    });
+    return { permits: nearest(at, permitPoints, 300, 4), investments: nearest(at, investmentPoints, 1000, 3) };
+  };
+
+  const permitLegend = useMemo(() => {
+    const counts = new Map<RecordKind, number>();
+    for (const r of permits.filtered) if (permitGeo.has(r.id)) counts.set(r.kind, (counts.get(r.kind) || 0) + 1);
+    return [...counts.entries()];
+  }, [permits.filtered, permitGeo]);
+  const investmentLegend = useMemo(() => {
+    const counts = new Map<MapStage, number>();
+    for (const r of investments.filtered) if (investmentGeo.has(r.id)) counts.set(recordMapStage(r), (counts.get(recordMapStage(r)) || 0) + 1);
+    return (["upcoming", "progress", "done", "other"] as MapStage[]).filter(s => counts.has(s)).map(s => [s, counts.get(s)!] as const);
+  }, [investments.filtered, investmentGeo]);
+
+  const permitReady = !permits.loading && !permits.data.error;
+  const investmentReady = !investments.loading && !investments.error;
+  const share = shareUrl({ mode, id: selection?.id ?? null });
+
+  return (
+    <div className={`app${mobile ? " is-mobile" : ""}`}>
+      <a className="skip-link" href="#results" onClick={event => {
+        event.preventDefault();
+        setSelection(null);
+        setSheet("full");
+        requestAnimationFrame(() => document.querySelector<HTMLElement>(mode === "permits" ? "#results" : "#investment-results")?.focus());
+      }}>Przejdź do wyników</a>
+      <header className="masthead">
+        <div className="brand">
+          <span className="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" /><circle cx="16" cy="16" r="5" /><path d="M16 16 25 7" /></svg></span>
+          <div><h1>Radar Ożarów</h1><p>Budowy i inwestycje w gminie Ożarów Mazowiecki</p></div>
+        </div>
+        <button type="button" className="header-link" onClick={openAbout}>O danych</button>
+      </header>
+      <div className="sr-only" role="status" aria-live="polite" data-testid="data-status"
+        data-loading={permits.loading} data-state={permits.loading ? "loading" : permits.data.error ? "error" : "ready"}
+        data-record-count={permits.loading ? "" : permits.allCounts.total}
+        data-filtered-count={permits.loading ? "" : permits.counts.total}
+        data-mapped-count={permits.loading ? "" : permits.allCounts.mapped}
+        data-parcel-count={permits.loading ? "" : permits.allCounts.parcelCount}>
+        {permits.loading ? "Ładowanie danych…" : permits.data.error ? "Dane nie zostały wczytane." : `Wczytano ${permits.allCounts.total} wpisów budowlanych`}
+      </div>
+      <div className="sr-only" role="status" aria-live="polite" data-testid="investments-status"
+        data-state={investments.loading ? "loading" : investments.error ? "error" : "ready"}
+        data-record-count={investmentReady ? investments.all.length : ""}
+        data-filtered-count={investmentReady ? investments.filtered.length : ""}
+        data-mapped-count={investmentReady ? investments.mapped : ""}>
+        {investments.loading ? "Ładowanie inwestycji…" : investments.error ? "Dane inwestycji niewczytane." : `Wczytano ${investments.all.length} rekordów inwestycji`}
+      </div>
+      <main className="stage">
+        <section className="map-area" aria-label="Mapa">
+          <RadarMap items={items} selectedKey={selectedKey} insets={insets} fitToken={fitToken} fitAllToken={fitAllToken}
+            onSelect={(layer, id) => select(layer, id, "map")} />
+          <div className="map-controls">
+            <div className={`layer-card${legendOpen || !mobile ? " open" : ""}`}>
+              {mobile && (
+                <button type="button" className="layer-toggle" aria-expanded={legendOpen} onClick={() => setLegendOpen(!legendOpen)}>
+                  Warstwy i legenda
+                </button>
+              )}
+              {(legendOpen || !mobile) && (
+                <div className="layer-body">
+                  <label className="layer-row">
+                    <input type="checkbox" checked={layers.permits} onChange={e => setLayers(prev => ({ ...prev, permits: e.target.checked }))} />
+                    <span className="layer-name">Budowy <span className="muted">kwadraty</span></span>
+                  </label>
+                  {layers.permits && permitLegend.map(([kind, count]) => (
+                    <span key={kind} className="legend-row"><span className="legend-mark square" style={{ background: kindColors[kind] }} aria-hidden="true" />{kindPlural[kind]}<strong>{count}</strong></span>
+                  ))}
+                  <label className="layer-row">
+                    <input type="checkbox" checked={layers.investments} onChange={e => setLayers(prev => ({ ...prev, investments: e.target.checked }))} />
+                    <span className="layer-name">Inwestycje <span className="muted">koła</span></span>
+                  </label>
+                  {layers.investments && investmentLegend.map(([stage, count]) => (
+                    <span key={stage} className="legend-row"><span className={`legend-mark circle${stage === "other" ? " hollow" : ""}`} style={{ background: mapStageColors[stage], borderColor: mapStageColors[stage] }} aria-hidden="true" />{mapStageLabels[stage]}<strong>{count}</strong></span>
+                  ))}
+                  <p className="legend-note">Liczby: obiekty na mapie. Kolor budowy = rodzaj wpisu, nie wynik decyzji. Liczba w kole = kilka obiektów obok siebie.</p>
+                </div>
+              )}
+            </div>
+          </div>
+          <button ref={overview} type="button" className="map-overview" onClick={() => selectedOnMap ? setFitToken(n => n + 1) : setFitAllToken(n => n + 1)}
+            style={mobile ? { bottom: Math.min(sheetHeight, sheetHeights.half) + 12 } : undefined}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>
+            {selectedOnMap ? "Pokaż wybrany" : "Pokaż wszystkie"}
+          </button>
+        </section>
+        <aside className={`panel sheet-${sheet}${dragHeight !== null ? " dragging" : ""}`} aria-label="Wyniki i szczegóły"
+          style={mobile ? { height: sheetHeight } : undefined}>
+          {mobile && (
+            <button type="button" className="sheet-handle"
+              aria-label={sheet === "full" ? "Zmniejsz panel" : "Powiększ panel"}
+              onPointerDown={event => {
+                drag.current = { y: event.clientY, height: sheetHeight, moved: false };
+                event.currentTarget.setPointerCapture?.(event.pointerId);
+              }}
+              onPointerMove={event => {
+                const state = drag.current;
+                if (!state) return;
+                const delta = state.y - event.clientY;
+                if (Math.abs(delta) > 6) state.moved = true;
+                if (state.moved) setDragHeight(Math.max(PEEK - 40, Math.min(sheetHeights.full, state.height + delta)));
+              }}
+              onPointerUp={() => {
+                const state = drag.current;
+                drag.current = null;
+                if (state?.moved) {
+                  suppressClick.current = true;
+                  snapTo(dragHeight ?? state.height);
+                }
+                setDragHeight(null);
+              }}
+              onPointerCancel={() => { drag.current = null; setDragHeight(null); }}
+              onClick={() => {
+                if (suppressClick.current) { suppressClick.current = false; return; }
+                setSheet(sheet === "peek" ? "half" : sheet === "half" ? "full" : "half");
+              }}>
+              <span aria-hidden="true" />
+            </button>
+          )}
+          <div className="panel-tabs" role="group" aria-label="Rodzaj danych">
+            <button type="button" aria-pressed={mode === "permits"} onClick={() => changeMode("permits")}>
+              Budowy{permitReady && <span className="tab-count">{permits.counts.total}</span>}
+            </button>
+            <button type="button" aria-pressed={mode === "investments"} onClick={() => changeMode("investments")}>
+              Inwestycje{investmentReady && <span className="tab-count">{investments.filtered.length}</span>}
+            </button>
+          </div>
+          <div className="panel-body" ref={panelBody}>
+            {selectedPermit ? (
+              <PermitDetail record={selectedPermit} parcels={permits.data.parcels} onClose={close} onPick={pick}
+                nearby={nearbyFor(permitGeo.get(selectedPermit.id)?.at)} share={share} isNew={permits.seen.newIds.has(selectedPermit.id)} />
+            ) : selectedInvestment ? (
+              <InvestmentDetail record={selectedInvestment} all={investments.all} onClose={close} onPick={pick}
+                source={investments.data?.sources.find(s => s.id === selectedInvestment.sourceId)}
+                nearbyPermits={nearbyFor(investmentGeo.get(selectedInvestment.id)?.at).permits}
+                share={share} isNew={investments.seen.newIds.has(selectedInvestment.id)} />
+            ) : mode === "permits" ? (
+              <PermitList state={permits} selectedId={null} onSelect={id => select("permits", id, "list")}
+                onSearchFocus={() => { if (mobile && sheet === "peek") setSheet("full"); }} />
+            ) : (
+              <InvestmentList state={investments} selectedId={null} onSelect={id => select("investments", id, "list")}
+                onSearchFocus={() => { if (mobile && sheet === "peek") setSheet("full"); }}
+                onAbout={() => { aboutOpener.current = document.activeElement as HTMLElement | null; setAbout(true); }} />
+            )}
+          </div>
+        </aside>
+      </main>
+      {about && <AboutDialog permits={permits} investments={investments} onClose={() => { setAbout(false); aboutOpener.current?.focus(); }} />}
+    </div>
+  );
 }

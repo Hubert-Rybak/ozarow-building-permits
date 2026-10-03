@@ -17,15 +17,15 @@ Aplikacja domyślnie pokazuje **ostatnie 3 miesiące kalendarzowe** względem dz
 
 Pełna metodologia, oficjalne źródła, weryfikacja TERYT, zakres i ograniczenia: **[docs/SOURCES.md](docs/SOURCES.md)**.
 
-Na telefonie wybór wpisu z potwierdzonym obrysem na liście przełącza widok na mapę i pokazuje jego działki. Wpis bez dostępnej geometrii otwiera szczegóły, pozostając w widoku listy. Filtry nie zmieniają się; dotknięcie działki na mapie otwiera szczegóły, a ich zamknięcie przywraca mapę do widoku.
+## Interfejs: mapa z panelem (runda 2, kierunek B)
 
-## Interfejs Atlas GIS (P1)
+Jedna mapa na cały ekran pokazuje obie warstwy: **budowy** (kwadraty, kolor = rodzaj wpisu: decyzja / zgłoszenie — nie wynik) i **inwestycje** (koła, kolor = etap: zapowiedziane / w realizacji / ukończone / inne). Przy oddaleniu bliskie obiekty łączą się w klastry z liczbą i udziałem kolorów; od przybliżenia ~17 widać obrysy działek. Legenda liczy wyłącznie obiekty obecne na mapie. Markery nie są osobnymi przystankami Tab — dostępną alternatywą jest lista.
 
-Układ Explore/GIS ma lewy panel wyszukiwania i wyników, trwałą mapę oraz inspektor po prawej. Na telefonie wyszukiwanie, okres, zwijane filtry i zakładki poprzedzają mapę; szczegóły znajdują się poniżej niej, nie zasłaniają obrysów. Etykiety pomocnicze mają co najmniej 11 px, mobilne wyszukiwanie 16 px, a podstawowe kontrolki co najmniej 44×44 px. Link „Wpis w źródle” występuje przed długimi identyfikatorami działek, po rzeczywistym statusie i jego zastrzeżeniu.
+Na desktopie wyniki i karta wpisu są w pływającym panelu po lewej (zakładki Budowy / Inwestycje), a mapa kadruje wybór z uwzględnieniem panelu. Na telefonie panel jest arkuszem od dołu (podgląd / połowa / pełny; uchwyt można stuknąć lub przeciągnąć); wybór z listy lub mapy ustawia arkusz na połowę i centruje działkę **nad** arkuszem. Fokus po zamknięciu (przycisk „Lista” albo Escape) wraca do wiersza listy lub do przycisku mapy.
 
-Zamknięcie inspektora przyciskiem × i klawiszem Escape korzysta z tego samego powrotu fokusu: do wiersza po wyborze z listy na desktopie, do mapy po wyborze działki, a na telefonie do odpowiedniej aktualnie widocznej powierzchni. Powtórny wybór tego samego wpisu zachowuje działanie; filtry i instancja Leaflet nie są odmontowywane. Pusty inspektor zawiera krótką wskazówkę i ostrzeżenie, bez wysokiej dekoracji i wieloetapowej instrukcji.
+Karta wpisu budowlanego: zdanie o statusie (decyzja odnotowana bez wyniku, brak sprzeciwu, wniosek ≠ pozwolenie), przebieg wniosek → decyzja, „Sprawdź u źródła” (wyszukiwarka GUNB + kopiowanie numeru, działka w Geoportalu, opisany plik ZIP GUNB), obiekty w pobliżu (do 300 m / inwestycje do 1 km) i zwinięte dane techniczne (TERYT, odpowiedź ULDK). Karta inwestycji: etap z oryginalnym zdaniem statusu, ważne daty, kwoty bez sumowania, lokalizacja lub jej brak, udokumentowane powiązania i rekordy o podobnej nazwie (nie łączone automatycznie).
 
-Historyczna weryfikacja samego Atlasu GUNB: **89 testów UI** (75 niezmienionych bazowych, 5 P1 i 9 uzupełniających), TypeScript/Vite build oraz rzeczywisty Chromium dla 320×700, 390×844, 820×1180 i 1440×1000. Sprawdzono oba obrysy pierwszego domyślnego wpisu, focus/close/Escape, wpisy wielodziałkowe, częściowe i bez geometrii, równość ID listy i CSV, HTTP 503 → retry do rzeczywistych danych oraz brak poziomego overflow względem `document.documentElement.clientWidth`. Dowody lokalne są w ignorowanym `.cache/atlas-production/`; nie stanowią publikacji. Nie testowano Safari, fizycznych urządzeń ani pełnego czytnika ekranu; podkład OSM pozostaje zewnętrzną zależnością.
+Filtry to przyciski z liczbami: okres i rodzaj wpisu dla budów; etap (ukończone domyślnie ukryte), 11 grup zamiast 28 kategorii źródłowych i miejscowość (także „bez miejscowości”) dla inwestycji; reszta w „Więcej filtrów”. Wyszukiwanie toleruje odmianę („boisko” znajduje „boiska”). „Nowe od ostatniej wizyty” zapamiętuje tylko przeglądarka (localStorage). Każdy wpis ma link (`#wpis=…`, `#inwestycja=…`). Ograniczenia i pokrycie źródeł są w oknie „O danych”. Tekst ma bazowo 15 px, pola na telefonie 16 px, cele dotyku ≥ 40–44 px; czcionka IBM Plex Sans jest serwowana lokalnie z buildu.
 
 ```bash
 npm test -- --maxWorkers=1
@@ -36,7 +36,7 @@ npm run preview -- --host 127.0.0.1 --port 4182 --strictPort
 
 ## Atlas inwestycji
 
-Oddzielny tryb **Inwestycje** zachowuje mapę/listę i udostępnia filtry źródła, typu inwestora, kategorii, statusu, roku oraz dostępności geometrii, sortowanie, wyszukiwanie i CSV z tego samego zbioru wyników. Domyślnie pokazuje wszystkie lata. Inspektor rozdziela czas pobrania, datę edycji źródła i daty zdarzeń; pokazuje typ/zakres kosztu, źródła, historię i ostrzeżenia bez zgadywania braków.
+Zakładka **Inwestycje** udostępnia filtry etapu, grupy kategorii, miejscowości, źródła, typu inwestora, roku oraz dostępności geometrii, sortowanie, wyszukiwanie i CSV z tego samego zbioru wyników. Domyślnie pokazuje wszystkie lata i ukrywa rekordy ukończone (jeden przycisk je przywraca). Inspektor rozdziela czas pobrania, datę edycji źródła i daty zdarzeń; pokazuje typ/zakres kosztu, źródła, historię i ostrzeżenia bez zgadywania braków.
 
 Zweryfikowany snapshot z **3 października 2026, 13:52:56 UTC** zawiera **792 rekordy źródłowe z 10 źródeł**, w tym **469 z geometrią i 755 obiektów GeoJSON**. MultiPoint pozostaje jednym obiektem z wieloma punktami: łącznie renderowane są 762 elementy SVG; BO obejmuje 16 obiektów / 23 punkty. To nie jest liczba unikalnych budów ani deklaracja pełnego pokrycia gminy. Aktualne liczniki i statusy źródeł zawsze wynikają z załadowanego artefaktu, nie z tych historycznych liczb.
 
