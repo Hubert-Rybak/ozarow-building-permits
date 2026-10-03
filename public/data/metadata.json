@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-02T21:53:58.964990Z",
-  "recordCount": 445,
-  "parcelCount": 839,
-  "matchedRecordCount": 368,
+  "generatedAt": "2026-10-03T05:53:51.630007Z",
+  "recordCount": 447,
+  "parcelCount": 842,
+  "matchedRecordCount": 370,
   "partialRecordCount": 29,
   "unresolvedRecordCount": 48,
-  "coverage": "Cała gmina Ożarów Mazowiecki (miasto i obszar wiejski): daty wpływu 2025-01-01–2026-10-02; faktyczne wpisy 2025-01-09–2026-09-23. Wnioski/decyzje: CSV mazowieckie; zgłoszenia: CSV krajowy od 2022. Obrysy ze stanu ULDK podczas pobrania (cache do 30 dni), nie historyczne.",
+  "coverage": "Cała gmina Ożarów Mazowiecki (miasto i obszar wiejski): daty wpływu 2025-01-01–2026-10-03; faktyczne wpisy 2025-01-09–2026-09-23. Wnioski/decyzje: CSV mazowieckie; zgłoszenia: CSV krajowy od 2022. Obrysy ze stanu ULDK podczas pobrania (cache do 30 dni), nie historyczne.",
   "warnings": [
     "Decyzja w CSV nie oznacza pozwolenia: eksport nie podaje wyniku rozstrzygnięcia. Wniosek i zgłoszenie są odrębnymi rodzajami wpisów.",
     "Powtarzające się wiersze działek połączono według identyfikatora systemowego GUNB; wniosek z odnotowaną decyzją to jeden wpis typu decyzja.",
@@ -31,27 +31,31 @@
     {
       "name": "GUNB permit",
       "url": "https://wyszukiwarka.gunb.gov.pl/pliki_pobranie/wynik_mazowieckie.zip",
-      "downloadedAt": "2026-10-02T21:33:23.783668Z",
-      "sha256": "115378d80aaa719ad3d7def2eb043c5fc544c4226c43fe222680b55ed947f20c",
-      "byteCount": 46220814
+      "downloadedAt": "2026-10-03T05:44:05.741668Z",
+      "sha256": "35517ddf8cc53a168c75a14d5d9f7e6ec29fcea807bbb39a9f8d3cd00a34887e",
+      "byteCount": 46241653,
+      "httpLastModified": "Fri, 02 Oct 2026 21:35:13 GMT",
+      "httpETag": "\"2c19775-65ce24ebb0480\""
     },
     {
       "name": "GUNB notification",
       "url": "https://wyszukiwarka.gunb.gov.pl/pliki_pobranie/wynik_zgloszenia_2022_up.zip",
-      "downloadedAt": "2026-10-02T21:33:23.545665Z",
-      "sha256": "df39c025b506d51661edd234f30ab3ffdc2e924fc8653aec0b5e6d2c7c1ab932",
-      "byteCount": 25687989
+      "downloadedAt": "2026-10-03T05:44:18.491338Z",
+      "sha256": "eee98e1835c53b649cec6fecaa5e41f144fdc38af8b5e9c45e9f8fc44a48df62",
+      "byteCount": 25711067,
+      "httpLastModified": "Fri, 02 Oct 2026 21:36:10 GMT",
+      "httpETag": "\"18851db-65ce2521b94a0\""
     }
   ],
   "dateRange": {
     "requestedStart": "2025-01-01",
-    "requestedEnd": "2026-10-02",
+    "requestedEnd": "2026-10-03",
     "actualStart": "2025-01-09",
     "actualEnd": "2026-09-23"
   },
   "kindCounts": {
     "notification": 101,
-    "decision": 344
+    "decision": 346
   },
   "localityCounts": {
     "Bronisze": 8,
@@ -70,7 +74,7 @@
     "Mory": 7,
     "Myszczyn": 6,
     "Ołtarzew": 11,
-    "Ożarów Mazowiecki": 116,
+    "Ożarów Mazowiecki": 118,
     "Pilaszków": 7,
     "Piotrkówek Duży": 1,
     "Piotrkówek Mały": 5,
@@ -89,15 +93,15 @@
   },
   "rawStatistics": {
     "permit": {
-      "totalRows": 691972,
-      "scopedRows": 5597,
+      "totalRows": 692217,
+      "scopedRows": 5601,
       "dateFilteredRows": 4838,
       "invalidDateRows": 0,
       "missingIdRows": 0,
       "invalidParcelRows": 18
     },
     "notification": {
-      "totalRows": 928781,
+      "totalRows": 929605,
       "scopedRows": 939,
       "dateFilteredRows": 591,
       "invalidDateRows": 0,
@@ -106,15 +110,17 @@
     }
   },
   "geometryCoverage": {
-    "candidateParcelCount": 931,
-    "attemptedParcelCount": 931,
-    "confirmedParcelCount": 839,
+    "candidateParcelCount": 934,
+    "attemptedParcelCount": 934,
+    "confirmedParcelCount": 842,
     "failedParcelCount": 92,
     "unattemptedParcelCount": 0,
     "strategy": "newest applications first; full exact-ID validation",
     "maxParcels": 0,
+    "reusedParcelCount": 842,
+    "freshParcelCount": 0,
     "downloadedAtStart": "2026-10-02T21:44:00.391116Z",
-    "downloadedAtEnd": "2026-10-02T21:50:32.714865Z"
+    "downloadedAtEnd": "2026-10-03T05:37:02.071574Z"
   },
   "cadastralRegions": [
     {
@@ -437,6 +443,13 @@
     "143206_5.0031.78/3",
     "143206_5.0035.54/5"
   ],
-  "privacy": "History sanitized before public visibility: free-text source titles/descriptions replaced by fixed-vocabulary summaries; source identifiers, dates, addresses, geometry and archive hashes preserved.",
-  "privacyProcessedAt": "2026-10-03T06:04:46.520278Z"
+  "privacy": "Investor/designer fields excluded. Source free-text titles/descriptions are never published; fixed-vocabulary summaries only. Raw ZIP/CSV private and excluded from Actions caches.",
+  "refreshPolicy": {
+    "sourcesForced": false,
+    "uldkTTLSeconds": 2592000,
+    "publicEvidenceCache": "scripts/uldk-cache.json",
+    "rawSourceCacheShared": false,
+    "maximumLossFraction": 0.2
+  },
+  "publicEvidenceResponseCount": 888
 }
