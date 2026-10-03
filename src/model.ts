@@ -43,8 +43,43 @@ export function normalize(value: string): string {
     .replace(/[\u0300-\u036f]/g, "")
     .trim();
 }
+/** Tolerates Polish inflection: "boisko" also finds "boiska", "szkoły" finds "szkole". */
+export function searchStem(term: string): string {
+  if (term.length < 5 || /\d/.test(term)) return term;
+  return term.slice(0, term.length - (term.length >= 7 ? 2 : 1));
+}
+export function searchTerms(query: string): string[] {
+  return normalize(query).split(/\s+/).filter(Boolean).map(searchStem);
+}
+export const kindColors: Record<RecordKind, string> = {
+  decision: "#2B5C8A",
+  notification: "#D88400",
+  application: "#5B6875",
+};
+export const kindPlural: Record<RecordKind, string> = {
+  decision: "Decyzje",
+  notification: "Zgłoszenia",
+  application: "Wnioski",
+};
 export function recordDate(record: Permit): string | null {
   return record.decisionDate || record.applicationDate || null;
+}
+export function formatDateTime(value: string | null | undefined): string {
+  if (!value) return "Nie podano";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "Nie podano"
+    : new Intl.DateTimeFormat("pl-PL", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Europe/Warsaw",
+      }).format(date);
+}
+export function daysBetween(from: string, to: string): number {
+  return Math.round((Date.parse(to.slice(0, 10)) - Date.parse(from.slice(0, 10))) / 86_400_000);
 }
 export function formatDate(value: string | null | undefined): string {
   if (!value) return "Brak daty";
@@ -143,7 +178,7 @@ export function filterRecords(
   parcels: ParcelCollection,
   referenceDate = new Date(),
 ): Permit[] {
-  const terms = normalize(filters.query).split(/\s+/).filter(Boolean);
+  const terms = searchTerms(filters.query);
   const window = filters.period === "3months" ? dateWindow(referenceDate) : null;
   return records
     .filter((record) => {
@@ -282,4 +317,19 @@ export function exportCsv(
       .map((row) => row.map(csvCell).join(";"))
       .join("\r\n")
   );
+}
+
+/** System number used by the GUNB search engine, e.g. "ST-MZ-OZ/WNIOSEK/24879/2026". */
+export function gunbNumber(record: Permit): string {
+  return record.id.replace(/^(?:permit|decision|application|notification):/, "");
+}
+/** The GUNB CSV is one archive for a whole voivodeship or country, never a single record. */
+export function sourceFileLabel(url: string): string {
+  if (/zgloszenia/i.test(url)) return "Plik źródłowy GUNB: archiwum ZIP zgłoszeń z całego kraju (duży plik)";
+  if (/\.zip(?:$|\?)/i.test(url)) return "Plik źródłowy GUNB: archiwum ZIP całego województwa (duży plik)";
+  return "Plik źródłowy GUNB";
+}
+export const gunbSearchUrl = "https://wyszukiwarka.gunb.gov.pl/";
+export function geoportalParcelUrl(parcelId: string): string {
+  return `https://mapy.geoportal.gov.pl/imapnext/imap/?identifyParcel=${encodeURI(parcelId)}`;
 }
