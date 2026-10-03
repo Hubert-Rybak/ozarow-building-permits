@@ -7,6 +7,7 @@ import type {
   SemanticStatus,
 } from "./types";
 export const defaultFilters: Filters = {
+  period: "3months",
   query: "",
   kind: "",
   year: "",
@@ -114,14 +115,42 @@ export function getRecordParcels(
   }
   return [...matched.values()];
 }
+function dateWindow(referenceDate: Date) {
+  const parts = new Intl.DateTimeFormat("en", {
+    timeZone: "Europe/Warsaw",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(referenceDate);
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find(p => p.type === type)?.value);
+  const year = part("year"), month = part("month"), day = part("day");
+  const today = new Date(Date.UTC(year, month - 1, day));
+  // Subtract calendar months before clamping the day (May 31 → February 28/29).
+  const cutoff = new Date(Date.UTC(year, month - 4, 1));
+  const lastDay = new Date(Date.UTC(
+    cutoff.getUTCFullYear(), cutoff.getUTCMonth() + 1, 0,
+  )).getUTCDate();
+  cutoff.setUTCDate(Math.min(day, lastDay));
+  return {
+    cutoff: cutoff.toISOString().slice(0, 10),
+    today: today.toISOString().slice(0, 10),
+  };
+}
 export function filterRecords(
   records: Permit[],
   filters: Filters,
   parcels: ParcelCollection,
+  referenceDate = new Date(),
 ): Permit[] {
   const terms = normalize(filters.query).split(/\s+/).filter(Boolean);
+  const window = filters.period === "3months" ? dateWindow(referenceDate) : null;
   return records
     .filter((record) => {
+      if (window) {
+        const date = recordDate(record)?.slice(0, 10);
+        if (!date || date < window.cutoff || date > window.today) return false;
+      }
       if (filters.kind && record.kind !== filters.kind) return false;
       if (filters.year && recordDate(record)?.slice(0, 4) !== filters.year)
         return false;

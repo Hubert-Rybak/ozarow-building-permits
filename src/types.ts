@@ -68,6 +68,7 @@ export interface LoadedData {
 export type SemanticStatus =
   "approved" | "refused" | "pending" | "withdrawn" | "unknown";
 export interface Filters {
+  period: "3months" | "all";
   query: string;
   kind: string;
   year: string;

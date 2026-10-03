@@ -11,17 +11,18 @@ import {
   getRecordParcels,
 } from "../../src/model";
 import { parcels, records } from "./fixtures";
+const allFilters = {...defaultFilters, period: "all" as const};
 
 describe("test fixtures only: searching, filtering and honest counts", () => {
   it("searches place, street, parcel and title without Polish accent sensitivity", () => {
     for (const query of ["poznanska", "12/3", "budowa domu"])
       expect(
-        filterRecords(records, { ...defaultFilters, query }, parcels).map(
+        filterRecords(records, { ...allFilters, query }, parcels).map(
           (r) => r.id,
         ),
       ).toEqual(["test-application"]);
     expect(
-      filterRecords(records, { ...defaultFilters, query: "ozarow" }, parcels),
+      filterRecords(records, { ...allFilters, query: "ozarow" }, parcels),
     ).toHaveLength(2);
   });
   it("combines locality, type, year, raw status and mapped filters", () => {
@@ -29,7 +30,7 @@ describe("test fixtures only: searching, filtering and honest counts", () => {
       filterRecords(
         records,
         {
-          ...defaultFilters,
+          ...allFilters,
           locality: "Duchnice",
           kind: "decision",
           year: "2025",
@@ -40,22 +41,22 @@ describe("test fixtures only: searching, filtering and honest counts", () => {
       ).map((r) => r.id),
     ).toEqual(["test-decision"]);
     expect(
-      filterRecords(records, { ...defaultFilters, mapping: "mapped" }, parcels),
+      filterRecords(records, { ...allFilters, mapping: "mapped" }, parcels),
     ).toHaveLength(1);
   });
   it("sorts by decision date then application date, keeping missing dates last", () => {
     expect(
-      filterRecords(records, defaultFilters, parcels).map((r) => r.id),
+      filterRecords(records, allFilters, parcels).map((r) => r.id),
     ).toEqual(["test-decision", "test-application", "test-unknown"]);
     expect(
-      filterRecords(records, { ...defaultFilters, sort: "oldest" }, parcels)[0]
+      filterRecords(records, { ...allFilters, sort: "oldest" }, parcels)[0]
         .id,
     ).toBe("test-unknown");
     expect(recordDate({ ...records[0], applicationDate: null })).toBe(null);
     expect(
       filterRecords(
         [...records, { ...records[0], id: "no-date", applicationDate: null }],
-        { ...defaultFilters, sort: "oldest" },
+        { ...allFilters, sort: "oldest" },
         parcels,
       ).at(-1)?.id,
     ).toBe("no-date");
@@ -69,7 +70,7 @@ describe("test fixtures only: searching, filtering and honest counts", () => {
     });
     expect(
       summarize(
-        filterRecords(records, { ...defaultFilters, query: "hala" }, parcels),
+        filterRecords(records, { ...allFilters, query: "hala" }, parcels),
         parcels,
       ),
     ).toEqual({ total: 1, mapped: 0, unmapped: 1, parcelCount: 0 });
@@ -127,7 +128,7 @@ describe("test fixtures only: searching, filtering and honest counts", () => {
   });
   it("filters partial mapping without hiding unresolved entries in the default view", () => {
     const partial = {...records[0], geometryStatus:"partial" as const};
-    expect(filterRecords([partial, ...records.slice(1)], {...defaultFilters,mapping:"partial"}, parcels)).toEqual([partial]);
+    expect(filterRecords([partial, ...records.slice(1)], {...allFilters,mapping:"partial"}, parcels)).toEqual([partial]);
   });
   it("joins confirmed parcel identifiers without guessing from parcel number", () => {
     expect(getRecordParcels(records[0], parcels)).toHaveLength(1);

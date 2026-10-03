@@ -10,14 +10,14 @@ vi.mock("../../src/ParcelMap", () => ({
     onSelect: (id: string) => void;
     records: { id: string }[];
   }) => (
-    <div aria-label="Mapa działek testowa">
+    <div aria-label="Mapa działek testowa" data-record-ids={records.map(r => r.id).join(",")}>
       <button onClick={() => onSelect(records[0]?.id)}>
         TEST: wybierz na mapie
       </button>
     </div>
   ),
 }));
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); vi.restoreAllMocks(); });
 const mockData = (empty = false) =>
   vi.stubGlobal(
     "fetch",
@@ -32,16 +32,110 @@ const mockData = (empty = false) =>
     })),
   );
 
+describe("UX regressions", () => {
+  it("keeps explanatory copy and limitations in closed disclosures", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => ({ok: true, json: async () => url.includes("permits.json") ? {...dataset, records: dataset.records.filter(r => r.kind !== "application")} : url.includes("parcels.geojson") ? {...parcels, features: []} : {...metadata, warnings: ["TEST limitation"]}})));
+    const {container} = render(<App />);
+    await waitFor(() => expect(screen.getByTestId("data-status")).toHaveAttribute("data-state", "ready"));
+    expect(container.querySelector(".intro p")).not.toBeInTheDocument();
+    expect(container.querySelector(".intro .eyebrow")).not.toBeInTheDocument();
+    expect(container.querySelector("details.warnings")).not.toHaveAttribute("open");
+    const provenance = container.querySelector("details#provenance");
+    expect(provenance).toBeInTheDocument();
+    expect(provenance).not.toHaveAttribute("open");
+    expect(screen.getByText(/Nie oznacza to braku nierozpatrzonych wniosków/).closest("details")).toBe(provenance);
+    expect(container.querySelector(".row-status")).not.toBeInTheDocument();
+  });
+  it("defaults to recent dates and updates the map, results, counters and CSV together", async () => {
+    vi.useFakeTimers({toFake: ["Date"]});
+    vi.setSystemTime(new Date("2026-10-03T10:00:00Z"));
+    const rows = [
+      {...dataset.records[0], applicationDate: "2026-07-03"},
+      {...dataset.records[1], decisionDate: "2026-10-03"},
+      dataset.records[2],
+      {...dataset.records[2], id: "missing-date", applicationDate: null},
+      {...dataset.records[2], id: "future", applicationDate: "2026-10-04"},
+    ];
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => ({ok: true, json: async () => url.includes("permits.json") ? {...dataset, records: rows} : url.includes("parcels.geojson") ? parcels : metadata})));
+    const {container} = render(<App />);
+    await screen.findByText("TEST: budowa domu");
+    expect(screen.getByLabelText("Okres")).toHaveValue("3months");
+    expect(screen.getByTestId("data-status")).toHaveAttribute("data-filtered-count", "2");
+    expect(container.querySelectorAll(".result-row")).toHaveLength(2);
+    expect(screen.getByLabelText("Mapa działek testowa")).toHaveAttribute("data-record-ids", "test-decision,test-application");
+    const create = vi.fn((_blob: Blob) => "blob:test");
+    Object.defineProperty(URL, "createObjectURL", {configurable: true, value: create});
+    Object.defineProperty(URL, "revokeObjectURL", {configurable: true, value: vi.fn()});
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    fireEvent.click(screen.getByRole("button", {name: "Eksport CSV"}));
+    const csv = await new Promise<string>(resolve => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.readAsText(create.mock.calls[0][0]);
+    });
+    expect(csv).toContain('"test-application"');
+    expect(csv).not.toContain('"test-unknown"');
+    click.mockRestore();
+    fireEvent.change(screen.getByLabelText("Okres"), {target: {value: "all"}});
+    expect(screen.getByTestId("data-status")).toHaveAttribute("data-filtered-count", "5");
+    fireEvent.click(screen.getByRole("button", {name: "Wyczyść filtry"}));
+    expect(screen.getByLabelText("Okres")).toHaveValue("3months");
+    expect(screen.getByTestId("data-status")).toHaveAttribute("data-filtered-count", "2");
+  });
+  it.each(["map", "list"])("restores the mobile %s viewport after removing details without changing filters", async (view) => {
+    const seen: {element: HTMLElement; hadDetail: boolean}[] = [];
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {configurable: true, value: function(this: HTMLElement) {
+      seen.push({element: this, hadDetail: !!document.querySelector(".detail-panel")});
+    }});
+    vi.stubGlobal("matchMedia", vi.fn(() => ({matches: true})));
+    mockData();
+    const {container} = render(<App />);
+    await waitFor(() => expect(screen.getByTestId("data-status")).toHaveAttribute("data-state", "ready"));
+    fireEvent.change(screen.getByLabelText("Okres"), {target: {value: "all"}});
+    fireEvent.change(screen.getByLabelText("Szukaj w rejestrze"), {target: {value: "hala"}});
+    if (view === "list") fireEvent.click(screen.getByRole("button", {name: /Lista/}));
+    const map = screen.getByLabelText("Mapa działek testowa");
+    fireEvent.click(screen.getByRole("button", {name: view === "map" ? "TEST: wybierz na mapie" : /TEST: hala/}));
+    expect(screen.getByRole("heading", {name: "Szczegóły wpisu"})).toBeInTheDocument();
+    seen.length = 0;
+    fireEvent.click(screen.getByRole("button", {name: "Zamknij szczegóły"}));
+    await waitFor(() => expect(seen.some(({element, hadDetail}) => !hadDetail && element.classList.contains(view === "map" ? "map-panel" : "result-row"))).toBe(true));
+    expect(container.querySelector(".workspace")).toHaveClass(`view-${view}`);
+    expect(screen.getByLabelText("Szukaj w rejestrze")).toHaveValue("hala");
+    expect(screen.getByLabelText("Okres")).toHaveValue("all");
+    expect(screen.getByLabelText("Mapa działek testowa")).toBe(map);
+    expect(container.querySelector(".result-row.selected")).not.toBeInTheDocument();
+  });
+  it("omits only the generic privacy description while retaining real record descriptions", async () => {
+    const generic = "Bezpieczny skrót rodzaju inwestycji. Swobodny opis GUNB pominięto ze względu na możliwość występowania danych osobowych.";
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => ({ok: true, json: async () => url.includes("permits.json") ? {...dataset, records: [{...dataset.records[0], description: generic}, dataset.records[1]]} : url.includes("parcels.geojson") ? parcels : metadata})));
+    render(<App />);
+    await waitFor(() => expect(screen.getByTestId("data-status")).toHaveAttribute("data-state", "ready"));
+    fireEvent.change(screen.getByLabelText("Okres"), {target: {value: "all"}});
+    fireEvent.click(screen.getByRole("button", {name: /TEST: budowa domu/}));
+    expect(screen.queryByText(generic)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", {name: /TEST: hala/}));
+    expect(screen.getByText("Wyłącznie fixture testowa")).toBeInTheDocument();
+  });
+});
+
+const renderAllPeriods = () => {
+  const rendered = render(<App />);
+  fireEvent.change(screen.getByLabelText("Okres"), {target: {value: "all"}});
+  return rendered;
+};
+
 describe("Polish accessible interface with test-only records", () => {
   it("shows the absence of standalone applications as a source gap, not a zero pending count", async () => {
     vi.stubGlobal("fetch", vi.fn(async (url: string) => ({ok: true, json: async () => url.includes("permits.json") ? {...dataset, records: dataset.records.filter(r => r.kind !== "application")} : url.includes("parcels.geojson") ? {...parcels, features:[]} : metadata})));
-    render(<App />);
+    renderAllPeriods();
     await screen.findByText("TEST: hala");
+    fireEvent.click(screen.getByRole("link", {name: "O danych"}));
     expect(screen.getByText(/Nie oznacza to braku nierozpatrzonych wniosków/)).toBeVisible();
   });
   it("reveals the mobile results when using the skip link", async () => {
     mockData();
-    const {container} = render(<App />);
+    const {container} = renderAllPeriods();
     await screen.findByText("TEST: hala");
     fireEvent.click(screen.getByRole("link", {name:"Przejdź do wyników"}));
     expect(container.querySelector(".workspace")).toHaveClass("view-list");
@@ -49,7 +143,7 @@ describe("Polish accessible interface with test-only records", () => {
   });
   it("labels partial geometry on rows and supports a partial-only filter", async () => {
     vi.stubGlobal("fetch", vi.fn(async (url: string) => ({ok:true,json:async()=>url.includes("permits.json") ? {...dataset, records:[{...dataset.records[0], geometryStatus:"partial", parcelIds:["test-parcel","unresolved-parcel"]}, ...dataset.records.slice(1)]} : url.includes("parcels.geojson") ? parcels : metadata})));
-    render(<App />);
+    renderAllPeriods();
     await screen.findByText("TEST: budowa domu");
     expect(screen.getByText("Częściowy obrys")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Położenie na mapie"),{target:{value:"partial"}});
@@ -58,7 +152,7 @@ describe("Polish accessible interface with test-only records", () => {
   });
   it("shows truthful loading then live counts; distinguishes a pending application", async () => {
     mockData();
-    render(<App />);
+    renderAllPeriods();
     expect(screen.getByText("Ładowanie danych…")).toBeInTheDocument();
     await screen.findByText("TEST: budowa domu");
     expect(screen.getByTestId("data-status")).toHaveAttribute(
@@ -84,7 +178,7 @@ describe("Polish accessible interface with test-only records", () => {
   });
   it("filters, clears obsolete selection, resets, and synchronizes map selection", async () => {
     mockData();
-    render(<App />);
+    renderAllPeriods();
     await screen.findByText("TEST: hala");
     fireEvent.click(screen.getByRole("button", { name: /TEST: hala/ }));
     fireEvent.change(screen.getByLabelText("Szukaj w rejestrze"), {
@@ -97,6 +191,7 @@ describe("Polish accessible interface with test-only records", () => {
       screen.queryByRole("heading", { name: "Szczegóły wpisu" }),
     ).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Wyczyść filtry" }));
+    fireEvent.change(screen.getByLabelText("Okres"), {target: {value: "all"}});
     fireEvent.click(
       screen.getByRole("button", { name: "TEST: wybierz na mapie" }),
     );
@@ -106,7 +201,7 @@ describe("Polish accessible interface with test-only records", () => {
   });
   it("keeps unresolved records accessible and explicitly explains geometry absence", async () => {
     mockData();
-    render(<App />);
+    renderAllPeriods();
     await screen.findByText("TEST: hala");
     fireEvent.change(screen.getByLabelText("Położenie na mapie"), {
       target: { value: "unmapped" },
@@ -123,7 +218,7 @@ describe("Polish accessible interface with test-only records", () => {
     const seen: HTMLElement[] = [];
     Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {configurable:true, value:function(this:HTMLElement) {seen.push(this);}});
     mockData();
-    render(<App />);
+    renderAllPeriods();
     await screen.findByText("TEST: hala");
     fireEvent.click(screen.getByRole("button", {name:"TEST: wybierz na mapie"}));
     await waitFor(() => expect(seen.some(element => element.classList.contains("result-row") && element.classList.contains("selected"))).toBe(true));
@@ -139,7 +234,7 @@ describe("Polish accessible interface with test-only records", () => {
       vi.fn(() => ({ matches: true })),
     );
     mockData();
-    render(<App />);
+    renderAllPeriods();
     await screen.findByText("TEST: hala");
     fireEvent.click(screen.getByRole("button", { name: /TEST: hala/ }));
     await waitFor(() =>
@@ -148,7 +243,7 @@ describe("Polish accessible interface with test-only records", () => {
   });
   it("shows source coverage and a truthful empty dataset state", async () => {
     mockData(true);
-    render(<App />);
+    renderAllPeriods();
     await screen.findByText("Brak wpisów w załadowanym zbiorze.");
     expect(screen.getByText("TEST COVERAGE")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Eksport CSV" })).toBeDisabled();
@@ -160,7 +255,7 @@ describe("Polish accessible interface with test-only records", () => {
         throw new Error("TEST offline");
       }),
     );
-    render(<App />);
+    renderAllPeriods();
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent(
         "Nie udało się wczytać wpisów",
