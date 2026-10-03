@@ -279,6 +279,37 @@ footer { display: flex; justify-content: space-between; gap: 16px; margin: 0 16p
   .provenance { grid-template-columns: minmax(0,1fr); padding: 14px 0; gap: 16px; }
   footer { margin: 0 12px; font-size: 11px; flex-direction: column; gap: 4px; }
 }
+/* Both mode trees stay mounted: filters, selection and Leaflet node survive a switch. */
+.atlas-mode[hidden] { display: none !important; }
+.mode-switch { display: flex; border: 1px solid #526375; border-radius: 5px; padding: 2px; gap: 2px; }
+.mode-switch button { min-height: 44px; min-width: 100px; border: 0; border-radius: 3px; background: transparent; color: #dce6f3; font-size: 12px; font-weight: 650; padding: 8px 14px; }
+.mode-switch button[aria-pressed="true"] { background: #e8f1ff; color: #164d96; }
+.investment-summary { grid-template-columns: minmax(0,1.35fr) repeat(2,minmax(0,1fr)); }
+.investment-alert { border: 1px solid #d4ad69; background: #fff5df; color: #755022; padding: 10px 14px; margin-bottom: 10px; font-size: 12px; overflow-wrap: anywhere; }
+.investment-alert ul { margin: 6px 0 0 18px; }
+.investment-facts { list-style: none; font-size: 12px; overflow-wrap: anywhere; }
+.investment-facts li, .investment-facts > div { display: flex; flex-direction: column; gap: 5px; border: 1px solid var(--line); border-radius: 5px; padding: 10px; margin: 8px 0; min-width: 0; }
+.investment-facts dd { margin: 0; }
+.investment-facts a, .investment-atlas .detail-source a { display: inline-flex; align-items: center; min-height: 44px; }
+.investment-source + .investment-source { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 12px; }
+.related-button { min-height: 44px; width: 100%; padding: 8px; border: 1px solid #adc5e3; background: var(--soft); color: var(--accent); text-align: left; overflow-wrap: anywhere; }
+.row-years { font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+.investment-atlas .search-input input { padding-left: 10px; }
+.investment-atlas .map-legend li { align-items: flex-start; line-height: 1.6; padding-bottom: 7px; }
+.investment-atlas .map-legend li span { flex-shrink: 0; margin-top: 5px; }
+.precision-source-point, .precision-project-footprint { background: #155cc3; }
+.precision-parcel { background: #367257; }
+.precision-route { background: #985928; }
+.precision-marketing { background: #8057a0; }
+@media (max-width: 720px) {
+ .masthead { flex-wrap: wrap; gap: 0 8px; padding: 5px 10px; }
+ .mode-switch { order: 3; width: 100%; padding: 0; border: 0; background: #2e4459; }
+ .mode-switch button { flex: 1; }
+ /* The mobile map tab already names the surface; avoid a duplicate heading row. */
+ .map-heading { display: none; }
+ .investment-summary > div { flex-direction: column; align-items: center; text-align: center; gap: 1px; }
+ .investment-alert { margin: 0; }
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
 }

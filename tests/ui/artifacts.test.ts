@@ -31,6 +31,6 @@ describe("the actual public snapshot (counts may change on the next import)", ()
       expect(Object.keys(record).filter(key => /investor|designer|inwestor|projektant|pesel/i.test(key))).toEqual([]);
   });
   it("builds for the repository subpath by default", () => {
-    expect(readFileSync("vite.config.ts", "utf8")).toMatch(/base:\s*"\/ozarow-building-permits\/"/);
+    expect(readFileSync("vite.config.ts", "utf8")).toMatch(/base:\s*"\/radar-ozarow\/"/);
   });
 });

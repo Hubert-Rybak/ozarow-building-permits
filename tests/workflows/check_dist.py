@@ -3,7 +3,7 @@
 from pathlib import Path
 import sys
 
-DATA_FILES = frozenset({"permits.json", "parcels.geojson", "metadata.json"})
+DATA_FILES = frozenset({"permits.json", "parcels.geojson", "metadata.json", "investments.json"})
 ASSET_SUFFIXES = frozenset({".js", ".css", ".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".woff", ".woff2", ".ttf"})
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -15,7 +15,7 @@ def validate(dist: Path, public_data: Path) -> None:
         raise ValueError("Unexpected distribution root; only index.html, assets/, data/ allowed")
     data = dist / "data"
     if not data.is_dir() or {path.name for path in data.iterdir()} != DATA_FILES:
-        raise ValueError("Distribution must contain exactly the three public data files")
+        raise ValueError("Distribution must contain exactly the four public data files")
     if not (dist / "index.html").is_file():
         raise ValueError("Missing built index.html")
     if not any((dist / "assets").glob("*.js")):
@@ -47,4 +47,4 @@ if __name__ == "__main__":
         validate(ROOT / "dist", ROOT / "public/data")
     except (OSError, ValueError) as exc:
         sys.exit(f"Pages artifact rejected: {exc}")
-    print("Pages artifact verified: dist/; exact three-file public snapshot; no raw/cache/link files")
+    print("Pages artifact verified: dist/; exact four-file public snapshot; no raw/cache/link files")

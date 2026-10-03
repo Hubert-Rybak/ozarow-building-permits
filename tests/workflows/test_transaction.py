@@ -31,7 +31,7 @@ class CandidateTransaction(unittest.TestCase):
         self.evidence = self.root / "scripts/uldk-cache.json"
         self.evidence.write_text("original-evidence-fixture")
         (self.runner / "uldk-cache-candidate.json").write_text("candidate-evidence-fixture")
-        for filename in ("permits.json", "parcels.geojson", "metadata.json"):
+        for filename in ("permits.json", "parcels.geojson", "metadata.json", "investments.json"):
             (self.data / filename).write_text("original-fixture:" + filename)
             (self.candidate / filename).write_text("candidate-fixture:" + filename)
         tools = self.root / "bin"
@@ -49,20 +49,26 @@ class CandidateTransaction(unittest.TestCase):
         result = self.execute("no matching command")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.evidence.read_text(), "candidate-evidence-fixture")
-        for filename in ("permits.json", "parcels.geojson", "metadata.json"):
+        for filename in ("permits.json", "parcels.geojson", "metadata.json", "investments.json"):
             self.assertEqual((self.data / filename).read_text(), "candidate-fixture:" + filename)
         self.assertTrue((self.runner / "original-public-data").is_dir())
 
-    def test_data_validation_failure_restores_all_three_original_files(self):
+    def test_data_validation_failure_restores_all_four_original_files(self):
         self.assert_rollback("-m unittest discover -s tests/data -v")
 
-    def test_application_test_failure_restores_all_three_original_files(self):
+    def test_investment_validation_failure_restores_all_four_original_files(self):
+        self.assert_rollback("scripts/import_investments.py --validate public/data/investments.json")
+
+    def test_investment_test_failure_restores_all_four_original_files(self):
+        self.assert_rollback("-m unittest discover -s tests/investments -v")
+
+    def test_application_test_failure_restores_all_four_original_files(self):
         self.assert_rollback("test")
 
-    def test_build_failure_restores_all_three_original_files(self):
+    def test_build_failure_restores_all_four_original_files(self):
         self.assert_rollback("run build")
 
-    def test_artifact_privacy_failure_restores_all_three_original_files(self):
+    def test_artifact_privacy_failure_restores_all_four_original_files(self):
         self.assert_rollback("tests/workflows/check_dist.py")
 
     def assert_rollback(self, failure):
@@ -70,7 +76,7 @@ class CandidateTransaction(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0, "The transaction must fail, not swallow the gate's error")
         self.assertEqual(result.returncode, 23, result.stderr)
         self.assertEqual(self.evidence.read_text(), "original-evidence-fixture")
-        for filename in ("permits.json", "parcels.geojson", "metadata.json"):
+        for filename in ("permits.json", "parcels.geojson", "metadata.json", "investments.json"):
             self.assertEqual((self.data / filename).read_text(), "original-fixture:" + filename)
         self.assertFalse((self.runner / "original-public-data").exists())
 

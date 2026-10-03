@@ -1,4 +1,4 @@
-name: Daily GUNB refresh and Pages
+name: Daily Radar Ożarów data refresh and Pages
 
 on:
   schedule:
@@ -47,9 +47,16 @@ jobs:
       - name: Freeze UTC date and import fresh official sources into staging
         id: import
         run: |
+          set -Eeuo pipefail
           until="$(date -u +%F)"
           # Keep the prior generation in staging for the importer's loss/range guards.
           cp -a public/data "$RUNNER_TEMP/data-candidate"
+          # GUNB swaps its entire output directory: preserve investments separately first.
+          prior_args=()
+          if [ -f public/data/investments.json ]; then
+            cp public/data/investments.json "$RUNNER_TEMP/prior-investments.json"
+            prior_args=(--prior "$RUNNER_TEMP/prior-investments.json")
+          fi
           if [ -f scripts/uldk-cache.json ]; then
             cp scripts/uldk-cache.json "$RUNNER_TEMP/uldk-cache-candidate.json"
           fi
@@ -59,6 +66,9 @@ jobs:
             --cache "$RUNNER_TEMP/gunb-private-cache" \
             --uldk-public-cache "$RUNNER_TEMP/uldk-cache-candidate.json" \
             --output "$RUNNER_TEMP/data-candidate"
+          python scripts/import_investments.py \
+            --cache "$RUNNER_TEMP/investment-private-cache" \
+            --output "$RUNNER_TEMP/data-candidate" "${prior_args[@]}"
       - name: Validate candidate generation and build; roll back on failure
         id: validate
         run: |
@@ -86,11 +96,13 @@ jobs:
           mv "$RUNNER_TEMP/data-candidate" public/data
           cp "$RUNNER_TEMP/uldk-cache-candidate.json" scripts/uldk-cache.json
           python -m unittest discover -s tests/data -v
+          python scripts/import_investments.py --validate public/data/investments.json
+          python -m unittest discover -s tests/investments -v
           npm test
           npm run build
           python tests/workflows/check_dist.py
           trap - ERR
-      - name: Commit only the validated three-file generation and verify remote
+      - name: Commit only the validated four-file generation and verify remote
         id: snapshot
         if: github.ref == 'refs/heads/main'
         env:
@@ -100,16 +112,18 @@ jobs:
           # Only the declared public snapshot and allowlisted ULDK evidence may change.
           python - <<'PY'
           import subprocess
-          allowed = {'public/data/permits.json', 'public/data/parcels.geojson', 'public/data/metadata.json', 'scripts/uldk-cache.json'}
+          allowed = {'public/data/permits.json', 'public/data/parcels.geojson', 'public/data/metadata.json', 'public/data/investments.json', 'scripts/uldk-cache.json'}
           changed = set(subprocess.check_output(['git', 'diff', '--name-only'], text=True).splitlines())
+          changed.update(subprocess.check_output(['git', 'diff', '--cached', '--name-only'], text=True).splitlines())
+          changed.update(subprocess.check_output(['git', 'ls-files', '--others', '--exclude-standard'], text=True).splitlines())
           if not changed <= allowed:
               raise SystemExit('Unexpected tracked changes outside the public data/evidence snapshot')
           PY
-          git add -- public/data/permits.json public/data/parcels.geojson public/data/metadata.json scripts/uldk-cache.json
+          git add -- public/data/permits.json public/data/parcels.geojson public/data/metadata.json public/data/investments.json scripts/uldk-cache.json
           if ! git diff --cached --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m 'data: refresh official GUNB and ULDK snapshot'
+            git commit -m 'data: refresh Radar Ożarów official sources and ULDK snapshot'
             # Fast-forward only. A concurrent external push must not be overwritten.
             auth_header="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
             git -c "http.extraheader=AUTHORIZATION: basic $auth_header" \

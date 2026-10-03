@@ -1,4 +1,4 @@
-name: Application CI and Pages
+name: Radar Ożarów CI and Pages
 
 on:
   push:
@@ -48,6 +48,8 @@ jobs:
         run: |
           python -m unittest discover -s tests/workflows -v
           python -m unittest discover -s tests/data -v
+          python scripts/import_investments.py --validate public/data/investments.json
+          python -m unittest discover -s tests/investments -v
       - name: Application tests
         run: npm test
       - name: Build the same verified snapshot

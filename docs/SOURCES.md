@@ -1,6 +1,18 @@
-# Źródła, zakres i codzienne odświeżanie
+# Radar Ożarów — źródła, zakres i codzienne odświeżanie
 
-## Oficjalne źródła
+## Inwestycje: pokrycie źródeł i aktualność
+
+Warstwa `investments.json` jest niezależna od trzech artefaktów GUNB. Kontrakt i API: [INVESTMENT_CONTRACT.md](INVESTMENT_CONTRACT.md); agregacja, bramki i bieżący workflow: [investments/PIPELINE.md](investments/PIPELINE.md). Każde źródło ma własne `recordCount`, opis `coverage`, `fetchedAt`, `sourceUpdatedAt`, status i ostrzeżenia.
+
+- **Dynamiczne pobrania** adapterów obejmują sprawdzone endpointy gminne/publiczne/prywatne. Dopiero udany parser i kontrola kompletności oznaczają `fresh`. Status `fresh` nie zapewnia aktualności opisanej fazy budowy — data źródła i data pobrania są oddzielne.
+- **Zweryfikowane statyczne dokumenty** (np. kuratorowany PDF budżetu/WPF, prospekt lub dokument ponadlokalny) mają `static` i rzeczywistą datę weryfikacji. Codzienny workflow nie zmienia ich automatycznie na `fresh`; rozszerzenie musi opisać procedurę odkrywania nowszej wersji.
+- **Awaria** ma `retained` z poprzednimi niezmienionymi rekordami/datami albo `unavailable` bez wcześniejszych danych. Brak adaptera, błąd schematu/truncation i spadek >20% nie są pustym sukcesem.
+- Zakres źródeł nie dowodzi kompletności wszystkich inwestycji w gminie. Pokrycie poza sprawdzonymi katalogami i dokumentami pozostaje **nieznane**; liczba źródłowych rekordów nie jest liczbą unikalnych budów. Niepokryte/niezlokalizowane dane należy ujawniać w metadanych konkretnego adaptera, zamiast podawać wymyślony procent.
+- Nie mirrorujemy opisów, zdjęć, surowych dokumentów ani technicznych/osobistych pól. Publikowane są wybrane fakty i krótkie własne streszczenia z atrybucją; koszty zachowują typ i zakres lokalny/wielogminny. Geometria punktowa źródła, potwierdzona działka, footprint projektu i trasa są odrębnymi kategoriami.
+
+Szczegóły adapterów i ich rzeczywiste liczniki są dostarczane podczas integracji; poniższe dane liczbowe dotyczą **historycznego zweryfikowanego GUNB**, nie rozszerzonej warstwy inwestycji.
+
+## Oficjalne źródła GUNB/ULDK
 
 Publiczna mapa GUNB prowadzi do oficjalnych archiwów CSV. Importer nie omija CAPTCHA, nie korzysta z nieudokumentowanego API JSON i nie uzupełnia braków fikcyjnymi wpisami.[1][2]
 

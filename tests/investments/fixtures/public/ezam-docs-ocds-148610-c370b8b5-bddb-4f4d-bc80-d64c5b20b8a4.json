@@ -1,0 +1,24 @@
+[
+  {
+    "objectId": "ocds-148610-c370b8b5-bddb-4f4d-bc80-d64c5b20b8a4_2",
+    "name": "dokumentacja",
+    "url": "https://ezamowienia.gov.pl/mp-client/search/tenderdocument/ocds-148610-c370b8b5-bddb-4f4d-bc80-d64c5b20b8a4/ocds-148610-c370b8b5-bddb-4f4d-bc80-d64c5b20b8a4_2",
+    "tenderDocumentState": "Published",
+    "createDate": "2026-10-02T08:00:41.948Z",
+    "fileName": "dokumentacja.zip",
+    "publishedDate": "2026-10-02T09:21:19.414Z",
+    "deleteDate": null,
+    "deleteReason": null
+  },
+  {
+    "objectId": "ocds-148610-c370b8b5-bddb-4f4d-bc80-d64c5b20b8a4_1",
+    "name": "SWZ wraz z załącznikami",
+    "url": "https://ezamowienia.gov.pl/mp-client/search/tenderdocument/ocds-148610-c370b8b5-bddb-4f4d-bc80-d64c5b20b8a4/ocds-148610-c370b8b5-bddb-4f4d-bc80-d64c5b20b8a4_1",
+    "tenderDocumentState": "Published",
+    "createDate": "2026-10-02T08:00:11.897Z",
+    "fileName": "SWZ wraz z załącznikami.zip",
+    "publishedDate": "2026-10-02T09:21:19.414Z",
+    "deleteDate": null,
+    "deleteReason": null
+  }
+]
