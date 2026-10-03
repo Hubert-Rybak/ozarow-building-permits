@@ -93,7 +93,7 @@ function Detail({
           Status i treść decyzji należy potwierdzić w źródle.
         </p>
       )}
-      {record.description && (
+      {record.description && record.description !== "Bezpieczny skrót rodzaju inwestycji. Swobodny opis GUNB pominięto ze względu na możliwość występowania danych osobowych." && (
         <p className="description">{record.description}</p>
       )}
       <dl className="detail-grid">
@@ -199,6 +199,7 @@ function ResultRow({
       <button
         className={`result-row ${selected ? "selected" : ""}`}
         aria-pressed={selected}
+        data-record-id={record.id}
         onClick={onSelect}
       >
         <div className="row-top">
@@ -223,9 +224,6 @@ function ResultRow({
             {mapped ? record.geometryStatus === "partial" ? "Częściowy obrys" : "Na mapie" : "Bez obrysu"}
           </span>
         </div>
-        <p className="row-status">
-          Status w źródle: {record.status || "nie podano"}
-        </p>
       </button>
     </li>
   );
@@ -258,6 +256,11 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
   const resultsRef = useRef<HTMLElement>(null);
+  const mapPanelRef = useRef<HTMLElement>(null);
+  const returnAfterClose = useRef<{
+    view: "map" | "list";
+    id: string;
+  } | null>(null);
   const [focusResults, setFocusResults] = useState(0);
   useEffect(() => {
     if (focusResults) resultsRef.current?.focus();
@@ -308,6 +311,28 @@ export default function App() {
         ?.scrollIntoView({ block: "start", behavior: "auto" });
     }
   }, [selected?.id]);
+  useEffect(() => {
+    const destination = returnAfterClose.current;
+    if (selected || !destination) return;
+    returnAfterClose.current = null;
+    const row = Array.from(
+      resultsRef.current?.querySelectorAll<HTMLElement>(".result-row") || [],
+    ).find(element => element.dataset.recordId === destination.id);
+    const target = destination.view === "map"
+      ? mapPanelRef.current
+      : row || resultsRef.current;
+    target?.scrollIntoView?.({ block: "start", behavior: "auto" });
+  }, [selected?.id]);
+  const closeDetail = () => {
+    if (
+      selected &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(max-width: 720px)").matches
+    ) {
+      returnAfterClose.current = { view: mobileView, id: selected.id };
+    }
+    setSelectedId(null);
+  };
   const select = useCallback((id: string) => setSelectedId(id), []);
   const update = (key: keyof Filters, value: string) =>
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -362,38 +387,17 @@ export default function App() {
             <p>Publiczne wpisy budowlane · miasto i gmina</p>
           </div>
         </div>
-        <a className="header-link" href="#provenance">
+        <a className="header-link" href="#provenance" onClick={() => {
+          const disclosure = document.querySelector<HTMLDetailsElement>("#provenance");
+          if (disclosure) disclosure.open = true;
+        }}>
           O danych <span aria-hidden="true">↗</span>
         </a>
       </header>
       <main>
         <section className="intro">
           <div>
-            <span className="eyebrow">REJESTR NA MAPIE</span>
             <h2>Co powstaje w Twojej okolicy?</h2>
-            <p>
-              Przeglądaj wnioski, decyzje i zgłoszenia. Zobacz potwierdzone
-              działki — bez zgadywania położenia.
-            </p>
-          </div>
-          <div className="intro-note">
-            <span aria-hidden="true">
-              <svg
-                viewBox="0 0 24 24"
-                width="20"
-                height="20"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.7"
-              >
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 11v6M12 7v1" />
-              </svg>
-            </span>
-            <p>
-              Wpis w rejestrze nie oznacza, że budowa została zatwierdzona lub
-              rozpoczęta.
-            </p>
           </div>
         </section>
         <section className="toolbar" aria-label="Wyszukiwanie i filtry">
@@ -416,6 +420,13 @@ export default function App() {
             </div>
           </div>
           <div className="filter-grid">
+            <label>
+              Okres
+              <select value={filters.period} onChange={(e) => update("period", e.target.value)}>
+                <option value="3months">Ostatnie 3 miesiące</option>
+                <option value="all">Wszystkie daty</option>
+              </select>
+            </label>
             <label>
               Rodzaj wpisu
               <select
@@ -478,7 +489,6 @@ export default function App() {
             </label>
           </div>
           <div className="toolbar-bottom">
-            <p>Rok i kolejność: data decyzji, a przy jej braku data wniosku.</p>
             <button
               className="text-button"
               aria-label="Wyczyść filtry"
@@ -558,16 +568,10 @@ export default function App() {
             </button>
           </section>
         )}
-        {!loading && !data.error && allRecords.length > 0 && !allRecords.some(r => r.kind === "application") && (
-          <p className="coverage-note">
-            W tym zbiorze nie ma samodzielnych wniosków. Nie oznacza to braku nierozpatrzonych wniosków w gminie — eksport CSV nie gwarantuje ich kompletności.
-          </p>
-        )}
         {!loading && data.warnings.length > 0 && (
-          <details className="warnings" open>
+          <details className="warnings">
             <summary>
-              Ograniczenia zbioru ({data.warnings.length}) — sprawdź przed
-              interpretacją danych
+              Ograniczenia zbioru ({data.warnings.length})
             </summary>
             <ul>
               {data.warnings.map((w, i) => (
@@ -595,6 +599,7 @@ export default function App() {
         >
           <section
             className="map-panel"
+            ref={mapPanelRef}
             aria-label="Mapa potwierdzonych działek"
           >
             <ParcelMap
@@ -624,7 +629,6 @@ export default function App() {
           >
             <div className="results-top">
               <div>
-                <span className="eyebrow">WYNIKI WYSZUKIWANIA</span>
                 <h2 id="results-title">
                   Wpisy{!loading && !data.error && <span>{counts.total}</span>}
                 </h2>
@@ -690,63 +694,71 @@ export default function App() {
             <Detail
               record={selected}
               parcels={data.parcels}
-              onClose={() => setSelectedId(null)}
+              onClose={closeDetail}
             />
           )}
         </div>
-        <section
-          className="provenance"
-          id="provenance"
-          aria-labelledby="provenance-title"
-        >
-          <div>
-            <span className="eyebrow">JAWNE ŹRÓDŁA, JAWNE OGRANICZENIA</span>
-            <h2 id="provenance-title">Jak czytać te dane?</h2>
-            <p>
-              Mapa przedstawia działki powiązane z wpisami, nie obrysy budynków
-              ani postęp prac. Brak działki na mapie oznacza brak potwierdzonej
-              geometrii, a nie brak inwestycji.
-            </p>
-            <p>
-              Kolor opisuje rodzaj lub wynik wpisu w źródle. Przy kilku różnych
-              wpisach na jednej działce kolor jest neutralny; szczegóły są
-              dostępne po jej wybraniu.
-            </p>
-          </div>
-          <div className="source-info">
-            <h3>Zakres załadowanego zbioru</h3>
-            <p>
-              {data.dataset?.source.coverage ||
-                "Zakres danych nie jest jeszcze dostępny."}
-            </p>
-            {data.dataset && (
-              <>
-                <SourceLink url={data.dataset.source.url}>
-                  {data.dataset.source.name}
-                </SourceLink>
-                <p className="muted">
-                  Pobranie źródła:{" "}
-                  {formatDate(data.dataset.source.downloadedAt)} · Wygenerowanie
-                  zbioru: {formatDate(data.dataset.generatedAt)}
+        <details className="data-disclosure" id="provenance">
+          <summary>O danych</summary>
+          <section
+            className="provenance"
+            aria-labelledby="provenance-title"
+          >
+            <div>
+              <h2 id="provenance-title">Jak czytać te dane?</h2>
+              <p>Wpis w rejestrze nie oznacza zatwierdzenia ani rozpoczęcia budowy.</p>
+              <p>Okres, rok i kolejność: data decyzji, a przy jej braku data wniosku. Ostatnie 3 miesiące liczymy od dzisiejszej daty w Polsce.</p>
+              <p>
+                Mapa przedstawia działki powiązane z wpisami, nie obrysy budynków
+                ani postęp prac. Brak działki na mapie oznacza brak potwierdzonej
+                geometrii, a nie brak inwestycji.
+              </p>
+              <p>
+                Kolor opisuje rodzaj lub wynik wpisu w źródle. Przy kilku różnych
+                wpisach na jednej działce kolor jest neutralny; szczegóły są
+                dostępne po jej wybraniu.
+              </p>
+            </div>
+            <div className="source-info">
+              {!loading && !data.error && allRecords.length > 0 && !allRecords.some(r => r.kind === "application") && (
+                <p className="coverage-note">
+                  W tym zbiorze nie ma samodzielnych wniosków. Nie oznacza to braku nierozpatrzonych wniosków w gminie — eksport CSV nie gwarantuje ich kompletności.
                 </p>
-              </>
-            )}
-            {data.metadata?.sources?.map((s, i) => (
-              <div key={i}>
-                <SourceLink url={s.url}>{s.name}</SourceLink>
-              </div>
-            ))}
-            <p className="muted">
-              Dane inwestorów i projektantów są wyłączone z publicznego zbioru.
-              CSV nie gwarantuje kompletności nierozpatrzonych wniosków.
-            </p>
-            <p className="muted">
-              CSV zawiera bieżące wyniki filtrów. Statusy zachowujemy zgodnie ze
-              źródłem; wartości chronimy przed interpretacją jako formuły
-              arkusza.
-            </p>
-          </div>
-        </section>
+              )}
+              <h3>Zakres załadowanego zbioru</h3>
+              <p>
+                {data.dataset?.source.coverage ||
+                  "Zakres danych nie jest jeszcze dostępny."}
+              </p>
+              {data.dataset && (
+                <>
+                  <SourceLink url={data.dataset.source.url}>
+                    {data.dataset.source.name}
+                  </SourceLink>
+                  <p className="muted">
+                    Pobranie źródła:{" "}
+                    {formatDate(data.dataset.source.downloadedAt)} · Wygenerowanie
+                    zbioru: {formatDate(data.dataset.generatedAt)}
+                  </p>
+                </>
+              )}
+              {data.metadata?.sources?.map((s, i) => (
+                <div key={i}>
+                  <SourceLink url={s.url}>{s.name}</SourceLink>
+                </div>
+              ))}
+              <p className="muted">
+                Dane inwestorów i projektantów są wyłączone z publicznego zbioru.
+                CSV nie gwarantuje kompletności nierozpatrzonych wniosków.
+              </p>
+              <p className="muted">
+                CSV zawiera bieżące wyniki filtrów. Statusy zachowujemy zgodnie ze
+                źródłem; wartości chronimy przed interpretacją jako formuły
+                arkusza.
+              </p>
+            </div>
+          </section>
+        </details>
       </main>
       <footer>
         Budowy · Ożarów Mazowiecki

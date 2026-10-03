@@ -245,7 +245,7 @@ export default function ParcelMap({
         </span>{" "}
         Pokaż wyniki
       </button>
-      <details className="map-legend" open>
+      <details className="map-legend">
         <summary>Legenda mapy</summary>
         <ul>
           {(Object.keys(statusLabels) as SemanticStatus[]).map((status) => (

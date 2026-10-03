@@ -1,6 +1,10 @@
 import { readFileSync } from "node:fs";
 import { expect, it } from "vitest";
-it("gives the always-visible source gap notice a distinct readable surface", () => {
+it("keeps the map legend collapsed until requested", () => {
+  const source = readFileSync("src/ParcelMap.tsx", "utf8");
+  expect(source).toMatch(/<details className="map-legend">/);
+});
+it("gives the source gap notice a distinct readable surface", () => {
   const css = readFileSync("src/styles.css", "utf8");
   expect(css).toMatch(/\.coverage-note\s*\{[^}]*background:/);
 });

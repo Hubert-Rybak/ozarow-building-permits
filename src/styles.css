@@ -258,7 +258,7 @@ main {
 }
 .filter-grid {
   display: grid;
-  grid-template-columns: 1fr 0.75fr 1.2fr 1fr 1.3fr;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 13px;
   margin-top: 15px;
 }
@@ -282,7 +282,7 @@ select {
 }
 .toolbar-bottom {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   gap: 12px;
   margin-top: 8px;
@@ -959,13 +959,23 @@ select {
   margin-top: 11px;
   overflow-wrap: anywhere;
 }
+.data-disclosure {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  padding: 16px 0;
+}
+.data-disclosure > summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 10px 2px;
+}
 .provenance {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 70px;
-  margin: 30px 0 0;
-  border-top: 1px solid var(--line);
-  padding: 26px 0 30px;
+  padding: 12px 0;
 }
 .provenance h2 {
   font-size: 20px;
@@ -994,7 +1004,7 @@ select {
 .source-info .muted {
   font-size: 10px;
 }
-.provenance:target {
+.data-disclosure:target {
   scroll-margin-top: 20px;
 }
 .parcel-popup > strong {
@@ -1213,9 +1223,6 @@ footer > span {
     grid-template-columns: 1fr 1fr;
     gap: 12px 10px;
     margin-top: 12px;
-  }
-  .filter-grid label:last-child {
-    grid-column: 1/-1;
   }
   .filter-grid label {
     font-size: 10px;
@@ -1458,8 +1465,7 @@ footer > span {
   .provenance {
     grid-template-columns: 1fr;
     gap: 12px;
-    padding: 22px 2px;
-    margin-top: 25px;
+    padding: 12px 2px;
   }
   .provenance h2 {
     font-size: 20px;
