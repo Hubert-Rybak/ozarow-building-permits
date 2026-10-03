@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "packagedAt": "2026-10-03T06:17:56.735877Z",
+  "visibility": "private",
+  "scope": "Official source archives in full, plus all municipality rows without a date cutoff or source-field redaction.",
+  "archives": [
+    {
+      "sourceKind": "permit",
+      "path": "data/full/wynik_mazowieckie.zip",
+      "url": "https://wyszukiwarka.gunb.gov.pl/pliki_pobranie/wynik_mazowieckie.zip",
+      "downloadedAt": "2026-10-03T05:36:31.965283Z",
+      "sha256": "35517ddf8cc53a168c75a14d5d9f7e6ec29fcea807bbb39a9f8d3cd00a34887e",
+      "byteCount": 46241653,
+      "httpLastModified": "Fri, 02 Oct 2026 21:35:13 GMT",
+      "httpETag": "\"2c19775-65ce24ebb0480\"",
+      "municipalitySourceRowCount": 5601
+    },
+    {
+      "sourceKind": "notification",
+      "path": "data/full/wynik_zgloszenia_2022_up.zip",
+      "url": "https://wyszukiwarka.gunb.gov.pl/pliki_pobranie/wynik_zgloszenia_2022_up.zip",
+      "downloadedAt": "2026-10-03T05:36:43.934422Z",
+      "sha256": "eee98e1835c53b649cec6fecaa5e41f144fdc38af8b5e9c45e9f8fc44a48df62",
+      "byteCount": 25711067,
+      "httpLastModified": "Fri, 02 Oct 2026 21:36:10 GMT",
+      "httpETag": "\"18851db-65ce2521b94a0\"",
+      "municipalitySourceRowCount": 939
+    }
+  ],
+  "municipalityUnits": [
+    "143206_4",
+    "143206_5"
+  ],
+  "municipalityTercs": [
+    "1432063",
+    "1432064",
+    "1432065"
+  ]
+}
