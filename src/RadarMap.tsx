@@ -26,7 +26,10 @@ interface Props {
   fitToken: number;
   /** Increment to show every item even while something is selected. */
   fitAllToken?: number;
+  /** The viewer's own position; it stays in the browser and is only drawn on the map. */
+  userLocation?: UserLocation | null;
 }
+export interface UserLocation { at: LatLng; accuracy: number; token: number }
 
 const HOME: L.LatLngExpression = [52.21, 20.798];
 const CELL = 54;
@@ -68,7 +71,7 @@ function clusterIcon(members: MapItem[]) {
   return L.divIcon({ html: element, className: "radar-marker-wrap", iconSize: [size, size] });
 }
 
-export default function RadarMap({ items, selectedKey, onSelect, insets, fitToken, fitAllToken = 0 }: Props) {
+export default function RadarMap({ items, selectedKey, onSelect, insets, fitToken, fitAllToken = 0, userLocation = null }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const drawn = useRef<L.LayerGroup | null>(null);
@@ -221,6 +224,23 @@ export default function RadarMap({ items, selectedKey, onSelect, insets, fitToke
   useEffect(() => {
     if (fitAllToken) frame("all");
   }, [fitAllToken]);
+  const located = useRef<L.LayerGroup | null>(null);
+  useEffect(() => {
+    const m = map.current;
+    located.current?.remove();
+    located.current = null;
+    if (!m || !userLocation) return;
+    const at = L.latLng(userLocation.at);
+    const radius = Math.max(5, userLocation.accuracy);
+    located.current = L.layerGroup([
+      L.circle(at, { radius, interactive: false, color: "#1D5FBF", weight: 1, fillColor: "#1D5FBF", fillOpacity: 0.12 }),
+      L.circleMarker(at, { radius: 8, interactive: false, color: "#FFFFFF", weight: 3, fillColor: "#1D5FBF", fillOpacity: 1, className: "user-location" }),
+    ]).addTo(m);
+    if (container.current?.clientWidth) {
+      m.invalidateSize({ animate: false });
+      m.fitBounds(at.toBounds(Math.min(radius, 2000) * 2), { ...padding(), maxZoom: 17, animate: true });
+    }
+  }, [userLocation]);
 
   return (
     <div className="map-shell">

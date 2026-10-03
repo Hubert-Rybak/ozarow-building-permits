@@ -336,3 +336,43 @@ describe("investments tab", () => {
     expect(screen.getByRole("dialog", { name: "O danych" })).toBeInTheDocument();
   });
 });
+
+describe("locate me", () => {
+  const geo = (impl: (ok: PositionCallback, fail: PositionErrorCallback) => void) => {
+    const getCurrentPosition = vi.fn(impl);
+    Object.defineProperty(navigator, "geolocation", { configurable: true, value: { getCurrentPosition } });
+    return getCurrentPosition;
+  };
+  const position = (latitude: number, longitude: number, accuracy = 20) =>
+    ({ coords: { latitude, longitude, accuracy } }) as GeolocationPosition;
+  afterEach(() => { delete (navigator as { geolocation?: unknown }).geolocation; });
+
+  it("asks for the position only on click and passes it to the map, again on each click", async () => {
+    const call = geo(ok => ok(position(52.21, 20.8)));
+    await load();
+    expect(call).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Pokaż moje położenie na mapie" }));
+    expect(map.props?.userLocation).toMatchObject({ at: [52.21, 20.8], accuracy: 20, token: 1 });
+    fireEvent.click(screen.getByRole("button", { name: "Pokaż moje położenie na mapie" }));
+    expect(map.props?.userLocation.token).toBe(2);
+    expect(document.querySelector(".locate-message")).toBeNull();
+  });
+
+  it("explains a denied permission and a position outside the municipality", async () => {
+    geo((_ok, fail) => fail({ code: 1 } as GeolocationPositionError));
+    await load();
+    fireEvent.click(screen.getByRole("button", { name: "Pokaż moje położenie na mapie" }));
+    expect(screen.getByText(/Brak zgody na lokalizację/)).toBeInTheDocument();
+    expect(map.props?.userLocation).toBeNull();
+    geo(ok => ok(position(50.06, 19.94)));
+    fireEvent.click(screen.getByRole("button", { name: "Pokaż moje położenie na mapie" }));
+    expect(screen.getByText(/poza gminą Ożarów Mazowiecki/)).toBeInTheDocument();
+    expect(map.props?.userLocation.at).toEqual([50.06, 19.94]);
+  });
+
+  it("says so when the browser has no geolocation", async () => {
+    await load();
+    fireEvent.click(screen.getByRole("button", { name: "Pokaż moje położenie na mapie" }));
+    expect(screen.getByText("Ta przeglądarka nie udostępnia lokalizacji.")).toBeInTheDocument();
+  });
+});

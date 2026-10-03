@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Geometry } from "geojson";
-import RadarMap, { type Insets, type Layer, type MapItem } from "./RadarMap";
+import RadarMap, { type Insets, type Layer, type MapItem, type UserLocation } from "./RadarMap";
 import { PermitDetail, PermitList, placeLine, usePermits, type Nearby } from "./PermitPanel";
 import { InvestmentDetail, InvestmentList, freshness, useInvestments } from "./InvestmentPanel";
 import { defaultFilters, formatDate, getRecordParcels, kindColors, kindLabels, kindPlural } from "./model";
 import { investmentDefaults, mapStageColors, mapStageLabels, recordMapStage, type MapStage } from "./investments";
-import { centerOf, nearest, type LatLng } from "./geo";
+import { centerOf, distanceMeters, nearest, type LatLng } from "./geo";
 import { readHash, shareUrl, writeHash, type Mode } from "./hash";
 import { useIsMobile } from "./ui";
 import type { RecordKind } from "./types";
@@ -13,6 +13,7 @@ import type { RecordKind } from "./types";
 type Sheet = "peek" | "half" | "full";
 interface Selection { layer: Layer; id: string }
 const HEADER = 52;
+const GMINA_CENTER: LatLng = [52.21, 20.798];
 const PEEK = 196;
 
 function useViewportHeight() {
@@ -60,6 +61,7 @@ function AboutDialog({ onClose, permits, investments }: {
               <li>Mapa pokazuje działki z wpisu (ULDK), nie budynki ani postęp prac. Brak działki na mapie to brak potwierdzonej geometrii, a nie brak inwestycji.</li>
               <li>Okres i kolejność liczymy według daty decyzji, a gdy jej brak — daty wniosku. „Ostatnie 3 miesiące” liczymy od dzisiejszej daty w Polsce.</li>
               <li>„Nowe od ostatniej wizyty” zapamiętuje tylko Twoja przeglądarka.</li>
+              <li>Przycisk lokalizacji odczytuje położenie dopiero po kliknięciu i tylko rysuje je na mapie — nie jest nigdzie wysyłane ani zapisywane.</li>
             </ul>
             {!loading && !data.error && records.length > 0 && !records.some(r => r.kind === "application") && (
               <p className="coverage-note">W tym zbiorze nie ma samodzielnych wniosków. Nie oznacza to braku nierozpatrzonych wniosków w gminie — eksport CSV nie gwarantuje ich kompletności.</p>
@@ -127,6 +129,9 @@ export default function App() {
   const [legendOpen, setLegendOpen] = useState(false);
   const [fitToken, setFitToken] = useState(0);
   const [fitAllToken, setFitAllToken] = useState(0);
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locateMessage, setLocateMessage] = useState<string | null>(null);
   const origin = useRef<"list" | "map">("list");
   const restore = useRef<{ origin: "list" | "map"; id: string } | null>(null);
   const aboutOpener = useRef<HTMLElement | null>(null);
@@ -297,6 +302,41 @@ export default function App() {
     return () => window.removeEventListener("hashchange", onHash);
   }, [applyHash]);
 
+  useEffect(() => {
+    if (!locateMessage) return;
+    const timer = setTimeout(() => setLocateMessage(null), 7000);
+    return () => clearTimeout(timer);
+  }, [locateMessage]);
+  /** The position is read only on request and never leaves the browser. */
+  const locate = () => {
+    if (!("geolocation" in navigator) || !navigator.geolocation) {
+      setLocateMessage("Ta przeglądarka nie udostępnia lokalizacji.");
+      return;
+    }
+    setLocating(true);
+    setLocateMessage(null);
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        setLocating(false);
+        const at: LatLng = [position.coords.latitude, position.coords.longitude];
+        setUserLocation(prev => ({ at, accuracy: position.coords.accuracy, token: (prev?.token || 0) + 1 }));
+        if (distanceMeters(at, GMINA_CENTER) > 12_000)
+          setLocateMessage("Jesteś poza gminą Ożarów Mazowiecki — dane na mapie dotyczą tylko gminy.");
+        else if (position.coords.accuracy > 500)
+          setLocateMessage(`Położenie przybliżone (dokładność ok. ${Math.round(position.coords.accuracy / 100) / 10} km).`);
+      },
+      error => {
+        setLocating(false);
+        setLocateMessage(error.code === 1
+          ? "Brak zgody na lokalizację. Możesz ją włączyć w ustawieniach strony w przeglądarce."
+          : error.code === 3
+            ? "Ustalanie położenia trwało zbyt długo. Spróbuj ponownie."
+            : "Nie udało się ustalić położenia.");
+      },
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 30_000 },
+    );
+  };
+
   const changeMode = (next: Mode) => {
     if (next === mode) return;
     if (selection && selection.layer !== next) setSelection(null);
@@ -378,7 +418,7 @@ export default function App() {
       <main className="stage">
         <section className="map-area" aria-label="Mapa">
           <RadarMap items={items} selectedKey={selectedKey} insets={insets} fitToken={fitToken} fitAllToken={fitAllToken}
-            onSelect={(layer, id) => select(layer, id, "map")} />
+            userLocation={userLocation} onSelect={(layer, id) => select(layer, id, "map")} />
           <div className="map-controls">
             <div className={`layer-card${legendOpen || !mobile ? " open" : ""}`}>
               {mobile && (
@@ -407,6 +447,19 @@ export default function App() {
               )}
             </div>
           </div>
+          <button type="button" className={`map-locate${userLocation ? " active" : ""}`} onClick={locate} disabled={locating}
+            aria-label={locating ? "Ustalanie Twojego położenia…" : "Pokaż moje położenie na mapie"}
+            title="Pokaż moje położenie (zostaje w przeglądarce)"
+            style={mobile ? { bottom: Math.min(sheetHeight, sheetHeights.half) + 68 } : undefined}>
+            {locating ? <span className="loading-ring small" aria-hidden="true" /> : (
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /><circle cx="12" cy="12" r="8" />
+              </svg>
+            )}
+          </button>
+          {locateMessage && (
+            <p className="locate-message" role="status" style={mobile ? { bottom: Math.min(sheetHeight, sheetHeights.half) + 124 } : undefined}>{locateMessage}</p>
+          )}
           <button ref={overview} type="button" className="map-overview" onClick={() => selectedOnMap ? setFitToken(n => n + 1) : setFitAllToken(n => n + 1)}
             style={mobile ? { bottom: Math.min(sheetHeight, sheetHeights.half) + 12 } : undefined}>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>
