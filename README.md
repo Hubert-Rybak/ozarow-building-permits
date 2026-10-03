@@ -19,9 +19,9 @@ Pełna metodologia, oficjalne źródła, weryfikacja TERYT, zakres i ograniczeni
 
 Repozytorium: **[Hubert-Rybak/ozarow-building-permits](https://github.com/Hubert-Rybak/ozarow-building-permits)**.
 
-Docelowy adres GitHub Pages: **[hubert-rybak.github.io/ozarow-building-permits/](https://hubert-rybak.github.io/ozarow-building-permits/)**.
+Publiczna aplikacja: **[hubert-rybak.github.io/ozarow-building-permits/](https://hubert-rybak.github.io/ozarow-building-permits/)**.
 
-Publikacja jest kontrolowana przez zmienną repozytorium `PAGES_ENABLED`: początkowo `false`, włączana po walidacji i zgodzie na publiczną widoczność. Sam obecny w repo workflow nie oznacza udanego wdrożenia — należy sprawdzić jego zakończony run i rzeczywisty adres strony.
+Repo i Pages upubliczniono 3 października 2026 po pozytywnych niezależnych przeglądach, 79 testach danych, 55 testach UI, 20 testach workflow oraz rzeczywistych CI/importach. Pierwszy wdrożony snapshot zawiera 447 wpisów i 842 obrysy; trzy pliki na Pages porównano bajtowo z repo, a przeglądarkowy smoke desktop/mobile potwierdził filtry, mapę i CSV bez błędów JS. Publikację kontroluje `PAGES_ENABLED=true`. Sam workflow nie dowodzi poprawnego wdrożenia — zawsze sprawdzaj run i rzeczywistą stronę.
 
 ## Uruchomienie lokalne
 
@@ -53,6 +53,9 @@ python3 -m venv .cache/venv
 # Jawny zakres dat wpływu:
 .cache/venv/bin/python scripts/import_data.py --since 2025-01-01 --until 2026-10-03
 
+# Codzienny tryb: świeże ZIP/CSV, ponowne użycie zweryfikowanych obrysów do 30 dni:
+.cache/venv/bin/python scripts/import_data.py --refresh-sources --max-parcels 0
+
 # Pomoc, opcje cache i odświeżania:
 .cache/venv/bin/python scripts/import_data.py --help
 
@@ -76,9 +79,9 @@ Aktualizacja odbywa się po stronie GitHub Actions, nie w przeglądarce użytkow
 
 ## Prywatność i bezpieczeństwo publikacji
 
-- Pola inwestorów oraz imiona/nazwiska/uprawnienia projektantów nie są częścią publicznego kontraktu danych.
-- Swobodne tytuły/opisy źródłowe nie są publikowane: zamiast nich stosujemy deterministyczne skróty rodzaju inwestycji ze stałego słownika. To ogranicza szczegółowość opisu, ale chroni także osoby, których nazwiska nie występują w osobnych kolumnach inwestora. Tę regułę zastosowano również do historycznego snapshotu przed upublicznieniem repo.
-- Na wyraźne polecenie właściciela pełne oficjalne archiwa GUNB oraz wszystkie oryginalne wiersze/kolumny gminy bez ograniczenia dat i redakcji zapisano w `data/full/` w prywatnym repo. Jest to osobny snapshot źródłowy; nie trafia do statycznego builda ani `public/`. Czasy pobrania i sumy SHA-256 podaje `data/full/manifest.json`.
+- Pola inwestorów oraz imiona/nazwiska/uprawnienia projektantów nie są częścią kontraktu JSON aplikacji w `public/data/`.
+- JSON aplikacji zawiera deterministyczne skróty rodzaju inwestycji ze stałego słownika zamiast swobodnych tytułów/opisów źródłowych. To ogranicza szczegółowość opisu i możliwość ujawniania danych osobowych. Tę regułę zastosowano również do historycznego snapshotu aplikacji.
+- Na wyraźne polecenie właściciela pełne oficjalne archiwa GUNB oraz oryginalne wiersze gminy bez ograniczenia dat i redakcji zachowano w `data/full/`. Po udanej walidacji repo stało się publiczne, więc ten snapshot również jest dostępny w repo. Nie trafia do statycznego builda ani `public/`. Czasy pobrania i sumy SHA-256 podaje `data/full/manifest.json`; szczegóły eksportu opisuje `data/full/README.md`.
 - Cache, środowiska Python, logi, cookies, sekrety i lokalne pliki konfiguracyjne pozostają poza repo. Nie wysyłaj `.cache/` ani `.env` do repo lub artefaktów Actions. Codzienny workflow aplikacji aktualizuje wyłącznie jej JSON/GeoJSON i zweryfikowane dowody ULDK, nie surowy snapshot `data/full/`.
 - Strona statyczna nie wymaga sekretów do pobrania opublikowanych danych. Workflow używa ograniczonych uprawnień GitHub i publikuje tylko zweryfikowaną produkcyjną kompilację.
 

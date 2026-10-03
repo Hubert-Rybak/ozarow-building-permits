@@ -4,7 +4,7 @@
 
 Polskojęzyczna aplikacja do przeglądania publicznych wpisów RWDZ GUNB dla całej gminy Ożarów Mazowiecki (miasto i obszar wiejski), interaktywna mapa i rzeczywiste obrysy działek. Nie utożsamiać wniosku/odnotowanej decyzji ze zgodą na budowę. Brak geometrii oraz niejednoznaczne dane muszą być jawne.
 
-3 października 2026 użytkownik zlecił dokończenie wieloagentowe, push do repo, codzienne pobieranie nowych danych i GitHub Pages. Zgoda na publiczne repo jest warunkowa: **po działających testach i weryfikacji aplikacji**. Konto GitHub Free: lokalny smoke i CI najpierw w prywatnym repo, potem publiczna widoczność, konfiguracja Pages i kontrola rzeczywistego wdrożenia. Surowych CSV, sekretów i danych inwestorów/projektantów nie publikować.
+3 października 2026 użytkownik zlecił dokończenie wieloagentowe, push do repo, codzienne pobieranie nowych danych i GitHub Pages. Zgoda na publiczne repo była warunkowa: **po działających testach i weryfikacji aplikacji**. Następnie wyraźnie polecił przesłać wszystkie dane bez dalszego zajmowania się prywatnością. Pełne oficjalne ZIP-y i oryginalne wiersze gminy zachowano w osobnym `data/full/`; nie są częścią builda aplikacji. Sekrety, poświadczenia i cookies nadal pozostają poza repo. Lokalny smoke i CI wykonano najpierw w prywatnym repo, a następnie włączono publiczną widoczność i Pages po pozytywnej weryfikacji.
 
 ## Równoległe zadania i własność plików
 
@@ -35,6 +35,15 @@ Kontroler: `README.md`, ten plan, repo/commity/push/settings, integracja, przegl
 
 Record: `{id:string, kind:"application"|"decision"|"notification", title:string, description:string, applicationDate:string|null (YYYY-MM-DD), decisionDate:string|null, decisionNumber:string|null, status:string, locality:string, street:string, municipality:string, cadastralRegion:string, parcelNumbers:string[], parcelIds:string[], category:string, sourceUrl:string, geometryStatus:"matched"|"partial"|"unresolved", geometryNote:string}`. Brak nazwisk osób prywatnych w UI i imporcie; nazwy podmiotów nie są wymagane.
 
-`public/data/parcels.geojson`: FeatureCollection, geometrie Polygon/MultiPolygon WGS84 lon/lat, properties `{id:string,parcelNumber:string,region:string,permitIds:string[],sourceUrl:string}`. Tylko potwierdzone identyfikatory działek; bez fikcyjnych geometrii. Dodatkowe pola jawnej metadanej pobrania dopuszczalne.
+`public/data/parcels.geojson`: FeatureCollection z top-level `generatedAt` identycznym z permits i metadata, geometrie Polygon/MultiPolygon WGS84 lon/lat, properties `{id:string,parcelNumber:string,region:string,permitIds:string[],sourceUrl:string}`. Tylko potwierdzone identyfikatory działek; bez fikcyjnych geometrii. Dodatkowe pola jawnej metadanej pobrania dopuszczalne.
 
 `public/data/metadata.json`: `{generatedAt:string,recordCount:number,parcelCount:number,matchedRecordCount:number,unresolvedRecordCount:number,coverage:string,warnings:string[],sources:[{name,url}]}`. Dodatkowe pola dozwolone. UI oblicza statystyki z rekordów, nie ufa bezwarunkowo licznikom metadanych.
+
+## Weryfikacja wdrożenia — 3 października 2026
+
+- Pełny kod: `c628002261cffe72dbe3dd922ef570726aafe6e4`; dane po rzeczywistym odświeżeniu Actions: `d675c0e1399364e6ce597c44ba82bff500dc4b90`.
+- CI `37103489694`, ręczny świeży import `37103525834` i Pages build/deploy `37103791008` zakończone sukcesem; w ostatnim runie job deploy rzeczywiście wykonał się, nie został pominięty.
+- Repo publiczne, Pages `build_type=workflow`, `PAGES_ENABLED=true`; strona `https://hubert-rybak.github.io/ozarow-building-permits/` zwróciła HTTP 200.
+- Snapshot generacji `2026-10-03T06:37:57.293208Z`: 447 wpisów i 842 obrysy; trzy wdrożone pliki zgodne bajtowo z repo. Zachowano 48 wpisów bez geometrii i 29 częściowo dopasowanych.
+- Browser desktop/mobile: 447 wierszy/842 obrysy, Duchnice 38/71, po filtrze zgłoszeń 12; reset i CSV działają; brak błędów JS, błędów HTTP aplikacji i poziomego overflow.
+- Harmonogram codzienny `23 3 * * *` UTC oraz ręczny dispatch są obecne w zdalnym workflow. Nie twierdzimy, że przyszły run harmonogramu już się wykonał.

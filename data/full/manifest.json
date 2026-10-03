@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "packagedAt": "2026-10-03T06:17:56.735877Z",
-  "visibility": "private",
+  "visibilityAtPackaging": "private",
   "scope": "Official source archives in full, plus all municipality rows without a date cutoff or source-field redaction.",
   "archives": [
     {
