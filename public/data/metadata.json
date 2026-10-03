@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-03T06:37:57.293208Z",
+  "generatedAt": "2026-10-03T06:48:21.590961Z",
   "recordCount": 447,
   "parcelCount": 842,
   "matchedRecordCount": 370,
@@ -31,7 +31,7 @@
     {
       "name": "GUNB permit",
       "url": "https://wyszukiwarka.gunb.gov.pl/pliki_pobranie/wynik_mazowieckie.zip",
-      "downloadedAt": "2026-10-03T06:35:25.194487Z",
+      "downloadedAt": "2026-10-03T06:46:05.945810Z",
       "sha256": "35517ddf8cc53a168c75a14d5d9f7e6ec29fcea807bbb39a9f8d3cd00a34887e",
       "byteCount": 46241653,
       "httpLastModified": "Fri, 02 Oct 2026 21:35:13 GMT",
@@ -40,7 +40,7 @@
     {
       "name": "GUNB notification",
       "url": "https://wyszukiwarka.gunb.gov.pl/pliki_pobranie/wynik_zgloszenia_2022_up.zip",
-      "downloadedAt": "2026-10-03T06:35:38.582022Z",
+      "downloadedAt": "2026-10-03T06:46:15.372555Z",
       "sha256": "eee98e1835c53b649cec6fecaa5e41f144fdc38af8b5e9c45e9f8fc44a48df62",
       "byteCount": 25711067,
       "httpLastModified": "Fri, 02 Oct 2026 21:36:10 GMT",
