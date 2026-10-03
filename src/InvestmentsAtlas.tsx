@@ -381,6 +381,9 @@ export default function InvestmentsAtlas({ active }: { active: boolean }) {
       a.localeCompare(b, "pl"),
     );
   const years = [...new Set(all.flatMap((r) => r.years))].sort((a, b) => b - a);
+  const sourceFailures = data?.sources.filter(
+    (s) => s.status === "retained" || s.status === "unavailable",
+  ) || [];
   const warnings = [
     ...(data?.warnings || []),
     ...(data?.sources.flatMap((s) => [
@@ -450,14 +453,22 @@ export default function InvestmentsAtlas({ active }: { active: boolean }) {
           </section>
         )}
       </div>
-      {!!warnings.length && !loading && (
-        <section className="investment-alert" role="alert">
-          <strong>Ograniczenia aktualności i integralności danych</strong>
+      {!!sourceFailures.length && !loading && !error && (
+        <section
+          className="investment-alert"
+          role="alert"
+          aria-label="Problemy z pobraniem źródeł"
+        >
+          <strong>Nie wszystkie źródła udało się odświeżyć.</strong>
           <ul>
-            {warnings.map((w, i) => (
-              <li key={i}>{w}</li>
+            {sourceFailures.map((s) => (
+              <li key={s.id}>{s.name}: {freshness[s.status]}</li>
             ))}
           </ul>
+          <a href="#investment-provenance" onClick={() => {
+            const disclosure = root.current?.querySelector<HTMLDetailsElement>("#investment-provenance");
+            if (disclosure) disclosure.open = true;
+          }}>Szczegóły w „O danych”</a>
         </section>
       )}
       <div
@@ -787,6 +798,14 @@ export default function InvestmentsAtlas({ active }: { active: boolean }) {
       </div>
       <details className="data-disclosure" id="investment-provenance">
         <summary>O danych inwestycji i pokryciu źródeł</summary>
+        {!!warnings.length && !loading && !error && (
+          <section className="investment-alert" aria-label="Ograniczenia danych inwestycji">
+            <strong>Ograniczenia aktualności i integralności danych</strong>
+            <ul>
+              {warnings.map((w, i) => <li key={i}>{w}</li>)}
+            </ul>
+          </section>
+        )}
         <section className="provenance" aria-label="Pokrycie źródeł inwestycji">
           <div>
             <h2>Jak czytać inwestycje?</h2>
