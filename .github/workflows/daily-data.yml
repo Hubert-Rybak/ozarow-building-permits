@@ -1,0 +1,168 @@
+name: Daily GUNB refresh and Pages
+
+on:
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.ref == 'refs/heads/main' && 'main-data-and-pages' || format('verify-{0}-{1}', github.workflow, github.ref) }}
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  refresh:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    permissions:
+      contents: write
+      pages: read
+    outputs:
+      snapshot: ${{ steps.snapshot.outputs.sha }}
+    steps:
+      - name: Checkout the immutable event snapshot
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Install locked application and data-test dependencies
+        run: |
+          npm ci
+          python -m pip install -r requirements-data.txt PyYAML==6.0.3
+      - name: Workflow contracts
+        run: python -m unittest discover -s tests/workflows -v
+      - name: Freeze UTC date and import fresh official sources into staging
+        id: import
+        run: |
+          until="$(date -u +%F)"
+          # Keep the prior generation in staging for the importer's loss/range guards.
+          cp -a public/data "$RUNNER_TEMP/data-candidate"
+          if [ -f scripts/uldk-cache.json ]; then
+            cp scripts/uldk-cache.json "$RUNNER_TEMP/uldk-cache-candidate.json"
+          fi
+          python scripts/import_data.py \
+            --since 2025-01-01 --until "$until" \
+            --max-parcels 0 --workers 4 --refresh-sources \
+            --cache "$RUNNER_TEMP/gunb-private-cache" \
+            --uldk-public-cache "$RUNNER_TEMP/uldk-cache-candidate.json" \
+            --output "$RUNNER_TEMP/data-candidate"
+      - name: Validate candidate generation and build; roll back on failure
+        id: validate
+        run: |
+          set -Eeuo pipefail
+          original="$RUNNER_TEMP/original-public-data"
+          had_evidence=false
+          if [ -f scripts/uldk-cache.json ]; then
+            cp scripts/uldk-cache.json "$RUNNER_TEMP/original-uldk-cache.json"
+            had_evidence=true
+          fi
+          mv public/data "$original"
+          rollback() {
+            status=$?
+            trap - ERR
+            rm -rf public/data
+            mv "$original" public/data
+            if [ "$had_evidence" = true ]; then
+              cp "$RUNNER_TEMP/original-uldk-cache.json" scripts/uldk-cache.json
+            else
+              rm -f scripts/uldk-cache.json
+            fi
+            exit "$status"
+          }
+          trap rollback ERR
+          mv "$RUNNER_TEMP/data-candidate" public/data
+          cp "$RUNNER_TEMP/uldk-cache-candidate.json" scripts/uldk-cache.json
+          python -m unittest discover -s tests/data -v
+          npm test
+          npm run build
+          python tests/workflows/check_dist.py
+          trap - ERR
+      - name: Commit only the validated three-file generation and verify remote
+        id: snapshot
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          # Only the declared public snapshot and allowlisted ULDK evidence may change.
+          python - <<'PY'
+          import subprocess
+          allowed = {'public/data/permits.json', 'public/data/parcels.geojson', 'public/data/metadata.json', 'scripts/uldk-cache.json'}
+          changed = set(subprocess.check_output(['git', 'diff', '--name-only'], text=True).splitlines())
+          if not changed <= allowed:
+              raise SystemExit('Unexpected tracked changes outside the public data/evidence snapshot')
+          PY
+          git add -- public/data/permits.json public/data/parcels.geojson public/data/metadata.json scripts/uldk-cache.json
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'data: refresh official GUNB and ULDK snapshot'
+            # Fast-forward only. A concurrent external push must not be overwritten.
+            auth_header="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+            git -c "http.extraheader=AUTHORIZATION: basic $auth_header" \
+              push "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" HEAD:refs/heads/main
+            unset auth_header
+          fi
+          snapshot="$(git rev-parse HEAD)"
+          remote="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          test "$remote" = "$snapshot"
+          printf 'sha=%s\n' "$snapshot" >> "$GITHUB_OUTPUT"
+      - name: Read existing Pages configuration without enabling it
+        if: github.ref == 'refs/heads/main' && vars.PAGES_ENABLED == 'true'
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+        with:
+          enablement: false
+      - name: Upload only verified static output
+        if: github.ref == 'refs/heads/main' && vars.PAGES_ENABLED == 'true'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist/
+          retention-days: 1
+          include-hidden-files: false
+
+  # GITHUB_TOKEN pushes do not trigger the push workflow: deploy in THIS run.
+  deploy:
+    needs: refresh
+    if: github.ref == 'refs/heads/main' && vars.PAGES_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Do not replace a newer main snapshot
+        id: current
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ needs.refresh.outputs.snapshot }}
+        run: |
+          current="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          if [ "$current" = "$EXPECTED_SHA" ]; then
+            printf 'current=true\n' >> "$GITHUB_OUTPUT"
+          else
+            printf 'current=false\n' >> "$GITHUB_OUTPUT"
+            printf 'Skipping superseded snapshot %s (main is %s)\n' "$EXPECTED_SHA" "$current"
+          fi
+      - name: Deploy this run's validated Pages artifact
+        if: steps.current.outputs.current == 'true'
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+        with:
+          artifact_name: github-pages

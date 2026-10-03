@@ -1,0 +1,103 @@
+/** Synthetic contract fixtures: TESTS ONLY, never served by the application. */
+import type { Permit, ParcelCollection, PermitDataset } from "../../src/types";
+export const records: Permit[] = [
+  {
+    id: "test-application",
+    kind: "application",
+    title: "TEST: budowa domu",
+    description: "Wyłącznie fixture testowa",
+    applicationDate: "2024-01-02",
+    decisionDate: null,
+    decisionNumber: null,
+    status: "w toku",
+    locality: "Ożarów Mazowiecki",
+    street: "Poznańska",
+    municipality: "Ożarów Mazowiecki",
+    cadastralRegion: "0001",
+    parcelNumbers: ["12/3"],
+    parcelIds: ["test-parcel"],
+    category: "I",
+    sourceUrl: "https://example.org/test-application",
+    geometryStatus: "matched",
+    geometryNote: "",
+  },
+  {
+    id: "test-decision",
+    kind: "decision",
+    title: "TEST: hala",
+    description: "Wyłącznie fixture testowa",
+    applicationDate: "2023-01-02",
+    decisionDate: "2025-06-01",
+    decisionNumber: "TEST-1",
+    status: "odmowa",
+    locality: "Duchnice",
+    street: "Długa",
+    municipality: "Ożarów Mazowiecki",
+    cadastralRegion: "0002",
+    parcelNumbers: ["7"],
+    parcelIds: [],
+    category: "XVIII",
+    sourceUrl: "https://example.org/test-decision",
+    geometryStatus: "unresolved",
+    geometryNote: "TEST: brak potwierdzenia",
+  },
+  {
+    id: "test-unknown",
+    kind: "decision",
+    title: "TEST: magazyn",
+    description: "Wyłącznie fixture testowa",
+    applicationDate: "2022-01-02",
+    decisionDate: null,
+    decisionNumber: null,
+    status: "nieznany",
+    locality: "Ożarów Mazowiecki",
+    street: "",
+    municipality: "Ożarów Mazowiecki",
+    cadastralRegion: "",
+    parcelNumbers: ["5"],
+    parcelIds: [],
+    category: "",
+    sourceUrl: "",
+    geometryStatus: "unresolved",
+    geometryNote: "",
+  },
+];
+export const parcels: ParcelCollection & { generatedAt: string } = {
+  type: "FeatureCollection",
+  generatedAt: "2025-01-01T00:00:00Z",
+  features: [
+    {
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [20.79, 52.21],
+            [20.8, 52.21],
+            [20.8, 52.22],
+            [20.79, 52.21],
+          ],
+        ],
+      },
+      properties: {
+        id: "test-parcel",
+        parcelNumber: "12/3",
+        region: "0001",
+        permitIds: ["test-application"],
+        sourceUrl: "https://example.org/test-parcel",
+      },
+    },
+  ],
+};
+export const dataset: PermitDataset = {
+  schemaVersion: 1,
+  generatedAt: "2025-01-01T00:00:00Z",
+  source: {
+    name: "TEST SOURCE",
+    url: "https://example.org",
+    downloadedAt: "2025-01-01T00:00:00Z",
+    coverage: "TEST COVERAGE",
+  },
+  records,
+};
+export const metadata = { generatedAt: dataset.generatedAt };

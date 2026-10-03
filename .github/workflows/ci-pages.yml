@@ -1,0 +1,104 @@
+name: Application CI and Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Both workflows use one workflow-level main lock. No nested job lock/deadlock.
+concurrency:
+  group: ${{ github.ref == 'refs/heads/main' && 'main-data-and-pages' || format('verify-{0}-{1}', github.workflow, github.ref) }}
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pages: read
+    outputs:
+      snapshot: ${{ steps.snapshot.outputs.sha }}
+    steps:
+      - name: Checkout the immutable event snapshot
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Install locked application and data-test dependencies
+        run: |
+          npm ci
+          python -m pip install -r requirements-data.txt PyYAML==6.0.3
+      - name: Validate workflow contracts and published data
+        run: |
+          python -m unittest discover -s tests/workflows -v
+          python -m unittest discover -s tests/data -v
+      - name: Application tests
+        run: npm test
+      - name: Build the same verified snapshot
+        run: |
+          npm run build
+          python tests/workflows/check_dist.py
+      - name: Record verified revision
+        id: snapshot
+        run: printf 'sha=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Read existing Pages configuration without enabling it
+        if: github.ref == 'refs/heads/main' && vars.PAGES_ENABLED == 'true'
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+        with:
+          enablement: false
+      - name: Upload only verified static output
+        if: github.ref == 'refs/heads/main' && vars.PAGES_ENABLED == 'true'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist/
+          retention-days: 1
+          include-hidden-files: false
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && vars.PAGES_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Do not replace a newer main snapshot
+        id: current
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ needs.build.outputs.snapshot }}
+        run: |
+          current="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          if [ "$current" = "$EXPECTED_SHA" ]; then
+            printf 'current=true\n' >> "$GITHUB_OUTPUT"
+          else
+            printf 'current=false\n' >> "$GITHUB_OUTPUT"
+            printf 'Skipping superseded snapshot %s (main is %s)\n' "$EXPECTED_SHA" "$current"
+          fi
+      - name: Deploy validated Pages artifact
+        if: steps.current.outputs.current == 'true'
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+        with:
+          artifact_name: github-pages
