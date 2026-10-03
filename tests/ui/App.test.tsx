@@ -6,12 +6,14 @@ vi.mock("../../src/ParcelMap", () => ({
   default: ({
     onSelect,
     records,
+    selectedId,
   }: {
     onSelect: (id: string) => void;
     records: { id: string }[];
+    selectedId: string | null;
   }) => (
     <div aria-label="Mapa działek testowa" data-record-ids={records.map(r => r.id).join(",")}>
-      <button onClick={() => onSelect(records[0]?.id)}>
+      <button onClick={() => onSelect(selectedId || records[0]?.id)}>
         TEST: wybierz na mapie
       </button>
     </div>
@@ -105,6 +107,53 @@ describe("UX regressions", () => {
     expect(screen.getByLabelText("Okres")).toHaveValue("all");
     expect(screen.getByLabelText("Mapa działek testowa")).toBe(map);
     expect(container.querySelector(".result-row.selected")).not.toBeInTheDocument();
+  });
+  it.each(["matched", "partial"] as const)("shows a %s list selection on the mobile map, including repeated selections", async (geometryStatus) => {
+    const seen: HTMLElement[] = [];
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {configurable: true, value: function(this: HTMLElement) { seen.push(this); }});
+    vi.stubGlobal("matchMedia", vi.fn(() => ({matches: true})));
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => ({ok: true, json: async () => url.includes("permits.json") ? {...dataset, records: dataset.records.map(r => r.id === "test-application" ? {...r, geometryStatus} : r)} : url.includes("parcels.geojson") ? parcels : metadata})));
+    const {container} = renderAllPeriods();
+    await screen.findByText("TEST: budowa domu");
+    const map = screen.getByLabelText("Mapa działek testowa");
+    for (let cycle = 0; cycle < 2; cycle++) {
+      fireEvent.click(screen.getByRole("button", {name: /Lista/}));
+      seen.length = 0;
+      fireEvent.click(screen.getByRole("button", {name: /TEST: budowa domu/}));
+      expect(container.querySelector(".workspace")).toHaveClass("view-map");
+      expect(container.querySelector('.result-row[data-record-id="test-application"]')).toHaveClass("selected");
+      expect(seen.at(-1)).toBe(container.querySelector(".map-panel"));
+      expect(screen.getByLabelText("Okres")).toHaveValue("all");
+      expect(screen.getByLabelText("Mapa działek testowa")).toBe(map);
+    }
+    seen.length = 0;
+    fireEvent.click(screen.getByRole("button", {name: "TEST: wybierz na mapie"}));
+    expect(seen.at(-1)).toBe(container.querySelector(".detail-panel"));
+    fireEvent.click(screen.getByRole("button", {name: "Zamknij szczegóły"}));
+    expect(seen.at(-1)).toBe(container.querySelector(".map-panel"));
+  });
+  it("keeps unmapped mobile list selections on the list with their details", async () => {
+    const seen: HTMLElement[] = [];
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {configurable: true, value: function(this: HTMLElement) { seen.push(this); }});
+    vi.stubGlobal("matchMedia", vi.fn(() => ({matches: true})));
+    mockData();
+    const {container} = renderAllPeriods();
+    await screen.findByText("TEST: hala");
+    fireEvent.click(screen.getByRole("button", {name: /Lista/}));
+    fireEvent.click(screen.getByRole("button", {name: /TEST: hala/}));
+    expect(container.querySelector(".workspace")).toHaveClass("view-list");
+    expect(seen.at(-1)).toBe(container.querySelector(".detail-panel"));
+    expect(screen.getByText("Brak potwierdzonej geometrii — wpis pozostaje dostępny na liście.")).toBeInTheDocument();
+  });
+  it("does not change the desktop view when selecting a mapped list record", async () => {
+    vi.stubGlobal("matchMedia", vi.fn(() => ({matches: false})));
+    mockData();
+    const {container} = renderAllPeriods();
+    await screen.findByText("TEST: budowa domu");
+    fireEvent.click(screen.getByRole("button", {name: /Lista/}));
+    fireEvent.click(screen.getByRole("button", {name: /TEST: budowa domu/}));
+    expect(container.querySelector(".workspace")).toHaveClass("view-list");
+    expect(screen.getByRole("heading", {name: "Szczegóły wpisu"})).toBeInTheDocument();
   });
   it("omits only the generic privacy description while retaining real record descriptions", async () => {
     const generic = "Bezpieczny skrót rodzaju inwestycji. Swobodny opis GUNB pominięto ze względu na możliwość występowania danych osobowych.";
