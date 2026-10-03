@@ -89,6 +89,13 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 .legend-note { margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--line-soft); font-size: 12px; color: var(--muted); }
 .map-overview { position: absolute; right: 12px; bottom: 28px; z-index: 800; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 22px; background: white; box-shadow: var(--shadow); font-size: 14px; font-weight: 600; color: var(--ink-2); }
 
+.map-locate { position: absolute; right: 12px; bottom: 84px; z-index: 800; width: 48px; height: 48px; display: grid; place-items: center; border: 0; border-radius: 24px; background: white; box-shadow: var(--shadow); color: var(--ink-2); }
+.map-locate.active { color: var(--accent); }
+.map-locate:disabled { opacity: 1; cursor: progress; }
+.loading-ring.small { width: 20px; height: 20px; border-width: 2px; }
+.locate-message { position: absolute; right: 12px; bottom: 140px; z-index: 850; max-width: min(320px, calc(100% - 24px)); padding: 10px 14px; border-radius: 12px; background: var(--ink); color: white; font-size: 14px; box-shadow: var(--shadow); }
+.user-location { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .4)); }
+
 /* Panel (desktop: floating card) */
 .panel { position: absolute; z-index: 1000; top: 16px; left: 16px; bottom: 16px; width: 400px; display: flex; flex-direction: column; background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
 .panel-tabs { flex-shrink: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 12px 12px 0; padding: 4px; background: #EEF1F4; border-radius: 12px; }
@@ -253,6 +260,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
   .chip-row { flex-wrap: nowrap; overflow-x: auto; margin: 0 -12px; padding: 0 12px 2px; scrollbar-width: none; }
   .chip-row::-webkit-scrollbar { display: none; }
   .map-overview { right: 8px; transition: bottom .22s ease; }
+  .map-locate { right: 8px; transition: bottom .22s ease; }
+  .locate-message { right: 8px; }
   .leaflet-bottom.leaflet-right { top: 0; bottom: auto; left: 0; right: auto; }
   .leaflet-bottom.leaflet-right .leaflet-control-attribution { border-radius: 0 0 6px 0; }
   .about-backdrop { padding: 0; }

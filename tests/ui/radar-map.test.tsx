@@ -78,6 +78,18 @@ describe("unified radar map", () => {
     expect(v.mapFactory).toHaveBeenCalledTimes(1);
   });
 
+  it("draws the viewer's position with its accuracy and frames it, without making it clickable", () => {
+    const v = mount([item("a", [52.3, 20.9])]);
+    const fit = vi.spyOn(v.map, "fitBounds");
+    v.rerender(<RadarMap {...v.props} userLocation={{ at: [52.21, 20.8], accuracy: 30, token: 1 }} />);
+    const dot = v.container.querySelector("path.user-location");
+    expect(dot).not.toBeNull();
+    expect(dot).not.toHaveClass("leaflet-interactive");
+    expect((fit.mock.calls.at(-1)![0] as L.LatLngBounds).contains([52.21, 20.8])).toBe(true);
+    v.rerender(<RadarMap {...v.props} userLocation={null} />);
+    expect(v.container.querySelector("path.user-location")).toBeNull();
+  });
+
   it("removes old symbols on filtering and cleans up on unmount", () => {
     const v = mount([item("a", [52.2, 20.7]), item("b", [52.25, 20.9])]);
     const remove = vi.spyOn(v.map, "remove");
