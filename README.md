@@ -17,6 +17,8 @@ Aplikacja domyślnie pokazuje **ostatnie 3 miesiące kalendarzowe** względem dz
 
 Pełna metodologia, oficjalne źródła, weryfikacja TERYT, zakres i ograniczenia: **[docs/SOURCES.md](docs/SOURCES.md)**.
 
+Na telefonie wybór wpisu z potwierdzonym obrysem na liście przełącza widok na mapę i pokazuje jego działki. Wpis bez dostępnej geometrii otwiera szczegóły, pozostając w widoku listy. Filtry nie zmieniają się; dotknięcie działki na mapie otwiera szczegóły, a ich zamknięcie przywraca mapę do widoku.
+
 ## Repozytorium i hosting
 
 Repozytorium: **[Hubert-Rybak/ozarow-building-permits](https://github.com/Hubert-Rybak/ozarow-building-permits)**.

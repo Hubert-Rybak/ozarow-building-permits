@@ -255,6 +255,7 @@ export default function App() {
   const [filters, setFilters] = useState<Filters>({ ...defaultFilters });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
+  const [selectionDestination, setSelectionDestination] = useState<{ surface: "map" | "detail" }>({ surface: "detail" });
   const resultsRef = useRef<HTMLElement>(null);
   const mapPanelRef = useRef<HTMLElement>(null);
   const returnAfterClose = useRef<{
@@ -306,11 +307,12 @@ export default function App() {
       typeof window.matchMedia === "function" &&
       window.matchMedia("(max-width: 720px)").matches
     ) {
-      document
-        .querySelector(".detail-panel")
-        ?.scrollIntoView({ block: "start", behavior: "auto" });
+      const target = selectionDestination.surface === "map"
+        ? mapPanelRef.current
+        : document.querySelector(".detail-panel");
+      target?.scrollIntoView({ block: "start", behavior: "auto" });
     }
-  }, [selected?.id]);
+  }, [selected?.id, selectionDestination]);
   useEffect(() => {
     const destination = returnAfterClose.current;
     if (selected || !destination) return;
@@ -333,7 +335,18 @@ export default function App() {
     }
     setSelectedId(null);
   };
-  const select = useCallback((id: string) => setSelectedId(id), []);
+  const select = useCallback((id: string) => {
+    setSelectionDestination({ surface: "detail" });
+    setSelectedId(id);
+  }, []);
+  const selectFromList = (record: Permit) => {
+    const showMap = typeof window.matchMedia === "function"
+      && window.matchMedia("(max-width: 720px)").matches
+      && getRecordParcels(record, data.parcels).length > 0;
+    setSelectionDestination({ surface: showMap ? "map" : "detail" });
+    if (showMap) setMobileView("map");
+    setSelectedId(record.id);
+  };
   const update = (key: keyof Filters, value: string) =>
     setFilters((prev) => ({ ...prev, [key]: value }));
   const reset = () => {
@@ -684,7 +697,7 @@ export default function App() {
                     record={r}
                     mapped={getRecordParcels(r, data.parcels).length > 0}
                     selected={selected?.id === r.id}
-                    onSelect={() => select(r.id)}
+                    onSelect={() => selectFromList(r)}
                   />
                 ))}
               </ul>
