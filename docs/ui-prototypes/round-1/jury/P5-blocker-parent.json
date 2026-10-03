@@ -1,0 +1,59 @@
+{
+  "candidate": "P5",
+  "recordId": "permit:ST-MZ-OZ/WNIOSEK/26523/2026",
+  "viewport": [
+    320,
+    700
+  ],
+  "cycles": [
+    {
+      "panel": {
+        "top": 336.28125,
+        "bottom": 587.875,
+        "left": 10,
+        "right": 310
+      },
+      "polygons": [
+        {
+          "id": "143206_4.0004.95/13",
+          "top": 345.3238220214844,
+          "bottom": 430.3238220214844,
+          "insideSamples": 677,
+          "hittableSamples": 0
+        },
+        {
+          "id": "143206_4.0004.95/14",
+          "top": 352.3238220214844,
+          "bottom": 436.3238220214844,
+          "insideSamples": 687,
+          "hittableSamples": 0
+        }
+      ]
+    },
+    {
+      "panel": {
+        "top": 336.28125,
+        "bottom": 587.875,
+        "left": 10,
+        "right": 310
+      },
+      "polygons": [
+        {
+          "id": "143206_4.0004.95/13",
+          "top": 345.875,
+          "bottom": 430.875,
+          "insideSamples": 677,
+          "hittableSamples": 0
+        },
+        {
+          "id": "143206_4.0004.95/14",
+          "top": 352.875,
+          "bottom": 436.875,
+          "insideSamples": 687,
+          "hittableSamples": 0
+        }
+      ]
+    }
+  ],
+  "confirmedPeekOccludesAllSelectedPolygons": true
+}

@@ -1,0 +1,193 @@
+{
+  "weights": {
+    "mobile": 0.35,
+    "hierarchy": 0.2,
+    "accessibility": 0.2,
+    "visual": 0.15,
+    "robustness": 0.1
+  },
+  "juryCount": 3,
+  "candidateCount": 5,
+  "assessmentCount": 15,
+  "ranking": [
+    {
+      "id": "P5",
+      "averageWeightedScore": 8.286666666666667,
+      "eligible": false,
+      "mobileMean": 8.299999999999999,
+      "robustnessMean": 8.0,
+      "hardGateIssues": [
+        {
+          "jury": "J1",
+          "issues": [
+            "Potwierdzona przeszkoda w wymaganym mobilnym row→map→polygon→detail przy 320×700: pierwszy domyślny wynik permit:ST-MZ-OZ/WNIOSEK/26523/2026 wybiera właściwe działki 143206_4.0004.95/13 i 143206_4.0004.95/14, ale karta peek całkowicie zasłania oba poligony. Po odczekaniu 1200 ms karta zajmuje y≈336–588, a poligony y≈345–431 i y≈352–437, w całości wewnątrz jej obszaru. Skan punktów wnętrza obu ścieżek przez document.elementFromPoint nie znalazł żadnego dostępnego punktu dotykowego. Wynik powtórzony w dwóch cyklach. Poprawny fitBounds względem całej mapy nie oznacza widoczności względem zasłaniającej ją karty."
+          ]
+        }
+      ],
+      "productionFixes": [
+        {
+          "jury": "J1",
+          "fixes": [
+            "BLOKER: kadrować wybrane geometrie w niezasłoniętej części mapy z uwzględnieniem rzeczywistej wysokości peek albo ograniczyć kartę. Przy 320×700 oba poligony 95/13 i 95/14 pierwszego domyślnego wyniku muszą być widoczne i bezpośrednio dotykalne bez zamykania wyboru lub ręcznego przesuwania mapy.",
+            "Powtórzyć ten konkretny test na 320 i 390 px w dwóch cyklach, z długimi statusami/tytułami i rozwijaniem karty; zachować poprawne dokładne działki oraz powrót do używalnej mapy.",
+            "Powiększyć etykiety liczników i poprawić fokus po wiersz→mapa. Wykonać test czytnika ekranu i fizycznego telefonu; te dodatkowe zalecenia są odrębne od potwierdzonego blokera."
+          ]
+        },
+        {
+          "jury": "J2",
+          "fixes": [
+            "Nieblokujące ulepszenie: powiększyć opisy liczników i drobne metadane; niska wysokość paska nie powinna zależeć od tekstu 8 px.",
+            "Nieblokujące ulepszenie: dodać krótki, zrozumiały sygnał źródła i ograniczenia interpretacji przy pierwszej mapie albo w karcie peek, bez przywracania rozbudowanego wstępu.",
+            "Kontrola przed produkcją, nie potwierdzony błąd: fizyczny telefon/Safari, czytnik ekranu, powiększenie tekstu oraz karta pełnych szczegółów i dolna nawigacja dla długiego tytułu/wielodziałkowego wpisu."
+          ]
+        },
+        {
+          "jury": "J3",
+          "fixes": [
+            "Zalecenie produkcyjne, nie blocker hard gate: po mobilnym wyborze mapowanego wiersza skupić widoczną kontrolkę mapy, a desktopowy Escape filtrów oddać do właściwego summary; nie do ukrytej dolnej akcji. Dodać rzeczywiste regresje obu ścieżek.",
+            "Zalecenie produkcyjne, nie blocker hard gate: umieścić Wpis w źródle i krótką interpretację statusu wcześnie w inspekcji; dać zwięzły kontekst źródła/importu bezpośrednio przy mapie zamiast wyłącznie niżej.",
+            "Zalecenie produkcyjne, nie blocker hard gate: powiększyć najmniejsze etykiety i utrzymać testy powtarzanego wyboru/partial oraz braku przechwytywania dotyku przez peek po przejściu na listę."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "averageWeightedScore": 8.226666666666667,
+      "eligible": true,
+      "mobileMean": 8.200000000000001,
+      "robustnessMean": 8.933333333333334,
+      "hardGateIssues": [],
+      "productionFixes": [
+        {
+          "jury": "J1",
+          "fixes": [
+            "Powiększyć etykiety liczników i tekst pomocniczy zamiast utrzymywać 8–9 px; zwiększyć czytelność pola wyszukiwania bez rozbudowywania nagłówka.",
+            "Skrócić pusty inspektor na desktopie i wyeksponować link źródłowy bliżej początku szczegółów na telefonie.",
+            "Sprawdzić fizyczny telefon, Safari oraz czytnik ekranu; są to zalecenia produkcyjne, nie potwierdzone blokery hard gate."
+          ]
+        },
+        {
+          "jury": "J2",
+          "fixes": [
+            "Nieblokujące ulepszenie: powiększyć mobilne pole wyszukiwania oraz opisy liczników i metadane; zachować zwarte grupowanie zamiast kompensować mały druk dodatkowymi nagłówkami.",
+            "Nieblokujące ulepszenie: przesunąć link Wpis w źródle bliżej początku inspektora, aby nie przegrywał z długą listą działek.",
+            "Kontrola przed produkcją, nie potwierdzony błąd: fizyczny telefon, Safari, czytnik ekranu i powiększenie tekstu; dostarczone dowody nie są pełnym audytem dostępności."
+          ]
+        },
+        {
+          "jury": "J3",
+          "fixes": [
+            "Zalecenie produkcyjne, nie blocker hard gate: zwiększyć pomocnicze etykiety 8–10 px bez ponownego wypchnięcia mapy poniżej pierwszego ekranu.",
+            "Zalecenie produkcyjne, nie blocker hard gate: przenieść odsyłacz Wpis w źródle do górnej części inspektora, przed długą sekcję działek.",
+            "Zalecenie produkcyjne, nie blocker hard gate: ujednolicić desktopowy powrót fokusu dla przycisku × i Escape; obecnie jawne odtworzenie fokusu desktopu jest w ścieżce Escape."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "averageWeightedScore": 8.046666666666667,
+      "eligible": true,
+      "mobileMean": 7.833333333333333,
+      "robustnessMean": 8.733333333333333,
+      "hardGateIssues": [],
+      "productionFixes": [
+        {
+          "jury": "J1",
+          "fixes": [
+            "Dodać jawny fokus szczegółów po wyborze poligonu, fokus mapy po wyborze wiersza i powrót fokusu po zamknięciu; obsłużyć Escape szczegółów.",
+            "Powiększyć drobne etykiety oraz ograniczyć ucinanie nazwy okresu przy 320 px.",
+            "Sprawdzić mobilny czytnik ekranu i fizyczny telefon. To zalecenia, nie stwierdzone blokery hard gate."
+          ]
+        },
+        {
+          "jury": "J2",
+          "fixes": [
+            "Nieblokujące ulepszenie: zwiększyć czytelność opisów liczników/importu oraz mobilnego inputu, pozostawiając zwarty pasek komend.",
+            "Nieblokujące ulepszenie: udostępnić źródło rekordu wyżej w inspektorze i ograniczyć konieczność przewijania przy desktopowym porównywaniu kolejnych wpisów.",
+            "Kontrola przed produkcją, nie potwierdzony błąd: czytnik ekranu, Safari i powiększenie tekstu, szczególnie przy przejściu między listą, mapą i inspektorem."
+          ]
+        },
+        {
+          "jury": "J3",
+          "fixes": [
+            "Zalecenie produkcyjne, nie blocker hard gate: rozciągnąć dobrą obsługę fokusu filtrów na listę → mapę → szczegóły → zamknięcie, wraz z Escape inspektora.",
+            "Zalecenie produkcyjne, nie blocker hard gate: pokazać Wpis w źródle w nagłówku inspektora i zwiększyć najmniejsze etykiety bez rozbudowy pionowego command-bar."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "averageWeightedScore": 7.595,
+      "eligible": true,
+      "mobileMean": 7.3,
+      "robustnessMean": 8.533333333333333,
+      "hardGateIssues": [],
+      "productionFixes": [
+        {
+          "jury": "J1",
+          "fixes": [
+            "Wzmocnić kontrast placeholdera oraz etykiet pomocniczych.",
+            "Dodać przeniesienie i przywrócenie fokusu dla wiersz→mapa→szczegóły, a także Escape dla szczegółów.",
+            "Skrócić nagłówek i pionowe odstępy; przy 320 px pokazać czytelny skrót okresu, zachowując jego pełną nazwę dostępną.",
+            "Sprawdzić czytnik ekranu i fizyczny telefon. Powyższe uwagi nie są potwierdzonymi naruszeniami hard gate."
+          ]
+        },
+        {
+          "jury": "J2",
+          "fixes": [
+            "Nieblokujące ulepszenie: skrócić pionowy wstęp i ograniczyć pustą przestrzeń wokół statusu/importu, nie zmniejszając czytelności kart.",
+            "Nieblokujące ulepszenie: na telefonie pokazać zwięzłe ostrzeżenie o semantyce decyzji przy pierwszym kontakcie z mapą; nie polegać wyłącznie na ograniczeniach poniżej.",
+            "Kontrola przed produkcją, nie potwierdzony błąd: czytnik ekranu i fizyczny telefon/Safari, w szczególności otwieranie, zamykanie i powrót fokusu szuflady filtrów."
+          ]
+        },
+        {
+          "jury": "J3",
+          "fixes": [
+            "Zalecenie produkcyjne, nie blocker hard gate: przenosić fokus na mapę/szczegóły po zmianie powierzchni i odtwarzać go po zamknięciu inspektora; dodać regresję rzeczywistej klawiatury, nie tylko drawer.",
+            "Zalecenie produkcyjne, nie blocker hard gate: ograniczyć pionowy koszt hero/toolbar i pokazać krótkie zastrzeżenie semantyczne przed mapą także na telefonie.",
+            "Zalecenie produkcyjne, nie blocker hard gate: ograniczyć generowane komponenty/motywy CSS i uporządkować nadpisania daisyUI; przenieść odsyłacz rekordu przed długą geometrię."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "averageWeightedScore": 7.465000000000001,
+      "eligible": true,
+      "mobileMean": 6.366666666666667,
+      "robustnessMean": 8.766666666666667,
+      "hardGateIssues": [],
+      "productionFixes": [
+        {
+          "jury": "J1",
+          "fixes": [
+            "Zredukować wysokość mobilnego nagłówka i formularza; schować rodzaj wpisu do filtrów dodatkowych bez usuwania funkcji.",
+            "Poprawić fokus po zmianie powierzchni oraz po zamknięciu; dodać Escape szczegółów.",
+            "Zachować natychmiastowy link źródłowy i czytelność rejestru podczas upraszczania. Wykonać test fizycznego telefonu i czytnika ekranu; nie są to obecnie potwierdzone blokery hard gate."
+          ]
+        },
+        {
+          "jury": "J2",
+          "fixes": [
+            "Nieblokujące ulepszenie: przenieść mobilny rodzaj wpisu za disclosure i zmniejszyć wysokość wstępu, zachowując wyraźne etykiety oraz większą typografię wierszy.",
+            "Nieblokujące ulepszenie: zapewnić więcej miejsca mapie przy inspekcji desktopowej, szczególnie dla wielu działek; utrzymać źródło rekordu na początku szczegółów.",
+            "Kontrola przed produkcją, nie potwierdzony błąd: Safari, fizyczny telefon, czytnik ekranu i powiększenie tekstu; nie utożsamiać dobrych rozmiarów tekstu z kompletnym audytem WCAG."
+          ]
+        },
+        {
+          "jury": "J3",
+          "fixes": [
+            "Zalecenie produkcyjne, nie blocker hard gate: skrócić stos nad mapą na telefonie, zwłaszcza 320 px; zachować dobre etykiety i dostępny rodzaj wpisu, lecz zastosować bardziej zwarte progressive disclosure.",
+            "Zalecenie produkcyjne, nie blocker hard gate: jawnie przenosić/odtwarzać fokus między mapą, szczegółami i listą; dodać regresję inspektora klawiaturą.",
+            "Zalecenie produkcyjne, nie blocker hard gate: nie zmniejszać mapy po wyborze do 220 px, jeśli finalny produkt ma służyć przede wszystkim eksploracji przestrzennej."
+          ]
+        }
+      ]
+    }
+  ],
+  "winner": "P1",
+  "rule": "Confirmed unmet hard gate makes a candidate ineligible until revision/recheck. Highest eligible mean score; ties within0.05 resolved mobile then robustness."
+}

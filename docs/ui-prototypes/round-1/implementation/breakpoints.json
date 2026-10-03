@@ -1,0 +1,320 @@
+[
+  {
+    "width": 720,
+    "height": 600,
+    "expandedFilterCount": 5,
+    "allControlsReachable": true,
+    "controls": [
+      {
+        "id": "",
+        "label": "Rodzaj wpisuWszystkie rodzajeWnioskiDecyzjeZgłoszenia",
+        "display": "block",
+        "width": 345,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Rok wpisuWszystkie lata20262025",
+        "display": "block",
+        "width": 345,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Status w źródleWszystkie statusyBrak sprzeciwuDecyzja odnotowana — wynik nieudostępniony w CSV",
+        "display": "block",
+        "width": 345,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "MiejscowośćCała gminaBłonieBroniszeDuchniceGołaszewJawczyceJózefówKaputyKonotopaKoprkiKopytówKręczkiMacierzyszMichałówekMoryMyszczynOłtarzewOżarów MazowieckiPilaszkówPiotrkówek DużyPiotrkówek MałyPłochocinPogroszewPogroszew-KoloniaStrzykułySzeligiŚwięciceTruskawUmiastówWieruchówWojcieszynWolicaWolskie",
+        "display": "block",
+        "width": 345,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Położenie na mapieWszystkie wpisyZ potwierdzonym obrysemZ częściowym dopasowaniemBez potwierdzonego obrysu",
+        "display": "block",
+        "width": 700,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      }
+    ]
+  },
+  {
+    "width": 721,
+    "height": 600,
+    "expandedFilterCount": 5,
+    "allControlsReachable": true,
+    "controls": [
+      {
+        "id": "",
+        "label": "Rodzaj wpisuWszystkie rodzajeWnioskiDecyzjeZgłoszenia",
+        "display": "block",
+        "width": 118,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Rok wpisuWszystkie lata20262025",
+        "display": "block",
+        "width": 118,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Status w źródleWszystkie statusyBrak sprzeciwuDecyzja odnotowana — wynik nieudostępniony w CSV",
+        "display": "block",
+        "width": 118,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "MiejscowośćCała gminaBłonieBroniszeDuchniceGołaszewJawczyceJózefówKaputyKonotopaKoprkiKopytówKręczkiMacierzyszMichałówekMoryMyszczynOłtarzewOżarów MazowieckiPilaszkówPiotrkówek DużyPiotrkówek MałyPłochocinPogroszewPogroszew-KoloniaStrzykułySzeligiŚwięciceTruskawUmiastówWieruchówWojcieszynWolicaWolskie",
+        "display": "block",
+        "width": 118,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Położenie na mapieWszystkie wpisyZ potwierdzonym obrysemZ częściowym dopasowaniemBez potwierdzonego obrysu",
+        "display": "block",
+        "width": 246,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      }
+    ]
+  },
+  {
+    "width": 1099,
+    "height": 600,
+    "expandedFilterCount": 5,
+    "allControlsReachable": true,
+    "controls": [
+      {
+        "id": "",
+        "label": "Rodzaj wpisuWszystkie rodzajeWnioskiDecyzjeZgłoszenia",
+        "display": "block",
+        "width": 118,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Rok wpisuWszystkie lata20262025",
+        "display": "block",
+        "width": 118,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Status w źródleWszystkie statusyBrak sprzeciwuDecyzja odnotowana — wynik nieudostępniony w CSV",
+        "display": "block",
+        "width": 118,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "MiejscowośćCała gminaBłonieBroniszeDuchniceGołaszewJawczyceJózefówKaputyKonotopaKoprkiKopytówKręczkiMacierzyszMichałówekMoryMyszczynOłtarzewOżarów MazowieckiPilaszkówPiotrkówek DużyPiotrkówek MałyPłochocinPogroszewPogroszew-KoloniaStrzykułySzeligiŚwięciceTruskawUmiastówWieruchówWojcieszynWolicaWolskie",
+        "display": "block",
+        "width": 118,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Położenie na mapieWszystkie wpisyZ potwierdzonym obrysemZ częściowym dopasowaniemBez potwierdzonego obrysu",
+        "display": "block",
+        "width": 246,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      }
+    ]
+  },
+  {
+    "width": 1100,
+    "height": 600,
+    "expandedFilterCount": 5,
+    "allControlsReachable": true,
+    "controls": [
+      {
+        "id": "",
+        "label": "Rodzaj wpisuWszystkie rodzajeWnioskiDecyzjeZgłoszenia",
+        "display": "block",
+        "width": 118,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Rok wpisuWszystkie lata20262025",
+        "display": "block",
+        "width": 118,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Status w źródleWszystkie statusyBrak sprzeciwuDecyzja odnotowana — wynik nieudostępniony w CSV",
+        "display": "block",
+        "width": 118,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "MiejscowośćCała gminaBłonieBroniszeDuchniceGołaszewJawczyceJózefówKaputyKonotopaKoprkiKopytówKręczkiMacierzyszMichałówekMoryMyszczynOłtarzewOżarów MazowieckiPilaszkówPiotrkówek DużyPiotrkówek MałyPłochocinPogroszewPogroszew-KoloniaStrzykułySzeligiŚwięciceTruskawUmiastówWieruchówWojcieszynWolicaWolskie",
+        "display": "block",
+        "width": 118,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Położenie na mapieWszystkie wpisyZ potwierdzonym obrysemZ częściowym dopasowaniemBez potwierdzonego obrysu",
+        "display": "block",
+        "width": 246,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      }
+    ]
+  },
+  {
+    "width": 1101,
+    "height": 600,
+    "expandedFilterCount": 5,
+    "allControlsReachable": true,
+    "controls": [
+      {
+        "id": "",
+        "label": "Rodzaj wpisuWszystkie rodzajeWnioskiDecyzjeZgłoszenia",
+        "display": "block",
+        "width": 132,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Rok wpisuWszystkie lata20262025",
+        "display": "block",
+        "width": 132,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Status w źródleWszystkie statusyBrak sprzeciwuDecyzja odnotowana — wynik nieudostępniony w CSV",
+        "display": "block",
+        "width": 132,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "MiejscowośćCała gminaBłonieBroniszeDuchniceGołaszewJawczyceJózefówKaputyKonotopaKoprkiKopytówKręczkiMacierzyszMichałówekMoryMyszczynOłtarzewOżarów MazowieckiPilaszkówPiotrkówek DużyPiotrkówek MałyPłochocinPogroszewPogroszew-KoloniaStrzykułySzeligiŚwięciceTruskawUmiastówWieruchówWojcieszynWolicaWolskie",
+        "display": "block",
+        "width": 132,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Położenie na mapieWszystkie wpisyZ potwierdzonym obrysemZ częściowym dopasowaniemBez potwierdzonego obrysu",
+        "display": "block",
+        "width": 274,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "height": 600,
+    "expandedFilterCount": 5,
+    "allControlsReachable": true,
+    "controls": [
+      {
+        "id": "",
+        "label": "Rodzaj wpisuWszystkie rodzajeWnioskiDecyzjeZgłoszenia",
+        "display": "block",
+        "width": 132,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Rok wpisuWszystkie lata20262025",
+        "display": "block",
+        "width": 132,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Status w źródleWszystkie statusyBrak sprzeciwuDecyzja odnotowana — wynik nieudostępniony w CSV",
+        "display": "block",
+        "width": 132,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "MiejscowośćCała gminaBłonieBroniszeDuchniceGołaszewJawczyceJózefówKaputyKonotopaKoprkiKopytówKręczkiMacierzyszMichałówekMoryMyszczynOłtarzewOżarów MazowieckiPilaszkówPiotrkówek DużyPiotrkówek MałyPłochocinPogroszewPogroszew-KoloniaStrzykułySzeligiŚwięciceTruskawUmiastówWieruchówWojcieszynWolicaWolskie",
+        "display": "block",
+        "width": 132,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      },
+      {
+        "id": "",
+        "label": "Położenie na mapieWszystkie wpisyZ potwierdzonym obrysemZ częściowym dopasowaniemBez potwierdzonego obrysu",
+        "display": "block",
+        "width": 274,
+        "height": 44,
+        "inViewport": true,
+        "hittable": true
+      }
+    ]
+  }
+]

@@ -55,6 +55,7 @@ function Detail({
       className="detail-panel"
       aria-labelledby="detail-title"
       data-selected-id={record.id}
+      tabIndex={-1}
     >
       <div className="detail-top">
         <div>
@@ -93,6 +94,12 @@ function Detail({
           Status i treść decyzji należy potwierdzić w źródle.
         </p>
       )}
+      <div className="detail-source">
+        <SourceLink url={record.sourceUrl} className="source-button">
+          Wpis w źródle
+        </SourceLink>
+        <small>ID: {record.id}</small>
+      </div>
       {record.description && record.description !== "Bezpieczny skrót rodzaju inwestycji. Swobodny opis GUNB pominięto ze względu na możliwość występowania danych osobowych." && (
         <p className="description">{record.description}</p>
       )}
@@ -174,12 +181,6 @@ function Detail({
           </ul>
         </details>
       )}
-      <div className="detail-source">
-        <SourceLink url={record.sourceUrl} className="source-button">
-          Wpis w źródle
-        </SourceLink>
-        <small>ID: {record.id}</small>
-      </div>
     </section>
   );
 }
@@ -258,6 +259,7 @@ export default function App() {
   const [selectionDestination, setSelectionDestination] = useState<{ surface: "map" | "detail" }>({ surface: "detail" });
   const resultsRef = useRef<HTMLElement>(null);
   const mapPanelRef = useRef<HTMLElement>(null);
+  const selectionOrigin = useRef<"map" | "list">("list");
   const returnAfterClose = useRef<{
     view: "map" | "list";
     id: string;
@@ -311,6 +313,10 @@ export default function App() {
         ? mapPanelRef.current
         : document.querySelector(".detail-panel");
       target?.scrollIntoView({ block: "start", behavior: "auto" });
+      const focusTarget = selectionDestination.surface === "map"
+        ? mapPanelRef.current?.querySelector<HTMLElement>(".map-overview")
+        : target as HTMLElement | null;
+      focusTarget?.focus({ preventScroll: true });
     }
   }, [selected?.id, selectionDestination]);
   useEffect(() => {
@@ -324,22 +330,38 @@ export default function App() {
       ? mapPanelRef.current
       : row || resultsRef.current;
     target?.scrollIntoView?.({ block: "start", behavior: "auto" });
+    const focusTarget = destination.view === "map"
+      ? mapPanelRef.current?.querySelector<HTMLElement>(".map-overview")
+      : row || resultsRef.current;
+    focusTarget?.focus({ preventScroll: true });
   }, [selected?.id]);
-  const closeDetail = () => {
-    if (
-      selected &&
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(max-width: 720px)").matches
-    ) {
-      returnAfterClose.current = { view: mobileView, id: selected.id };
-    }
+  const closeDetail = useCallback(() => {
+    if (!selected) return;
+    const isMobile = typeof window.matchMedia === "function"
+      && window.matchMedia("(max-width: 720px)").matches;
+    // Never return focus to the list/map hidden by the mobile tabs.
+    returnAfterClose.current = {
+      view: isMobile ? mobileView : selectionOrigin.current,
+      id: selected.id,
+    };
     setSelectedId(null);
-  };
+  }, [selected, mobileView]);
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || !selected) return;
+      event.preventDefault();
+      closeDetail();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [selected, closeDetail]);
   const select = useCallback((id: string) => {
+    selectionOrigin.current = "map";
     setSelectionDestination({ surface: "detail" });
     setSelectedId(id);
   }, []);
   const selectFromList = (record: Permit) => {
+    selectionOrigin.current = "list";
     const showMap = typeof window.matchMedia === "function"
       && window.matchMedia("(max-width: 720px)").matches
       && getRecordParcels(record, data.parcels).length > 0;
@@ -390,14 +412,14 @@ export default function App() {
         <div className="brand">
           <span className="brand-mark" aria-hidden="true">
             <svg viewBox="0 0 32 32">
-              <path d="M6 27V12l10-7 10 7v15M3 27h26M12 27V17h8v10M12 12h8" />
+              <path d="m4 11 12-7 12 7-12 7-12-7Zm0 7 12 7 12-7M4 25l12 7 12-7" />
             </svg>
           </span>
           <div>
             <h1>
-              Budowy <span>· Ożarów Mazowiecki</span>
+              Atlas <span>Ożarów Mazowiecki</span>
             </h1>
-            <p>Publiczne wpisy budowlane · miasto i gmina</p>
+            <p>Eksplorator wpisów budowlanych</p>
           </div>
         </div>
         <a className="header-link" href="#provenance" onClick={() => {
@@ -408,11 +430,67 @@ export default function App() {
         </a>
       </header>
       <main>
-        <section className="intro">
-          <div>
-            <h2>Co powstaje w Twojej okolicy?</h2>
+        <div className="source-ribbon">
+          <div className="source-identity"><span className="source-kicker">DANE PUBLICZNE</span>
+            {data.dataset ? <SourceLink url={data.dataset.source.url}>Źródło: GUNB / RWDZ</SourceLink> : <span>Źródło: GUNB / RWDZ</span>}
           </div>
-        </section>
+        <div
+          className="data-status"
+          role="status"
+          aria-live="polite"
+          data-testid="data-status"
+          data-loading={loading}
+          data-record-count={loading ? "" : allCounts.total}
+          data-filtered-count={loading ? "" : counts.total}
+          data-mapped-count={loading ? "" : allCounts.mapped}
+          data-parcel-count={loading ? "" : allCounts.parcelCount}
+          data-state={loading ? "loading" : data.error ? "error" : "ready"}
+        >
+          {loading ? (
+            <span>Ładowanie danych…</span>
+          ) : data.error ? (
+            <span>Dane nie zostały wczytane.</span>
+          ) : (
+            <>
+              <span className="status-dot" aria-hidden="true" />
+              <span>
+                Wczytano {allCounts.total} wpisów · {allCounts.parcelCount}{" "}
+                potwierdzonych działek
+              </span>
+              <span className="status-date">
+                Import: {formatDate(data.dataset?.generatedAt)}
+              </span>
+            </>
+          )}
+        </div>
+        {data.error && !loading && (
+          <section className="error-state" role="alert">
+            <h2>Dane są chwilowo niedostępne</h2>
+            <p>{data.error}</p>
+            <button
+              className="primary-button"
+              onClick={() => setAttempt((n) => n + 1)}
+            >
+              Spróbuj ponownie
+            </button>
+          </section>
+        )}
+        {!loading && data.warnings.length > 0 && (
+          <details className="warnings">
+            <summary>
+              Ograniczenia zbioru ({data.warnings.length})
+            </summary>
+            <ul>
+              {data.warnings.map((w, i) => (
+                <li key={i}>{w}</li>
+              ))}
+            </ul>
+          </details>
+        )}
+        </div>
+        <div className={`workspace view-${mobileView} ${selected ? "has-detail" : ""}`}>
+          <aside className="explore-rail" aria-label="Narzędzia eksploracji">
+            <div className="explore-heading"><span className="eyebrow">EKSPLORUJ / REJESTR</span><h2>Znajdź w okolicy</h2></div>
         <section className="toolbar" aria-label="Wyszukiwanie i filtry">
           <div className="search-wrap">
             <label htmlFor="search">Szukaj w rejestrze</label>
@@ -432,7 +510,7 @@ export default function App() {
               />
             </div>
           </div>
-          <div className="filter-grid">
+          <div className="period-tools">
             <label>
               Okres
               <select value={filters.period} onChange={(e) => update("period", e.target.value)}>
@@ -440,6 +518,9 @@ export default function App() {
                 <option value="all">Wszystkie daty</option>
               </select>
             </label>
+            <details className="advanced-filters">
+              <summary>Filtry <span className="filter-count">{activeFilters || "+"}</span></summary>
+              <div className="filter-grid">
             <label>
               Rodzaj wpisu
               <select
@@ -500,6 +581,8 @@ export default function App() {
                 <option value="unmapped">Bez potwierdzonego obrysu</option>
               </select>
             </label>
+              </div>
+            </details>
           </div>
           <div className="toolbar-bottom">
             <button
@@ -525,11 +608,11 @@ export default function App() {
         >
           <div>
             <strong>{loading || data.error ? "—" : counts.total}</strong>
-            <span>Wpisy w wynikach</span>
+            <span aria-label="Wpisy w wynikach">Wpisy</span>
           </div>
           <div>
             <strong>{loading || data.error ? "—" : counts.mapped}</strong>
-            <span>Z obrysem na mapie</span>
+            <span aria-label="Z obrysem na mapie">Z obrysem</span>
           </div>
           <div>
             <strong>{loading || data.error ? "—" : counts.unmapped}</strong>
@@ -537,62 +620,9 @@ export default function App() {
           </div>
           <div>
             <strong>{loading || data.error ? "—" : counts.parcelCount}</strong>
-            <span>Unikalne działki na mapie</span>
+            <span aria-label="Unikalne działki na mapie">Działki</span>
           </div>
         </section>
-        <div
-          className="data-status"
-          role="status"
-          aria-live="polite"
-          data-testid="data-status"
-          data-loading={loading}
-          data-record-count={loading ? "" : allCounts.total}
-          data-filtered-count={loading ? "" : counts.total}
-          data-mapped-count={loading ? "" : allCounts.mapped}
-          data-parcel-count={loading ? "" : allCounts.parcelCount}
-          data-state={loading ? "loading" : data.error ? "error" : "ready"}
-        >
-          {loading ? (
-            <span>Ładowanie danych…</span>
-          ) : data.error ? (
-            <span>Dane nie zostały wczytane.</span>
-          ) : (
-            <>
-              <span className="status-dot" aria-hidden="true" />
-              <span>
-                Wczytano {allCounts.total} wpisów · {allCounts.parcelCount}{" "}
-                potwierdzonych działek
-              </span>
-              <span className="status-date">
-                Import: {formatDate(data.dataset?.generatedAt)}
-              </span>
-            </>
-          )}
-        </div>
-        {data.error && !loading && (
-          <section className="error-state" role="alert">
-            <h2>Dane są chwilowo niedostępne</h2>
-            <p>{data.error}</p>
-            <button
-              className="primary-button"
-              onClick={() => setAttempt((n) => n + 1)}
-            >
-              Spróbuj ponownie
-            </button>
-          </section>
-        )}
-        {!loading && data.warnings.length > 0 && (
-          <details className="warnings">
-            <summary>
-              Ograniczenia zbioru ({data.warnings.length})
-            </summary>
-            <ul>
-              {data.warnings.map((w, i) => (
-                <li key={i}>{w}</li>
-              ))}
-            </ul>
-          </details>
-        )}
         <div className="mobile-tabs" role="group" aria-label="Widok">
           <button
             aria-pressed={mobileView === "map"}
@@ -607,32 +637,6 @@ export default function App() {
             Lista{!loading && !data.error && ` (${counts.total})`}
           </button>
         </div>
-        <div
-          className={`workspace view-${mobileView} ${selected ? "has-detail" : ""}`}
-        >
-          <section
-            className="map-panel"
-            ref={mapPanelRef}
-            aria-label="Mapa potwierdzonych działek"
-          >
-            <ParcelMap
-              records={filtered}
-              parcels={data.parcels}
-              selectedId={selected?.id || null}
-              onSelect={select}
-              visible={mobileView === "map"}
-            />
-            <div className="map-caption">
-              <strong>Tylko potwierdzone obrysy</strong>
-              <span>
-                {loading
-                  ? "Czekamy na dane źródłowe"
-                  : counts.mapped
-                    ? "Wybierz działkę lub wpis na liście"
-                    : "Brak obrysów dla bieżących wyników — sprawdź listę"}
-              </span>
-            </div>
-          </section>
           <section
             id="results"
             ref={resultsRef}
@@ -703,12 +707,43 @@ export default function App() {
               </ul>
             )}
           </section>
-          {selected && (
-            <Detail
-              record={selected}
+          </aside>
+          <section
+            className="map-panel"
+            ref={mapPanelRef}
+            aria-label="Mapa potwierdzonych działek"
+          >
+            <div className="map-heading">
+              <div><span className="eyebrow">OBSZAR EKSPLORACJI</span><h2>Mapa działek</h2></div>
+              <span className="map-region">Ożarów Mazowiecki · gmina</span>
+            </div>
+            <ParcelMap
+              records={filtered}
               parcels={data.parcels}
-              onClose={closeDetail}
+              selectedId={selected?.id || null}
+              onSelect={select}
+              visible={mobileView === "map"}
             />
+            <div className="map-caption">
+              <div><strong>Tylko potwierdzone obrysy</strong><p className="semantic-inline">Wpis nie oznacza zatwierdzenia budowy.</p></div>
+              <span>
+                {loading
+                  ? "Czekamy na dane źródłowe"
+                  : counts.mapped
+                    ? "Wybierz działkę lub wpis na liście"
+                    : "Brak obrysów dla bieżących wyników — sprawdź listę"}
+              </span>
+            </div>
+          </section>
+          {selected ? (
+            <Detail record={selected} parcels={data.parcels} onClose={closeDetail} />
+          ) : (
+            <aside className="inspector-idle" aria-label="Inspektor wpisu">
+              <span className="eyebrow">INSPEKTOR / SZCZEGÓŁY</span>
+              <h2>Wybierz wpis lub działkę</h2>
+              <p>Daty, status i źródło wybranego wpisu.</p>
+              <small>Mapa pokazuje działki, nie budynki ani postęp prac.</small>
+            </aside>
           )}
         </div>
         <details className="data-disclosure" id="provenance">

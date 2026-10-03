@@ -1,0 +1,19 @@
+{
+  "baseline": "20ed307465800256fb1a144e55e154668e202841",
+  "sourceAndTests": {
+    "src/App.tsx": "49a8c7895b2cc9321c01cee8bed802a4def6e79a85f0d0a4b06d911f6020f0b3",
+    "src/styles.css": "73c720a18503cb2a829324932c6d9ee1d7f8555149d186e15445215c8b239997",
+    "tests/ui/atlas.test.tsx": "1a5c6d355a09046f88042df1007a88dc693df00a8000af87fdcc356bca635c6a",
+    "tests/ui/atlas-refinements.test.tsx": "477f5a7d7276096a680be74b9a33b388d5255f024b360d0ed82adc0c78e9625d",
+    "README.md": "6fb1c4523122a258f0783b848fead07d0b20beb842c0f9127b434e4156d23c73"
+  },
+  "publicDataBeforeAfter": {
+    "public/data/metadata.json": "70c9d04a1f9d0d99c2f5f1b02ed75ec86d1ef2a15a24fb60a6fdd269e0d0f6e0",
+    "public/data/parcels.geojson": "25bee40acbb34ea128ed3e339cd065a6bc58e1f709d1407a834a2293ff524745",
+    "public/data/permits.json": "01aaa1339e7105b618483e8b762e8cf836253d45c5ebd4c5af43ddb1708ceaa3"
+  },
+  "builtAssets": {
+    "dist/assets/index-BzOQ6s0Y.js": "ac8dd3eb8a6b9ce116925fb24768183b534d3a9fd7cc45f3fe6ca1bcf0846ac3",
+    "dist/assets/index-BzWTC7lS.css": "a545c4810e0bb2b6d8869a0121157b4f1bc5e830cc2f818fef61a209758d612d"
+  }
+}

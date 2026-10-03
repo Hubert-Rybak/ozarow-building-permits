@@ -1,0 +1,130 @@
+{
+  "juryId": "J1",
+  "assessments": [
+    {
+      "id": "P1",
+      "scores": {
+        "mobile": 8.0,
+        "hierarchy": 8.0,
+        "accessibility": 7.8,
+        "visual": 7.8,
+        "robustness": 8.8
+      },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Najbardziej kompletny sprawdzony przepływ klawiatury: przy 320×700 Enter na wierszu przenosi fokus na Pokaż wyniki na mapie, Enter na poligonie na panel szczegółów, Escape zamyka panel i przywraca fokus na mapie. Dotykowy wiersz→poligon→szczegóły→zamknięcie również działa dla pierwszego aktualnego wyniku.",
+        "Źródło GUNB/RWDZ i ograniczenia są łatwe do znalezienia; filtr ostatnich 3 miesięcy pozostaje widoczny. Mapa wąskiego ekranu zaczyna się na około 394 px, a po wyborze wiersza jest przewijana do właściwego miejsca.",
+        "Desktop daje równoczesną mapę, listę i inspektor; dedykowany inspektor ułatwia powrót bez utraty kontekstu, ale jego pusty stan zawiera zbędne instrukcje.",
+        "Etykiety liczników mają rzeczywiste 8 px, wyszukiwarka 11 px i wysokość pola 42 px. Większość głównych przycisków oraz zoom mają 44 px. Czytelność drobnych informacji jest słabsza niż obsługa fokusu.",
+        "Bajty trzech plików danych oraz model.ts/data.ts/types.ts są identyczne we wszystkich pięciu kandydatach. Parent-verification potwierdza brak overflow, 60 wyników/127 poligonów i regresję powtarzalnych wyborów w 320/390/1440; źródło aplikacji zachowuje filtrowanie, CSV i stany ładowania/błędu. Nie powtarzałem pełnych buildów ani testów."
+      ],
+      "requiredBeforeProduction": [
+        "Powiększyć etykiety liczników i tekst pomocniczy zamiast utrzymywać 8–9 px; zwiększyć czytelność pola wyszukiwania bez rozbudowywania nagłówka.",
+        "Skrócić pusty inspektor na desktopie i wyeksponować link źródłowy bliżej początku szczegółów na telefonie.",
+        "Sprawdzić fizyczny telefon, Safari oraz czytnik ekranu; są to zalecenia produkcyjne, nie potwierdzone blokery hard gate."
+      ]
+    },
+    {
+      "id": "P2",
+      "scores": {
+        "mobile": 6.7,
+        "hierarchy": 6.8,
+        "accessibility": 6.2,
+        "visual": 7.7,
+        "robustness": 8.3
+      },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Życzliwa, spójna stylistyka i duże przyciski, lecz hasło Co powstaje w Twojej okolicy oraz wysoki formularz opóźniają mapę: przy 320×700 zaczyna się na około 439 px. Okres jest przy tej szerokości ucięty wizualnie.",
+        "Dotykowy wybór pierwszego aktualnego wiersza kadruje dwa rzeczywiste poligony, ich dotknięcie otwiera szczegóły, a przycisk zamknięcia wraca do używalnej mapy. Nie stwierdziłem regresji podstawowego zadania.",
+        "Drawer filtrów ma jawny dialog, pułapkę Tab i powrót fokusu; jest to mocna strona tego wariantu. Natomiast Enter na wierszu mobilnym zostawia fokus na BODY, a Enter na poligonie nie przenosi fokusu do szczegółów. Escape nie zamyka szczegółów w moim teście.",
+        "Placeholder wyszukiwarki ma kolor rgb(120,136,129) i opacity 0.5 na białym tle, przez co jest wyraźnie zbyt blady. Pole ma 42 px wysokości, tekst 12 px; liczniki mobilne mają etykiety 9 px.",
+        "Dane i model są identyczne bajtowo z pozostałymi wariantami; pełny zestaw filtrów i eksport korzystają z zachowanej logiki. Parent-verification potwierdza 60/127, brak overflow i mobilną regresję wyborów. Nie odrzucam kandydata za użycie daisyUI ani za sam rozmiar CSS."
+      ],
+      "requiredBeforeProduction": [
+        "Wzmocnić kontrast placeholdera oraz etykiet pomocniczych.",
+        "Dodać przeniesienie i przywrócenie fokusu dla wiersz→mapa→szczegóły, a także Escape dla szczegółów.",
+        "Skrócić nagłówek i pionowe odstępy; przy 320 px pokazać czytelny skrót okresu, zachowując jego pełną nazwę dostępną.",
+        "Sprawdzić czytnik ekranu i fizyczny telefon. Powyższe uwagi nie są potwierdzonymi naruszeniami hard gate."
+      ]
+    },
+    {
+      "id": "P3",
+      "scores": {
+        "mobile": 7.5,
+        "hierarchy": 8.0,
+        "accessibility": 6.8,
+        "visual": 8.0,
+        "robustness": 8.5
+      },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Dobra wspólna hierarchia desktopu i telefonu: zwarte wyszukiwanie, liczby, przełącznik mapa/lista. Ostrzeżenie Decyzja ≠ pozwolenie zachowuje ważne znaczenie danych bez otwierania długiego opisu.",
+        "Przy 320×700 mapa zaczyna się na około 409 px; podstawowe przyciski i zoom mają 44 px, lecz samo pole input ma 42 px. Etykiety liczników mają 9 px, a okres jest wizualnie skrócony.",
+        "Dotykowy pierwszy wiersz→dokładne poligony→szczegóły→zamknięcie działa. Szczegóły są osobną częścią dokumentu zamiast zasłaniającej mapę karty; wymaga to skoku scrolla, ale zamknięcie przywraca używalną mapę.",
+        "Enter na wierszu przenosi widok, lecz fokus zostaje na BODY. Enter na poligonie przewija szczegóły, lecz fokus pozostaje na ścieżce SVG; Escape nie zamyka szczegółów. Obsługa Escape filtrów nie jest obsługą Escape szczegółów.",
+        "Dane, model i loader są zachowane bajtowo; wszystkie typy filtrów są w źródle, CSV korzysta z filtered. Parent-verification potwierdza brak overflow, 60/127 i powtarzalne mobilne wybory."
+      ],
+      "requiredBeforeProduction": [
+        "Dodać jawny fokus szczegółów po wyborze poligonu, fokus mapy po wyborze wiersza i powrót fokusu po zamknięciu; obsłużyć Escape szczegółów.",
+        "Powiększyć drobne etykiety oraz ograniczyć ucinanie nazwy okresu przy 320 px.",
+        "Sprawdzić mobilny czytnik ekranu i fizyczny telefon. To zalecenia, nie stwierdzone blokery hard gate."
+      ]
+    },
+    {
+      "id": "P4",
+      "scores": {
+        "mobile": 6.1,
+        "hierarchy": 6.9,
+        "accessibility": 7.1,
+        "visual": 7.5,
+        "robustness": 8.5
+      },
+      "hardGatePassed": true,
+      "hardGateIssues": [],
+      "observations": [
+        "Najczytelniejszy rejestrowy desktop: szerokie, wyrównane kolumny, pełne tytuły i sensowna typografia. W szczegółach link Wpis w źródle znajduje się od razu u góry.",
+        "Na telefonie zachowano zbyt wiele struktury formularza: tytuł, osobne podpisy, drugi selektor, disclosure i reset. Przy 320×700 mapa zaczyna się dopiero na około 558 px; to wyraźna strata płynności Explore, ale samo zadanie nadal działa po przewinięciu lub wyborze wiersza.",
+        "Pole wyszukiwania ma 44 px, główne przyciski i zoom również 44 px; etykiety liczników mają 10 px, wiersze i szczegóły są czytelniejsze niż w drobniejszych wariantach.",
+        "Własny dotykowy test pierwszego wyniku poprawnie pokazuje poligony, otwiera szczegóły z poligonu i wraca do mapy po zamknięciu. Enter na mobilnym wierszu zostawia jednak fokus na BODY, a Enter na poligonie zostawia fokus SVG; Escape nie zamyka szczegółów.",
+        "Bajty danych/modelu/loadera są zachowane, pełne filtry i CSV pozostają w aplikacji. Parent-verification potwierdza brak overflow, 60/127 i regresję powtarzanych wyborów. Nie dyskwalifikuję list-first ani małego początkowego fragmentu mapy, bo nie są same w sobie awarią hard gate."
+      ],
+      "requiredBeforeProduction": [
+        "Zredukować wysokość mobilnego nagłówka i formularza; schować rodzaj wpisu do filtrów dodatkowych bez usuwania funkcji.",
+        "Poprawić fokus po zmianie powierzchni oraz po zamknięciu; dodać Escape szczegółów.",
+        "Zachować natychmiastowy link źródłowy i czytelność rejestru podczas upraszczania. Wykonać test fizycznego telefonu i czytnika ekranu; nie są to obecnie potwierdzone blokery hard gate."
+      ]
+    },
+    {
+      "id": "P5",
+      "scores": {
+        "mobile": 6.4,
+        "hierarchy": 9.0,
+        "accessibility": 7.0,
+        "visual": 8.9,
+        "robustness": 6.5
+      },
+      "hardGatePassed": false,
+      "hardGateIssues": [
+        "Potwierdzona przeszkoda w wymaganym mobilnym row→map→polygon→detail przy 320×700: pierwszy domyślny wynik permit:ST-MZ-OZ/WNIOSEK/26523/2026 wybiera właściwe działki 143206_4.0004.95/13 i 143206_4.0004.95/14, ale karta peek całkowicie zasłania oba poligony. Po odczekaniu 1200 ms karta zajmuje y≈336–588, a poligony y≈345–431 i y≈352–437, w całości wewnątrz jej obszaru. Skan punktów wnętrza obu ścieżek przez document.elementFromPoint nie znalazł żadnego dostępnego punktu dotykowego. Wynik powtórzony w dwóch cyklach. Poprawny fitBounds względem całej mapy nie oznacza widoczności względem zasłaniającej ją karty."
+      ],
+      "observations": [
+        "Najlepsza domyślna oszczędność tekstu i ekspozycja mapy: przy 320×700 zaczyna się na około 181 px, ma 422 px wysokości, a stała nawigacja daje duże 56-pikselowe cele. Desktop również klarownie stawia mapę na pierwszym planie.",
+        "Przy 390×844 ten sam pierwszy wynik ma oba poligony widoczne ponad peek; problem ujawnia dopiero rzeczywista wąska szerokość i zawijanie treści karty. Parent-regresja innych rekordów nie wyklucza tej konkretnie potwierdzonej awarii.",
+        "Rozwinięcie Pełne informacje i źródło nadal działa. Escape zamyka szczegóły i przywraca fokus na kontener mapy; Enter na poligonie przenosi fokus na panel. Enter na wierszu mobilnym zostawia fokus na BODY.",
+        "Wyszukiwarka mobilna ma 16 px i 46 px wysokości, jednak etykiety liczników tylko 8 px, okres 9 px. Zwięzłość została częściowo osiągnięta kosztem rozmiaru informacji, nie wyłącznie ich redukcji.",
+        "Dane/model/loader są identyczne bajtowo, poprawne identyfikatory działek faktycznie zostają wybrane, wszystkie filtry i CSV są zachowane, a parent-verification potwierdza brak overflow i 60/127. Bloker dotyczy widoczności i dotyku po wyborze, nie prawdy danych ani wybranego frameworka."
+      ],
+      "requiredBeforeProduction": [
+        "BLOKER: kadrować wybrane geometrie w niezasłoniętej części mapy z uwzględnieniem rzeczywistej wysokości peek albo ograniczyć kartę. Przy 320×700 oba poligony 95/13 i 95/14 pierwszego domyślnego wyniku muszą być widoczne i bezpośrednio dotykalne bez zamykania wyboru lub ręcznego przesuwania mapy.",
+        "Powtórzyć ten konkretny test na 320 i 390 px w dwóch cyklach, z długimi statusami/tytułami i rozwijaniem karty; zachować poprawne dokładne działki oraz powrót do używalnej mapy.",
+        "Powiększyć etykiety liczników i poprawić fokus po wiersz→mapa. Wykonać test czytnika ekranu i fizycznego telefonu; te dodatkowe zalecenia są odrębne od potwierdzonego blokera."
+      ]
+    }
+  ],
+  "preferred": "P1",
+  "summary": "Niezależny J1: oceniłem wszystkie P1–P5 na podstawie rzeczywistych screenshotów desktop/mobile/320/selected, źródeł, parent-verification oraz własnych wąskich testów dotyku i klawiatury. Stosuję stałe kryteria mobile 35%, hierarchy 20%, accessibility 20%, visual 15%, robustness 10%; bez liczenia sum ważonych. Preferuję P1 za sprawny przepływ mobilny i najlepsze potwierdzone zarządzanie fokusem. P3 jest najbardziej zrównoważoną alternatywą. P5 ma najlepszą oszczędność tekstu i ekspozycję mapy, ale nie przechodzi hard gate: przy 320×700 jego peek całkowicie zasłania oba poligony pierwszego domyślnego wyniku. P1–P4 przechodzą bramki; ich uwagi produkcyjne pozostają zaleceniami, nie udawanymi dyskwalifikacjami. Bez pełnego audytu czytników ekranu, Safari ani fizycznych urządzeń; pełnych buildów/testów nie powtarzałem."
+}
