@@ -30,6 +30,7 @@ class DistributionSafety(unittest.TestCase):
             "permits.json": {"records": [], "generatedAt": "2026-01-01T00:00:00Z"},
             "parcels.geojson": {"type": "FeatureCollection", "features": []},
             "metadata.json": {"recordCount": 0, "generatedAt": "2026-01-01T00:00:00Z"},
+            "investments.json": {"testOnly": "distribution byte contract fixture"},
         }.items():
             text = json.dumps(document)
             (self.public / filename).write_text(text)
@@ -37,6 +38,16 @@ class DistributionSafety(unittest.TestCase):
 
     def test_accepts_only_the_validated_snapshot(self):
         self.module.validate(self.dist, self.public)
+
+    def test_rejects_missing_investment_snapshot(self):
+        (self.dist / "data/investments.json").unlink()
+        with self.assertRaises(ValueError):
+            self.module.validate(self.dist, self.public)
+
+    def test_rejects_investment_snapshot_mismatch(self):
+        (self.dist / "data/investments.json").write_text('{"wrongGeneration": true}')
+        with self.assertRaises(ValueError):
+            self.module.validate(self.dist, self.public)
 
     def test_rejects_raw_archives_even_in_assets(self):
         (self.dist / "assets" / "source.zip").write_bytes(b"private fixture")

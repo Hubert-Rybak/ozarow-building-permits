@@ -15,6 +15,7 @@ import {
 } from "./model";
 import type { Filters, LoadedData, ParcelCollection, Permit } from "./types";
 import ParcelMap from "./ParcelMap";
+import InvestmentsAtlas from "./InvestmentsAtlas";
 
 function SourceLink({
   url,
@@ -249,7 +250,7 @@ const initialData: LoadedData = {
   warnings: [],
   error: null,
 };
-export default function App() {
+function PermitAtlas({active}: {active: boolean}) {
   const [data, setData] = useState<LoadedData>(initialData);
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
@@ -348,13 +349,13 @@ export default function App() {
   }, [selected, mobileView]);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape" || !selected) return;
+      if (event.key !== "Escape" || !selected || !active) return;
       event.preventDefault();
       closeDetail();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [selected, closeDetail]);
+  }, [selected, closeDetail, active]);
   const select = useCallback((id: string) => {
     selectionOrigin.current = "map";
     setSelectionDestination({ surface: "detail" });
@@ -408,27 +409,6 @@ export default function App() {
       }}>
         Przejdź do wyników
       </a>
-      <header className="masthead">
-        <div className="brand">
-          <span className="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 32 32">
-              <path d="m4 11 12-7 12 7-12 7-12-7Zm0 7 12 7 12-7M4 25l12 7 12-7" />
-            </svg>
-          </span>
-          <div>
-            <h1>
-              Atlas <span>Ożarów Mazowiecki</span>
-            </h1>
-            <p>Eksplorator wpisów budowlanych</p>
-          </div>
-        </div>
-        <a className="header-link" href="#provenance" onClick={() => {
-          const disclosure = document.querySelector<HTMLDetailsElement>("#provenance");
-          if (disclosure) disclosure.open = true;
-        }}>
-          O danych <span aria-hidden="true">↗</span>
-        </a>
-      </header>
       <main>
         <div className="source-ribbon">
           <div className="source-identity"><span className="source-kicker">DANE PUBLICZNE</span>
@@ -488,6 +468,13 @@ export default function App() {
           </details>
         )}
         </div>
+        {!loading && data.warnings.some(w => /^(Niespójny zestaw plików|Nie udało się wczytać)/.test(w)) && (
+          <section className="investment-alert" role="alert">
+            <strong>Ograniczenia odczytu pozwoleń</strong>
+            <ul>{data.warnings.filter(w => /^(Niespójny zestaw plików|Nie udało się wczytać)/.test(w)).map((w,i) => <li key={i}>{w}</li>)}</ul>
+            <button className="primary-button" onClick={() => setAttempt(n => n + 1)}>Ponów odczyt pozwoleń</button>
+          </section>
+        )}
         <div className={`workspace view-${mobileView} ${selected ? "has-detail" : ""}`}>
           <aside className="explore-rail" aria-label="Narzędzia eksploracji">
             <div className="explore-heading"><span className="eyebrow">EKSPLORUJ / REJESTR</span><h2>Znajdź w okolicy</h2></div>
@@ -814,4 +801,20 @@ export default function App() {
       </footer>
     </>
   );
+}
+
+export default function App() {
+  const [mode,setMode]=useState<"permits"|"investments">("permits");
+  const [investmentsVisited,setInvestmentsVisited]=useState(false);
+  const changeMode=(next:typeof mode)=>{if(next==="investments")setInvestmentsVisited(true);setMode(next);};
+  const disclosureId=mode==="permits"?"provenance":"investment-provenance";
+  return <>
+    <header className="masthead">
+      <div className="brand"><span className="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="m4 11 12-7 12 7-12 7-12-7Zm0 7 12 7 12-7M4 25l12 7 12-7"/></svg></span><div><h1>Radar Ożarów</h1><p>Atlas GIS · Ożarów Mazowiecki</p></div></div>
+      <nav className="mode-switch" aria-label="Rodzaj danych"><button aria-pressed={mode==="permits"} onClick={()=>changeMode("permits")}>Pozwolenia</button><button aria-pressed={mode==="investments"} onClick={()=>changeMode("investments")}>Inwestycje</button></nav>
+      <a className="header-link" href={`#${disclosureId}`} onClick={()=>{const disclosure=document.getElementById(disclosureId) as HTMLDetailsElement|null;if(disclosure)disclosure.open=true;}}>O danych <span aria-hidden="true">↗</span></a>
+    </header>
+    <div className="atlas-mode" hidden={mode!=="permits"}><PermitAtlas active={mode==="permits"}/></div>
+    <div className="atlas-mode" hidden={mode!=="investments"}>{investmentsVisited&&<InvestmentsAtlas active={mode==="investments"}/>}</div>
+  </>;
 }

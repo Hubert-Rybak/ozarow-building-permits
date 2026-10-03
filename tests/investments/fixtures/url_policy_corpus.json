@@ -1,0 +1,518 @@
+{
+  "description": "Synthetic shared URL contract; fake values only; never publish to production.",
+  "baseDataset": {
+    "schemaVersion": 1,
+    "generatedAt": "2026-10-03T06:00:00Z",
+    "records": [
+      {
+        "id": "official:1",
+        "sourceId": "official",
+        "sourceRecordId": "1",
+        "sourceUrl": "https://example.org/official",
+        "title": "TEST ONLY official record",
+        "recordType": "project",
+        "investor": "municipal",
+        "investorName": null,
+        "category": "",
+        "locality": "",
+        "address": "",
+        "status": "",
+        "statusAsOf": null,
+        "summary": "",
+        "years": [
+          2026
+        ],
+        "costs": [
+          {
+            "kind": "reported",
+            "amount": null,
+            "currency": "PLN",
+            "label": "",
+            "year": null,
+            "scope": "local",
+            "sourceUrl": "https://example.org/official"
+          }
+        ],
+        "dates": [
+          {
+            "kind": "start",
+            "date": "2026-10-03",
+            "label": "",
+            "sourceUrl": "https://example.org/official"
+          }
+        ],
+        "events": [
+          {
+            "id": "event-1",
+            "title": "",
+            "date": null,
+            "sourceUrl": "https://example.org/official"
+          }
+        ],
+        "facts": [
+          {
+            "label": "Test fact",
+            "value": "TEST ONLY",
+            "sourceUrl": "https://example.org/official"
+          }
+        ],
+        "geometries": [
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [
+                20.8,
+                52.2
+              ]
+            },
+            "properties": {
+              "id": "feature-1",
+              "accuracy": "source-point",
+              "sourceUrl": "https://example.org/official",
+              "parcelId": null,
+              "note": "",
+              "fetchedAt": "2026-10-03T06:00:00Z",
+              "sourceUpdatedAt": null
+            }
+          }
+        ],
+        "parcelIds": [],
+        "relatedIds": [],
+        "warnings": [],
+        "fetchedAt": "2026-10-03T06:00:00Z",
+        "sourceUpdatedAt": null
+      }
+    ],
+    "sources": [
+      {
+        "id": "official",
+        "name": "TEST ONLY source",
+        "url": "https://example.org/official",
+        "fetchedAt": "2026-10-03T06:00:00Z",
+        "sourceUpdatedAt": null,
+        "status": "fresh",
+        "coverage": "Fixture only",
+        "recordCount": 1,
+        "warnings": [],
+        "reuse": "Facts only"
+      }
+    ],
+    "warnings": [],
+    "counts": {
+      "records": 1,
+      "mapped": 1,
+      "geometries": 1,
+      "bySource": {
+        "official": 1
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "query-access_key",
+      "url": "https://example.org/official?access_key=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-access_key",
+      "url": "https://example.org/official#access_key=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-access-key",
+      "url": "https://example.org/official?access-key=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-access-key",
+      "url": "https://example.org/official#access-key=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-accesskey",
+      "url": "https://example.org/official?accesskey=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-accesskey",
+      "url": "https://example.org/official#accesskey=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-ACCESS_KEY",
+      "url": "https://example.org/official?ACCESS_KEY=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-ACCESS_KEY",
+      "url": "https://example.org/official#ACCESS_KEY=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-jwt",
+      "url": "https://example.org/official?jwt=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-jwt",
+      "url": "https://example.org/official#jwt=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-JWT",
+      "url": "https://example.org/official?JWT=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-JWT",
+      "url": "https://example.org/official#JWT=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-id_token_hint",
+      "url": "https://example.org/official?id_token_hint=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-id_token_hint",
+      "url": "https://example.org/official#id_token_hint=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-token_type",
+      "url": "https://example.org/official?token_type=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-token_type",
+      "url": "https://example.org/official#token_type=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-password_reset",
+      "url": "https://example.org/official?password_reset=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-password_reset",
+      "url": "https://example.org/official#password_reset=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-mycredentialfield",
+      "url": "https://example.org/official?mycredentialfield=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-mycredentialfield",
+      "url": "https://example.org/official#mycredentialfield=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-prefixsignaturetail",
+      "url": "https://example.org/official?prefixsignaturetail=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-prefixsignaturetail",
+      "url": "https://example.org/official#prefixsignaturetail=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-x-api_key-hint",
+      "url": "https://example.org/official?x-api_key-hint=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-x-api_key-hint",
+      "url": "https://example.org/official#x-api_key-hint=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-myaccess-keyhint",
+      "url": "https://example.org/official?myaccess-keyhint=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-myaccess-keyhint",
+      "url": "https://example.org/official#myaccess-keyhint=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-client_secret_hint",
+      "url": "https://example.org/official?client_secret_hint=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-client_secret_hint",
+      "url": "https://example.org/official#client_secret_hint=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-authorization_mode",
+      "url": "https://example.org/official?authorization_mode=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-authorization_mode",
+      "url": "https://example.org/official#authorization_mode=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-session_id_hint",
+      "url": "https://example.org/official?session_id_hint=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-session_id_hint",
+      "url": "https://example.org/official#session_id_hint=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-auth",
+      "url": "https://example.org/official?auth=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-auth",
+      "url": "https://example.org/official#auth=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-email",
+      "url": "https://example.org/official?email=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-email",
+      "url": "https://example.org/official#email=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-phone",
+      "url": "https://example.org/official?phone=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-phone",
+      "url": "https://example.org/official#phone=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-creator",
+      "url": "https://example.org/official?creator=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-creator",
+      "url": "https://example.org/official#creator=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-editor",
+      "url": "https://example.org/official?editor=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-editor",
+      "url": "https://example.org/official#editor=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-cookie",
+      "url": "https://example.org/official?cookie=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-cookie",
+      "url": "https://example.org/official#cookie=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-access_key-encoded-key-1",
+      "url": "https://example.org/official?%61%63%63%65%73%73%5F%6B%65%79=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-access_key-encoded-key-1",
+      "url": "https://example.org/official#%61%63%63%65%73%73%5F%6B%65%79=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-access_key-encoded-key-2",
+      "url": "https://example.org/official?%2561%2563%2563%2565%2573%2573%255F%256B%2565%2579=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-access_key-encoded-key-2",
+      "url": "https://example.org/official#%2561%2563%2563%2565%2573%2573%255F%256B%2565%2579=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-access_key-encoded-key-3",
+      "url": "https://example.org/official?%252561%252563%252563%252565%252573%252573%25255F%25256B%252565%252579=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-access_key-encoded-key-3",
+      "url": "https://example.org/official#%252561%252563%252563%252565%252573%252573%25255F%25256B%252565%252579=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-access_key-encoded-key-4",
+      "url": "https://example.org/official?%25252561%25252563%25252563%25252565%25252573%25252573%2525255F%2525256B%25252565%25252579=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-access_key-encoded-key-4",
+      "url": "https://example.org/official#%25252561%25252563%25252563%25252565%25252573%25252573%2525255F%2525256B%25252565%25252579=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-access_key-encoded-delimiters-1",
+      "url": "https://example.org/official?foo%3DTEST_ONLY%26access_key%3DTEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-access_key-encoded-delimiters-1",
+      "url": "https://example.org/official#foo%3DTEST_ONLY%26access_key%3DTEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-access_key-encoded-delimiters-2",
+      "url": "https://example.org/official?foo%253DTEST_ONLY%2526access_key%253DTEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-access_key-encoded-delimiters-2",
+      "url": "https://example.org/official#foo%253DTEST_ONLY%2526access_key%253DTEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-access_key-encoded-delimiters-3",
+      "url": "https://example.org/official?foo%25253DTEST_ONLY%252526access_key%25253DTEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-access_key-encoded-delimiters-3",
+      "url": "https://example.org/official#foo%25253DTEST_ONLY%252526access_key%25253DTEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-jwt-encoded-key-1",
+      "url": "https://example.org/official?%6A%77%74=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-jwt-encoded-key-1",
+      "url": "https://example.org/official#%6A%77%74=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-jwt-encoded-key-2",
+      "url": "https://example.org/official?%256A%2577%2574=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-jwt-encoded-key-2",
+      "url": "https://example.org/official#%256A%2577%2574=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-jwt-encoded-key-3",
+      "url": "https://example.org/official?%25256A%252577%252574=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-jwt-encoded-key-3",
+      "url": "https://example.org/official#%25256A%252577%252574=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-jwt-encoded-key-4",
+      "url": "https://example.org/official?%2525256A%25252577%25252574=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-jwt-encoded-key-4",
+      "url": "https://example.org/official#%2525256A%25252577%25252574=TEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-jwt-encoded-delimiters-1",
+      "url": "https://example.org/official?foo%3DTEST_ONLY%26jwt%3DTEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-jwt-encoded-delimiters-1",
+      "url": "https://example.org/official#foo%3DTEST_ONLY%26jwt%3DTEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-jwt-encoded-delimiters-2",
+      "url": "https://example.org/official?foo%253DTEST_ONLY%2526jwt%253DTEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-jwt-encoded-delimiters-2",
+      "url": "https://example.org/official#foo%253DTEST_ONLY%2526jwt%253DTEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "query-jwt-encoded-delimiters-3",
+      "url": "https://example.org/official?foo%25253DTEST_ONLY%252526jwt%25253DTEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "fragment-jwt-encoded-delimiters-3",
+      "url": "https://example.org/official#foo%25253DTEST_ONLY%252526jwt%25253DTEST_ONLY_NOT_A_SECRET",
+      "accepted": false
+    },
+    {
+      "id": "safe-plain",
+      "url": "https://example.org/official",
+      "accepted": true
+    },
+    {
+      "id": "safe-query",
+      "url": "https://example.org/official?id=23&year=2026",
+      "accepted": true
+    },
+    {
+      "id": "safe-fragment",
+      "url": "https://example.org/official#section=budget",
+      "accepted": true
+    },
+    {
+      "id": "safe-contact-prose",
+      "url": "https://example.org/official?authorship=municipality&emailAddressLabel=public",
+      "accepted": true
+    },
+    {
+      "id": "safe-key-prose",
+      "url": "https://example.org/official?monkey=banana",
+      "accepted": true
+    },
+    {
+      "id": "safe-unicode",
+      "url": "https://example.org/official?title=%C5%BB%C3%B3%C5%82%C4%87",
+      "accepted": true
+    },
+    {
+      "id": "safe-encoded-safe",
+      "url": "https://example.org/official?%2569d=23",
+      "accepted": true
+    },
+    {
+      "id": "safe-safe-value",
+      "url": "https://example.org/official?title=access_key",
+      "accepted": true
+    },
+    {
+      "id": "safe-fragment-safe",
+      "url": "https://example.org/official#foo=jwt",
+      "accepted": true
+    }
+  ]
+}

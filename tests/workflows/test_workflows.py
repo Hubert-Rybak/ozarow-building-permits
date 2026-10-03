@@ -7,7 +7,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOWS = ROOT / ".github/workflows"
-DATA = {"public/data/permits.json", "public/data/parcels.geojson", "public/data/metadata.json"}
+DATA = {"public/data/permits.json", "public/data/parcels.geojson", "public/data/metadata.json", "public/data/investments.json"}
 MAIN = "github.ref == 'refs/heads/main'"
 PAGES = "vars.PAGES_ENABLED == 'true'"
 
@@ -26,7 +26,7 @@ class WorkflowContracts(unittest.TestCase):
         self.assertIn("workflow_dispatch", workflow["on"])
         self.assertNotIn("pull_request_target", workflow["on"])
         commands = "\n".join(s.get("run", "") for s in workflow["jobs"]["build"]["steps"])
-        for command in ("npm ci", "npm test", "npm run build", "python -m unittest discover -s tests/data -v", "python -m unittest discover -s tests/workflows -v", "python tests/workflows/check_dist.py"):
+        for command in ("npm ci", "npm test", "npm run build", "python -m unittest discover -s tests/data -v", "python -m unittest discover -s tests/investments -v", "python -m unittest discover -s tests/workflows -v", "python tests/workflows/check_dist.py"):
             self.assertIn(command, commands)
 
     def test_daily_import_refreshes_sources_without_geometry_cap(self):
@@ -40,6 +40,20 @@ class WorkflowContracts(unittest.TestCase):
             self.assertIn(value, commands)
         self.assertNotIn("--offline", commands)
         self.assertNotIn("--refresh ", commands)
+
+    def test_daily_collects_investments_after_gunb_and_preserves_exact_prior(self):
+        steps = self.load("daily-data.yml")["jobs"]["refresh"]["steps"]
+        command = next(s["run"] for s in steps if s.get("id") == "import")
+        self.assertIn("scripts/import_investments.py", command)
+        self.assertLess(command.index("cp public/data/investments.json"), command.index("python scripts/import_data.py"))
+        self.assertLess(command.index("python scripts/import_data.py"), command.index("python scripts/import_investments.py"))
+        self.assertIn('--prior "$RUNNER_TEMP/prior-investments.json"', command)
+        self.assertIn('--cache "$RUNNER_TEMP/investment-private-cache"', command)
+        self.assertIn('--output "$RUNNER_TEMP/data-candidate"', command)
+        self.assertNotIn("continue-on-error", str(steps))
+        validator = next(s["run"] for s in steps if s.get("id") == "validate")
+        self.assertIn("python scripts/import_investments.py --validate public/data/investments.json", validator)
+        self.assertIn("python -m unittest discover -s tests/investments -v", validator)
 
     def test_shared_main_lock_without_nested_job_lock(self):
         ci = self.load("ci-pages.yml")
