@@ -13,6 +13,7 @@ vi.mock("../../src/RadarMap", () => ({
       <div aria-label="Mapa testowa" data-keys={props.items.map((i: { key: string }) => i.key).join(",")}>
         <button onClick={() => props.onSelect("permits", "test-application")}>TEST: wybierz działkę</button>
         <button onClick={() => props.onSelect("investments", "test:1")}>TEST: wybierz inwestycję</button>
+        <button onClick={() => props.onBackgroundClick?.()}>TEST: puste miejsce mapy</button>
       </div>
     );
   },
@@ -218,6 +219,32 @@ describe("phone bottom sheet", () => {
     expect(map.props?.insets.left).toBe(0);
     fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.getByRole("button", { name: /TEST: budowa domu/ })).toHaveFocus();
+  });
+  it("hides the card and lowers the sheet on a tap on empty map, without reframing it", async () => {
+    mobile(true);
+    const { container } = await load();
+    const panel = container.querySelector(".panel")!;
+    fireEvent.click(screen.getByRole("button", { name: "TEST: wybierz działkę" }));
+    expect(panel).toHaveClass("sheet-half");
+    expect(screen.getByRole("heading", { level: 2, name: "TEST: budowa domu" })).toBeInTheDocument();
+    const fits = map.props?.fitToken;
+    fireEvent.click(screen.getByRole("button", { name: "TEST: puste miejsce mapy" }));
+    expect(panel).toHaveClass("sheet-peek");
+    expect(screen.queryByRole("heading", { level: 2, name: "TEST: budowa domu" })).not.toBeInTheDocument();
+    expect(map.props?.selectedKey).toBeNull();
+    expect(map.props?.fitToken).toBe(fits);
+    fireEvent.click(screen.getByRole("button", { name: "Powiększ panel" }));
+    fireEvent.click(screen.getByRole("button", { name: "Powiększ panel" }));
+    expect(panel).toHaveClass("sheet-full");
+    fireEvent.click(screen.getByRole("button", { name: "TEST: puste miejsce mapy" }));
+    expect(panel).toHaveClass("sheet-peek");
+  });
+  it("keeps the desktop card open on a tap on empty map", async () => {
+    mobile(false);
+    await load();
+    fireEvent.click(screen.getByRole("button", { name: "TEST: wybierz działkę" }));
+    fireEvent.click(screen.getByRole("button", { name: "TEST: puste miejsce mapy" }));
+    expect(map.props?.selectedKey).toBe("p:test-application");
   });
   it("expands the sheet when searching", async () => {
     mobile(true);

@@ -21,6 +21,8 @@ interface Props {
   items: MapItem[];
   selectedKey: string | null;
   onSelect: (layer: Layer, id: string) => void;
+  /** A tap on the map itself, not on a marker, outline or cluster. */
+  onBackgroundClick?: () => void;
   insets: Insets;
   /** Increment to reframe: the selection if any, otherwise every item. */
   fitToken: number;
@@ -71,12 +73,12 @@ function clusterIcon(members: MapItem[]) {
   return L.divIcon({ html: element, className: "radar-marker-wrap", iconSize: [size, size] });
 }
 
-export default function RadarMap({ items, selectedKey, onSelect, insets, fitToken, fitAllToken = 0, userLocation = null }: Props) {
+export default function RadarMap({ items, selectedKey, onSelect, insets, fitToken, fitAllToken = 0, userLocation = null, onBackgroundClick }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const drawn = useRef<L.LayerGroup | null>(null);
-  const latest = useRef({ items, selectedKey, onSelect, insets });
-  latest.current = { items, selectedKey, onSelect, insets };
+  const latest = useRef({ items, selectedKey, onSelect, insets, onBackgroundClick });
+  latest.current = { items, selectedKey, onSelect, insets, onBackgroundClick };
   const redraw = useRef<() => void>(() => {});
   const fitted = useRef(false);
   const [tileError, setTileError] = useState(false);
@@ -124,6 +126,7 @@ export default function RadarMap({ items, selectedKey, onSelect, insets, fitToke
     drawn.current = L.layerGroup().addTo(m);
     const update = () => redraw.current();
     m.on("zoomend moveend", update);
+    m.on("click", () => latest.current.onBackgroundClick?.());
     const observer = new ResizeObserver(() => m.invalidateSize({ animate: false }));
     observer.observe(container.current);
     return () => {
@@ -159,7 +162,8 @@ export default function RadarMap({ items, selectedKey, onSelect, insets, fitToke
         interactive: true,
       });
       shape.eachLayer(layer => {
-        layer.on("click", choose(item));
+        // Outlines bubble their clicks to the map; a tap on one is not a background tap.
+        layer.on("click", event => { L.DomEvent.stopPropagation(event); choose(item)(); });
         layer.bindTooltip(text("span", "", item.label), { sticky: true });
       });
       shape.addTo(group);
