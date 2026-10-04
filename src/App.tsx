@@ -134,7 +134,7 @@ export default function App() {
   const [locateMessage, setLocateMessage] = useState<string | null>(null);
   const origin = useRef<"list" | "map">("list");
   const [restoreToken, setRestoreToken] = useState(0);
-  // The sheet size before the current selection, so dismissing it returns to the same view.
+  // The sheet size before the current selection, so "Mapa" in the card can return to the same view.
   const sheetBefore = useRef<Sheet>("peek");
   const now = useRef({ selection, sheet });
   now.current = { selection, sheet };
@@ -227,18 +227,23 @@ export default function App() {
     if (mobile) setSheet(origin.current === "list" ? "half" : "peek");
   }, [selection, mobile]);
 
-  // Phone: a tap on empty map dismisses the card and returns to the map and sheet as they were before
-  // it opened (a full-height list gives way to the map). Without a card it just lowers the sheet.
+  // Phone: a tap on empty map dismisses the card and lowers the sheet, leaving the map in view as is.
   const keepView = useRef(false);
   const dismiss = useCallback(() => {
     if (!mobile || (!selection && sheet === "peek")) return;
-    const next = selection && sheetBefore.current !== "full" ? sheetBefore.current : "peek";
-    if (selection) {
-      setSelection(null);
-      setRestoreToken(n => n + 1);
-    }
-    if (sheet !== next) { keepView.current = true; setSheet(next); }
+    setSelection(null);
+    if (sheet !== "peek") { keepView.current = true; setSheet("peek"); }
   }, [mobile, selection, sheet]);
+  // Phone: "Mapa" in the card returns to the map and sheet as they were before the card opened
+  // (a full-height list gives way to the map).
+  const backToMap = useCallback(() => {
+    if (!selection) return;
+    restore.current = { origin: "map", id: selection.id };
+    setSelection(null);
+    setRestoreToken(n => n + 1);
+    const next = sheetBefore.current === "full" ? "peek" : sheetBefore.current;
+    if (sheet !== next) { keepView.current = true; setSheet(next); }
+  }, [selection, sheet]);
 
   // A filter change that hides the selected record closes its card.
   useEffect(() => {
@@ -530,9 +535,11 @@ export default function App() {
           <div className="panel-body" ref={panelBody}>
             {selectedPermit ? (
               <PermitDetail record={selectedPermit} parcels={permits.data.parcels} onClose={close} onPick={pick}
+                onBackToMap={mobile ? backToMap : undefined}
                 nearby={nearbyFor(permitGeo.get(selectedPermit.id)?.at)} share={share} isNew={permits.seen.newIds.has(selectedPermit.id)} />
             ) : selectedInvestment ? (
               <InvestmentDetail record={selectedInvestment} all={investments.all} onClose={close} onPick={pick}
+                onBackToMap={mobile ? backToMap : undefined}
                 source={investments.data?.sources.find(s => s.id === selectedInvestment.sourceId)}
                 nearbyPermits={nearbyFor(investmentGeo.get(selectedInvestment.id)?.at).permits}
                 share={share} isNew={investments.seen.newIds.has(selectedInvestment.id)} />

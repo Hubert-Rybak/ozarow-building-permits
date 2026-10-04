@@ -23,7 +23,7 @@ import {
 } from "./investments";
 import { daysBetween, formatDate, formatDateTime, kindLabels, recordDate } from "./model";
 import { readAndRemember, type SeenState } from "./seen";
-import { BackButton, Chip, ChipSelect, ExternalLink, MoreButton, PAGE, SearchBox, ShareButton } from "./ui";
+import { BackButton, Chip, MapButton, ChipSelect, ExternalLink, MoreButton, PAGE, SearchBox, ShareButton } from "./ui";
 import type { Permit } from "./types";
 import { formatDistance } from "./geo";
 
@@ -145,12 +145,13 @@ function relative(date: string, today: string) {
   return null;
 }
 
-export function InvestmentDetail({ record: r, source, all, nearbyPermits, onClose, onPick, share, isNew }: {
+export function InvestmentDetail({ record: r, source, all, nearbyPermits, onClose, onBackToMap, onPick, share, isNew }: {
   record: InvestmentRecord;
   source?: InvestmentSource;
   all: InvestmentRecord[];
   nearbyPermits: { item: Permit; meters: number }[];
   onClose: () => void;
+  onBackToMap?: () => void;
   onPick: (layer: "permits" | "investments", id: string) => void;
   share: string;
   isNew: boolean;
@@ -166,7 +167,10 @@ export function InvestmentDetail({ record: r, source, all, nearbyPermits, onClos
   return (
     <section className="detail-panel" tabIndex={-1} aria-labelledby="investment-detail-title" data-selected-id={r.id}>
       <div className="detail-bar">
-        <BackButton onClick={onClose} label="Zamknij szczegóły inwestycji" />
+        <div className="detail-nav">
+          <BackButton onClick={onClose} label="Zamknij szczegóły inwestycji" />
+          {onBackToMap && <MapButton onClick={onBackToMap} />}
+        </div>
         <ShareButton url={share} />
       </div>
       <div className="detail-kicker">
