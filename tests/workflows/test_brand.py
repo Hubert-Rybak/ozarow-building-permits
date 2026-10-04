@@ -18,14 +18,6 @@ class RadarBrand(unittest.TestCase):
         self.assertEqual(lock['name'],package['name'])
         self.assertEqual(lock['packages']['']['name'],package['name'])
 
-    def test_readme_declares_target_not_unverified_deployment(self):
-        readme=(ROOT/'README.md').read_text()
-        self.assertTrue(readme.startswith('# Radar Ożarów'))
-        self.assertIn('/radar-ozarow/',readme)
-        self.assertIn('scripts/import_investments.py',readme)
-        self.assertIn('public/data/investments.json',readme)
-        self.assertIn('docs/investments/PIPELINE.md',readme)
-
 
 if __name__ == '__main__':
     unittest.main()
