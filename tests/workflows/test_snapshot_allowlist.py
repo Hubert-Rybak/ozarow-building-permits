@@ -52,9 +52,9 @@ class SnapshotAllowlist(unittest.TestCase):
         self.assertIn('Unexpected',result.stderr)
 
     def test_rejects_tracked_worktree_changes(self):
-        self.write('README.md')
-        subprocess.run(['git','add','--','README.md'],cwd=self.root,check=True)
-        (self.root/'README.md').write_text('unexpected changed fixture')
+        self.write('tracked-fixture.txt')
+        subprocess.run(['git','add','--','tracked-fixture.txt'],cwd=self.root,check=True)
+        (self.root/'tracked-fixture.txt').write_text('unexpected changed fixture')
         result=self.execute()
         self.assertNotEqual(result.returncode,0)
         self.assertIn('Unexpected',result.stderr)
