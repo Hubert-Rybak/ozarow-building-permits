@@ -212,7 +212,8 @@ export function InvestmentDetail({ record: r, source, all, links = [], nearbyPer
     return similarRecords(r, all.filter(x => !shown.has(x.id)));
   }, [r, all, related, history]);
   const technical = r.facts.filter(isTechnicalFact);
-  const documents = r.facts.filter(f => !isTechnicalFact(f));
+  // A fact that only repeats the record's own link adds nothing next to "Rekord w źródle".
+  const documents = r.facts.filter(f => !isTechnicalFact(f) && !(f.sourceUrl === r.sourceUrl && f.value === r.sourceUrl));
   const today = new Date().toISOString().slice(0, 10);
   const dates = [
     ...r.dates.map(d => ({ key: `d-${d.kind}-${d.date}-${d.label}`, label: dateLabel(d.kind, d.label), date: d.date, url: d.sourceUrl })),
