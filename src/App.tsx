@@ -221,6 +221,14 @@ export default function App() {
     if (mobile) setSheet(origin.current === "list" ? "half" : "peek");
   }, [selection, mobile]);
 
+  // Phone: a tap on empty map dismisses the card and lowers the sheet, leaving the map in view as is.
+  const keepView = useRef(false);
+  const dismiss = useCallback(() => {
+    if (!mobile || (!selection && sheet === "peek")) return;
+    setSelection(null);
+    if (sheet !== "peek") { keepView.current = true; setSheet("peek"); }
+  }, [mobile, selection, sheet]);
+
   // A filter change that hides the selected record closes its card.
   useEffect(() => {
     if (selectedPermit && !permits.loading && !permits.filtered.includes(selectedPermit)) setSelection(null);
@@ -239,6 +247,7 @@ export default function App() {
   const firstSheet = useRef(true);
   useEffect(() => {
     if (firstSheet.current) { firstSheet.current = false; return; }
+    if (keepView.current) { keepView.current = false; return; }
     if (mobile && sheet !== "full") setFitToken(n => n + 1);
   }, [sheet]);
   useEffect(() => {
@@ -418,7 +427,7 @@ export default function App() {
       <main className="stage">
         <section className="map-area" aria-label="Mapa">
           <RadarMap items={items} selectedKey={selectedKey} insets={insets} fitToken={fitToken} fitAllToken={fitAllToken}
-            userLocation={userLocation} onSelect={(layer, id) => select(layer, id, "map")} />
+            userLocation={userLocation} onSelect={(layer, id) => select(layer, id, "map")} onBackgroundClick={dismiss} />
           <div className="map-controls">
             <div className={`layer-card${legendOpen || !mobile ? " open" : ""}`}>
               {mobile && (

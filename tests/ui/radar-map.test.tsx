@@ -78,6 +78,19 @@ describe("unified radar map", () => {
     expect(v.mapFactory).toHaveBeenCalledTimes(1);
   });
 
+  it("reports taps on empty map, but not taps on markers or parcel outlines", () => {
+    const v = mount([item("a", [52.2, 20.8], { areas: [square(20.8, 52.2)] }), item("b", [52.3, 20.9])]);
+    const onBackgroundClick = vi.fn();
+    v.rerender(<RadarMap {...v.props} onBackgroundClick={onBackgroundClick} />);
+    fireEvent.click(v.container.querySelector(".leaflet-marker-icon")!);
+    expect(v.onSelect).toHaveBeenCalledTimes(1);
+    v.rerender(<RadarMap {...v.props} selectedKey="p:a" fitToken={1} onBackgroundClick={onBackgroundClick} />);
+    fireEvent.click(v.container.querySelector('path[stroke-width="4"]')!);
+    expect(v.onSelect).toHaveBeenLastCalledWith("permits", "a");
+    expect(onBackgroundClick).not.toHaveBeenCalled();
+    fireEvent.click(v.container.querySelector(".leaflet-container")!);
+    expect(onBackgroundClick).toHaveBeenCalledTimes(1);
+  });
   it("draws the viewer's position with its accuracy and frames it, without making it clickable", () => {
     const v = mount([item("a", [52.3, 20.9])]);
     const fit = vi.spyOn(v.map, "fitBounds");
