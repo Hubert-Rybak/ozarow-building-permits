@@ -20,7 +20,7 @@ import {
 } from "./model";
 import { readAndRemember, type SeenState } from "./seen";
 import type { Filters, LoadedData, ParcelCollection, Permit, RecordKind } from "./types";
-import { BackButton, Chip, ChipSelect, CopyButton, ExternalLink, MoreButton, PAGE, SearchBox, ShareButton } from "./ui";
+import { BackButton, Chip, MapButton, ChipSelect, CopyButton, ExternalLink, MoreButton, PAGE, SearchBox, ShareButton } from "./ui";
 import type { InvestmentRecord } from "./investments";
 import { formatDistance } from "./geo";
 
@@ -93,10 +93,12 @@ export interface Nearby {
   investments: { item: InvestmentRecord; meters: number }[];
 }
 
-export function PermitDetail({ record, parcels, onClose, onPick, nearby, share, isNew }: {
+export function PermitDetail({ record, parcels, onClose, onBackToMap, onPick, nearby, share, isNew }: {
   record: Permit;
   parcels: ParcelCollection;
   onClose: () => void;
+  /** Phone only: close the card and return to the map view from before it. */
+  onBackToMap?: () => void;
   onPick: (layer: "permits" | "investments", id: string) => void;
   nearby: Nearby;
   share: string;
@@ -107,7 +109,10 @@ export function PermitDetail({ record, parcels, onClose, onPick, nearby, share, 
   return (
     <section className="detail-panel" aria-labelledby="detail-title" data-selected-id={record.id} tabIndex={-1}>
       <div className="detail-bar">
-        <BackButton onClick={onClose} label="Zamknij szczegóły" />
+        <div className="detail-nav">
+          <BackButton onClick={onClose} label="Zamknij szczegóły" />
+          {onBackToMap && <MapButton onClick={onBackToMap} />}
+        </div>
         <ShareButton url={share} />
       </div>
       <div className="detail-kicker">

@@ -168,6 +168,7 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 /* Record card */
 .detail-panel { padding: 8px 16px 24px; display: flex; flex-direction: column; gap: 12px; outline: none; }
 .detail-bar { display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 2; margin: 0 -16px; padding: 4px 12px; background: rgba(255, 255, 255, .96); }
+.detail-nav { display: flex; gap: 8px; }
 .back-button { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 12px 0 6px; border: 0; border-radius: 22px; background: #F0F2F4; font-size: 15px; font-weight: 600; color: var(--ink-2); }
 .round-button { width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 22px; background: #F0F2F4; color: var(--ink-2); }
 .detail-kicker { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; color: var(--ink-2); }
