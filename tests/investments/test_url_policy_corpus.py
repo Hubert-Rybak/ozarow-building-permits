@@ -93,8 +93,9 @@ class UrlPolicyCorpusTests(unittest.TestCase):
                         return copy.deepcopy(contribution)
                     if case['accepted']:
                         result = refresh(output, root / 'cache', adapters=[collect], generated_at=baseline['generatedAt'])
-                        self.assertEqual(result, dataset)
-                        self.assertEqual(load_dataset(target, prior=baseline), dataset)
+                        expected = {**dataset, 'links': []}  # current generations always carry links
+                        self.assertEqual(result, expected)
+                        self.assertEqual(load_dataset(target, prior=baseline), expected)
                     else:
                         with self.assertRaisesRegex(ValueError, 'secret/contact URL field'):
                             refresh(output, root / 'cache', adapters=[collect], generated_at=baseline['generatedAt'])

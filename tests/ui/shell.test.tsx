@@ -349,7 +349,8 @@ describe("investments tab", () => {
     expect(within(card).getByText("TEST ONLY caveat")).toBeInTheDocument();
     expect(within(card).getByText(/nie potwierdza rozpoczęcia robót/)).toBeInTheDocument();
     expect(within(card).getByRole("link", { name: /Rekord w źródle/ })).toHaveAttribute("rel", "noopener noreferrer");
-    expect(within(card).getByText("Udokumentowane powiązania")).toBeInTheDocument();
+    expect(within(card).getByText("Powiązane źródła")).toBeInTheDocument();
+    expect(within(card).getByText("Powiązanie podane w samym źródle.", { exact: false })).toBeInTheDocument();
     fireEvent.click(within(card).getByRole("button", { name: /TEST ONLY unmapped/ }));
     expect(screen.getByRole("heading", { level: 2, name: "TEST ONLY unmapped" })).toBeInTheDocument();
     expect(screen.getByText("Brak w źródle")).toBeInTheDocument();

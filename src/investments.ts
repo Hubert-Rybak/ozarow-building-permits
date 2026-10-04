@@ -1,4 +1,5 @@
 import { searchTerms } from "./model";
+import { centerOf, distanceMeters } from "./geo";
 import type {
   Feature,
   Point,
@@ -91,11 +92,21 @@ export interface InvestmentRecord {
   fetchedAt: string;
   sourceUpdatedAt: string | null;
 }
+/** A join between two records from different sources. Never merged and never summed. */
+export interface InvestmentLink {
+  id: string;
+  kind: "documented" | "probable";
+  recordIds: [string, string];
+  basis: string;
+  sourceUrl: string | null;
+}
 export interface InvestmentDataset {
   schemaVersion: 1;
   generatedAt: string;
   records: InvestmentRecord[];
   sources: InvestmentSource[];
+  /** Absent in generations published before cross-source links. */
+  links?: InvestmentLink[];
   warnings: string[];
   counts: {
     records: number;
@@ -384,6 +395,8 @@ export function parseInvestments(value: unknown): InvestmentDataset {
       "sources",
       "warnings",
       "counts",
+      // Generations published before cross-source links have no "links" key.
+      ...(value && typeof value === "object" && Object.hasOwn(value, "links") ? ["links"] : []),
     ],
     "dataset",
   );
@@ -538,6 +551,19 @@ export function parseInvestments(value: unknown): InvestmentDataset {
     for (const id of raw.relatedIds as string[])
       if (id === raw.id || !recordIds.has(id))
         fail("niepotwierdzone powiązanie");
+  const links = list(d.links ?? [], "links");
+  const pairs = new Set<string>();
+  for (const raw of links) {
+    const l = obj(raw, ["id", "kind", "recordIds", "basis", "sourceUrl"], "link");
+    enumeration(l.kind, ["documented", "probable"], "link kind");
+    const ids = strings(l.recordIds, "link recordIds");
+    if (ids.length !== 2 || ids[0] >= ids[1] || !ids.every(id => recordIds.has(id))) fail("niepotwierdzone powiązanie");
+    if (l.id !== `${l.kind}:${ids.join("|")}` || pairs.has(ids.join("|"))) fail("powtórzone powiązanie");
+    pairs.add(ids.join("|"));
+    text(l.basis, "link basis", true);
+    if (l.kind === "documented") url(l.sourceUrl, "link source");
+    else if (l.sourceUrl !== null) fail("link source");
+  }
   const counts = obj(
     d.counts,
     ["records", "mapped", "geometries", "bySource"],
@@ -661,6 +687,68 @@ function nameTokens(title: string): Set<string> {
     .filter(w => w.length >= 4 && !stopwords.has(w))
     .map(w => w.slice(0, 5))
     .filter(stem => !genericStems.has(stem)));
+}
+export interface RelatedEntry {
+  record: InvestmentRecord;
+  kind: InvestmentLink["kind"];
+  basis: string;
+  sourceUrl: string | null;
+  /** Reached through this record (one hop further); null for a direct link. */
+  via: InvestmentRecord | null;
+}
+/** Index links by record so every card can look its neighbours up cheaply. */
+export function linkIndex(links: InvestmentLink[], all: InvestmentRecord[]) {
+  const index = new Map<string, InvestmentLink[]>();
+  const add = (id: string, link: InvestmentLink) => index.set(id, [...(index.get(id) || []), link]);
+  for (const link of links) link.recordIds.forEach(id => add(id, link));
+  // Relations declared by an adapter itself count as documented.
+  for (const r of all)
+    for (const other of r.relatedIds) {
+      const ids = [r.id, other].sort() as [string, string];
+      const link: InvestmentLink = { id: `documented:${ids.join("|")}`, kind: "documented", recordIds: ids, basis: "Powiązanie podane w samym źródle.", sourceUrl: null };
+      if (!(index.get(r.id) || []).some(l => l.recordIds.includes(other))) ids.forEach(id => add(id, link));
+    }
+  return index;
+}
+/** Direct links first, then records one hop further (a probable hop makes the whole path probable). */
+export function linkedRecords(record: InvestmentRecord, index: Map<string, InvestmentLink[]>, byId: Map<string, InvestmentRecord>): RelatedEntry[] {
+  const other = (link: InvestmentLink, id: string) => link.recordIds[0] === id ? link.recordIds[1] : link.recordIds[0];
+  const result = new Map<string, RelatedEntry>();
+  const direct = index.get(record.id) || [];
+  for (const link of direct) {
+    const target = byId.get(other(link, record.id));
+    if (target) result.set(target.id, { record: target, kind: link.kind, basis: link.basis, sourceUrl: link.sourceUrl, via: null });
+  }
+  for (const first of [...result.values()])
+    for (const link of index.get(first.record.id) || []) {
+      const target = byId.get(other(link, first.record.id));
+      if (!target || target.id === record.id || result.has(target.id)) continue;
+      const kind = first.kind === "documented" && link.kind === "documented" ? "documented" : "probable";
+      result.set(target.id, { record: target, kind, basis: link.basis, sourceUrl: link.sourceUrl, via: first.record });
+    }
+  const order = (e: RelatedEntry) => (e.via ? 2 : 0) + (e.kind === "documented" ? 0 : 1);
+  return [...result.values()].sort((a, b) => order(a) - order(b) || a.record.title.localeCompare(b.record.title, "pl"));
+}
+/** Earlier/later entries of the municipal map at the same spot with a similar name. */
+export function placeHistory(record: InvestmentRecord, all: InvestmentRecord[], maxMeters = 150): { record: InvestmentRecord; meters: number }[] {
+  const at = centerOf(record.geometries.map(g => g.geometry));
+  const own = nameTokens(record.title);
+  if (!at || record.sourceId !== "municipal-map" || own.size < 2) return [];
+  return all
+    .filter(r => r.id !== record.id && r.sourceId === record.sourceId && r.geometries.length)
+    .map(r => ({ record: r, meters: distanceMeters(at, centerOf(r.geometries.map(g => g.geometry))!) }))
+    .filter(x => {
+      if (x.meters > maxMeters) return false;
+      let shared = 0;
+      for (const token of nameTokens(x.record.title)) if (own.has(token)) shared++;
+      return shared >= 2;
+    })
+    .sort((a, b) => (a.record.years[0] ?? 9999) - (b.record.years[0] ?? 9999) || a.meters - b.meters);
+}
+const technicalLabels = /^(?:ID eZamówienia|Status \/ etap API|Ważny termin — timestamp|Strona PDF \/ wiersz źródłowy|Oryginalna wartość|Odkryte menu BIP)/;
+/** Raw source fields (ArcGIS attributes, API timestamps) belong under "Dane techniczne", not "Dokumenty". */
+export function isTechnicalFact(fact: InvestmentRecord["facts"][number]): boolean {
+  return fact.sourceUrl.includes("/FeatureServer/") || technicalLabels.test(fact.label);
 }
 /** Records with similar names. Never merged and never summed — shown as hints only. */
 export function similarRecords(record: InvestmentRecord, all: InvestmentRecord[], limit = 3): InvestmentRecord[] {

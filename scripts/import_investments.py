@@ -10,6 +10,7 @@ from pathlib import Path
 import sys
 import tempfile
 
+from investment_links import collect_links, network_orders_loader
 from investment_validation import counts_for, keys, load_dataset, require, validate_dataset
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,7 +29,7 @@ def load_adapters():
     return adapters
 
 
-def build_dataset(contributions, *, generated_at, prior=None):
+def build_dataset(contributions, *, generated_at, prior=None, linker=None):
     records, sources, warnings = [], [], []
     for contribution in contributions:
         keys(contribution, {'records', 'sources', 'warnings'}, 'adapter contribution')
@@ -45,7 +46,10 @@ def build_dataset(contributions, *, generated_at, prior=None):
     require(all(type(w) is str for w in warnings), 'Invalid adapter warnings')
     records.sort(key=lambda r: r['id'])
     sources.sort(key=lambda s: s['id'])
-    dataset = dict(schemaVersion=1, generatedAt=generated_at, records=records, sources=sources,
+    # Links are derived from the merged records; their own failure only adds a warning.
+    links, link_warnings = (linker or collect_links)(records, prior)
+    warnings.extend(link_warnings)
+    dataset = dict(schemaVersion=1, generatedAt=generated_at, records=records, sources=sources, links=links,
                    warnings=sorted(set(warnings)), counts=counts_for(records, sources))
     validate_dataset(dataset, prior=prior)
     if prior is None:
@@ -96,7 +100,7 @@ def publish(output, dataset, *, prior=None):
         candidate.unlink(missing_ok=True)
 
 
-def refresh(output, cache, *, adapters=None, generated_at=None, prior_path=None):
+def refresh(output, cache, *, adapters=None, generated_at=None, prior_path=None, linker=None):
     output, cache = Path(output), Path(cache)
     no_symlinks(output)
     cache = safe_cache(cache, output)
@@ -106,11 +110,15 @@ def refresh(output, cache, *, adapters=None, generated_at=None, prior_path=None)
         require(prior_target.is_file(), 'Explicit prior snapshot is missing')
     prior = load_dataset(prior_target) if prior_target.exists() else None
     collectors = load_adapters() if adapters is None else adapters
+    if linker is None and adapters is None:
+        # Production: documented links need the commission orders from BIP.
+        loader = network_orders_loader(cache)
+        linker = lambda records, prior: collect_links(records, prior, orders_loader=loader)  # noqa: E731
     require(bool(collectors), 'No investment adapters configured')
     # Every collector gets the FULL verified previous artifact, not a source-only slice.
     contributions = [collect(cache, prior=copy.deepcopy(prior)) for collect in collectors]
     generated_at = generated_at or datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
-    dataset = build_dataset(contributions, generated_at=generated_at, prior=prior)
+    dataset = build_dataset(contributions, generated_at=generated_at, prior=prior, linker=linker)
     require(dataset['counts']['records'] > 0, 'No verified investment records collected; old snapshot preserved')
     publish(output, dataset, prior=prior)
     return dataset

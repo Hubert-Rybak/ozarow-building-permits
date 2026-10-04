@@ -86,7 +86,9 @@ function AboutDialog({ onClose, permits, investments }: {
           <section aria-labelledby="about-investments" id="investment-provenance">
             <h3 id="about-investments">Inwestycje — niezależne źródła</h3>
             <ul className="about-points">
-              <li>Liczymy rekordy źródłowe, nie unikalne budowy. Różne dokumenty mogą opisywać to samo przedsięwzięcie — pokazujemy je obok siebie jako „podobne”, ale nie łączymy.</li>
+              <li>Liczymy rekordy źródłowe, nie unikalne budowy. Różne dokumenty mogą opisywać to samo przedsięwzięcie — pokazujemy je obok siebie, ale nie scalamy i nie sumujemy kwot.</li>
+              <li>Powiązania między źródłami: „udokumentowane”, gdy oficjalny dokument wskazuje oba wpisy (np. zarządzenie burmistrza o komisji przetargowej podaje pozycję budżetu i znak postępowania), oraz „prawdopodobne”, gdy zgadza się rok, miejsce w nazwie i rodzaj robót, ale żaden dokument ich nie łączy.{invData?.links ? ` Obecnie: ${invData.links.filter(l => l.kind === "documented").length} udokumentowanych, ${invData.links.filter(l => l.kind === "probable").length} prawdopodobnych.` : ""}</li>
+              <li>Wykonawcę i cenę wybranej oferty odczytujemy z „Informacji o wyborze oferty” zamawiającego; to cena oferty, nie koszt końcowy.</li>
               <li>Etap (Zapowiedziane, W realizacji, Ukończone) to grupowanie zdań statusu ze źródła; oryginalny status jest w karcie rekordu. Ukończone są domyślnie ukryte.</li>
               <li>Punkt, działka i trasa mają różną dokładność. Brak lokalizacji nie oznacza braku inwestycji.</li>
               <li>Budżet, propozycja BO, grant, zamówienie i sprawa środowiskowa nie potwierdzają rozpoczęcia prac. Kwot nie sumujemy; koszt projektu wielogminnego nie jest kosztem samej gminy.</li>
@@ -538,7 +540,7 @@ export default function App() {
                 onBackToMap={mobile ? backToMap : undefined}
                 nearby={nearbyFor(permitGeo.get(selectedPermit.id)?.at)} share={share} isNew={permits.seen.newIds.has(selectedPermit.id)} />
             ) : selectedInvestment ? (
-              <InvestmentDetail record={selectedInvestment} all={investments.all} onClose={close} onPick={pick}
+              <InvestmentDetail record={selectedInvestment} all={investments.all} links={investments.data?.links} onClose={close} onPick={pick}
                 onBackToMap={mobile ? backToMap : undefined}
                 source={investments.data?.sources.find(s => s.id === selectedInvestment.sourceId)}
                 nearbyPermits={nearbyFor(investmentGeo.get(selectedInvestment.id)?.at).permits}

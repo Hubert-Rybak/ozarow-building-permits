@@ -4,6 +4,10 @@ import {
   categoryGroup,
   filterInvestments,
   investmentDefaults,
+  isTechnicalFact,
+  linkIndex,
+  linkedRecords,
+  placeHistory,
   investmentsCsv,
   investmentStage,
   investmentTypes,
@@ -16,6 +20,7 @@ import {
   similarRecords,
   type InvestmentDataset,
   type InvestmentFilters,
+  type InvestmentLink,
   type InvestmentRecord,
   type InvestmentSource,
   type MapStage,
@@ -145,10 +150,52 @@ function relative(date: string, today: string) {
   return null;
 }
 
-export function InvestmentDetail({ record: r, source, all, nearbyPermits, onClose, onBackToMap, onPick, share, isNew }: {
+const linkKinds = {
+  documented: { label: "Udokumentowane", hint: "Oficjalny dokument wskazuje oba wpisy." },
+  probable: { label: "Prawdopodobne", hint: "Brak dokumentu łączącego; zbieżne miejsce, rok i opis." },
+};
+
+function keyCosts(r: InvestmentRecord) {
+  // The amount that says the most: chosen offer, then plan/limit, then anything reported.
+  for (const kinds of [["offer", "contract", "actual"], ["annual-plan", "total-outlay"], ["tender-financing", "reported", "project-total", "proposal-estimate"]]) {
+    const found = r.costs.filter(c => kinds.includes(c.kind) && c.amount);
+    if (found.length) return found.slice(0, 3);
+  }
+  return [];
+}
+
+function RelatedSources({ entries, onPick }: { entries: ReturnType<typeof linkedRecords>; onPick: (id: string) => void }) {
+  return (
+    <>
+      <h3 className="section-title">Powiązane źródła</h3>
+      <p className="muted">Każdy wpis pochodzi z innego źródła. Kwot nie sumujemy — mogą opisywać plan, przetarg i umowę tej samej inwestycji.</p>
+      <ul className="linked-list">
+        {entries.map(e => (
+          <li key={e.record.id} className={`linked-item ${e.kind}`}>
+            <button type="button" className="linked-main" onClick={() => onPick(e.record.id)}>
+              <span className={`link-badge ${e.kind}`} title={linkKinds[e.kind].hint}>{linkKinds[e.kind].label}</span>
+              <strong>{e.record.title}</strong>
+              <span className="muted">{investmentTypes[e.record.recordType]} · {e.record.years.join(", ") || "rok niepodany"} · {e.record.status}</span>
+              {keyCosts(e.record).map((c, i) => (
+                <span key={i} className="linked-cost"><strong>{money(c.amount, c.currency)}</strong> {c.kind === "offer" ? c.label : costKinds[c.kind] || c.kind}</span>
+              ))}
+            </button>
+            <p className="linked-basis">
+              {e.via && <>Przez: „{e.via.title}”. </>}{e.basis}{" "}
+              {e.sourceUrl && <ExternalLink url={e.sourceUrl}>Dokument powiązania</ExternalLink>}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+export function InvestmentDetail({ record: r, source, all, links = [], nearbyPermits, onClose, onBackToMap, onPick, share, isNew }: {
   record: InvestmentRecord;
   source?: InvestmentSource;
   all: InvestmentRecord[];
+  links?: InvestmentLink[];
   nearbyPermits: { item: Permit; meters: number }[];
   onClose: () => void;
   onBackToMap?: () => void;
@@ -156,8 +203,16 @@ export function InvestmentDetail({ record: r, source, all, nearbyPermits, onClos
   share: string;
   isNew: boolean;
 }) {
-  const similar = useMemo(() => similarRecords(r, all.filter(x => !r.relatedIds.includes(x.id))), [r, all]);
-  const related = r.relatedIds.map(id => all.find(x => x.id === id)).filter((x): x is InvestmentRecord => !!x);
+  const index = useMemo(() => linkIndex(links, all), [links, all]);
+  const byId = useMemo(() => new Map(all.map(x => [x.id, x])), [all]);
+  const related = useMemo(() => linkedRecords(r, index, byId), [r, index, byId]);
+  const history = useMemo(() => placeHistory(r, all), [r, all]);
+  const similar = useMemo(() => {
+    const shown = new Set([...related.map(e => e.record.id), ...history.map(h => h.record.id)]);
+    return similarRecords(r, all.filter(x => !shown.has(x.id)));
+  }, [r, all, related, history]);
+  const technical = r.facts.filter(isTechnicalFact);
+  const documents = r.facts.filter(f => !isTechnicalFact(f));
   const today = new Date().toISOString().slice(0, 10);
   const dates = [
     ...r.dates.map(d => ({ key: `d-${d.kind}-${d.date}-${d.label}`, label: dateLabel(d.kind, d.label), date: d.date, url: d.sourceUrl })),
@@ -215,7 +270,7 @@ export function InvestmentDetail({ record: r, source, all, nearbyPermits, onClos
           {r.costs.length ? r.costs.map((c, i) => (
             <span key={i} className="fact-cost">
               <strong>{money(c.amount, c.currency)}</strong>
-              <span>{costKinds[c.kind] || c.kind}{c.year ? ` · ${c.year}` : ""}</span>
+              <span>{c.kind === "offer" || /część/.test(c.label) ? c.label : costKinds[c.kind] || c.kind}{c.year ? ` · ${c.year}` : ""}</span>
               {c.scope !== "local" && <span className="muted">{costScope[c.scope]}</span>}
             </span>
           )) : <strong>Brak w tym rekordzie</strong>}
@@ -228,16 +283,20 @@ export function InvestmentDetail({ record: r, source, all, nearbyPermits, onClos
         </div>
       </div>
       {r.costs.length > 1 && <p className="muted">Kwot nie sumujemy: mogą dotyczyć różnych etapów tej samej inwestycji.</p>}
-      {related.length > 0 && (
+      {related.length > 0 && <RelatedSources entries={related} onPick={id => onPick("investments", id)} />}
+      {history.length > 0 && (
         <>
-          <h3 className="section-title">Udokumentowane powiązania</h3>
-          <ul className="nearby-list">
-            {related.map(x => (
-              <li key={x.id}><button type="button" className="related-button" onClick={() => onPick("investments", x.id)}>
-                <span className="nearby-main"><strong>{x.title}</strong><span>{investmentTypes[x.recordType]} · {x.status}</span></span>
+          <h3 className="section-title">Historia miejsca</h3>
+          <p className="muted">Wcześniejsze i późniejsze wpisy gminnej mapy w tym samym miejscu (do 150 m) o podobnej nazwie.</p>
+          <ol className="history-list">
+            {history.map(({ record: x, meters }) => (
+              <li key={x.id}><button type="button" onClick={() => onPick("investments", x.id)}>
+                <span className="history-year">{x.years.join(", ") || "—"}</span>
+                <span className="nearby-main"><strong>{x.title}</strong><span>{x.status}</span></span>
+                <span className="nearby-distance">{formatDistance(meters)}</span>
               </button></li>
             ))}
-          </ul>
+          </ol>
         </>
       )}
       {similar.length > 0 && (
@@ -270,7 +329,7 @@ export function InvestmentDetail({ record: r, source, all, nearbyPermits, onClos
       <h3 className="section-title">Dokumenty</h3>
       <div className="verify-list">
         <ExternalLink className="verify-link primary" url={r.sourceUrl} sub={source?.name}>Rekord w źródle</ExternalLink>
-        {r.facts.map((f, i) => (
+        {documents.map((f, i) => (
           <ExternalLink key={i} className="verify-link" url={f.sourceUrl} sub={f.value}>{f.label}</ExternalLink>
         ))}
       </div>
@@ -286,7 +345,11 @@ export function InvestmentDetail({ record: r, source, all, nearbyPermits, onClos
           <dt>Identyfikator</dt><dd className="mono">{r.id}</dd>
           <dt>ID w źródle</dt><dd className="mono">{r.sourceRecordId}</dd>
           <dt>Działki</dt><dd className="mono">{r.parcelIds.join(", ") || "Nie podano"}</dd>
+          {technical.map((f, i) => (
+            <div key={i} className="tech-row"><dt>{f.label}</dt><dd className="mono">{f.value || "—"}</dd></div>
+          ))}
         </dl>
+        {technical.length > 0 && <ExternalLink url={technical[0].sourceUrl}>Surowy odczyt pól ze źródła</ExternalLink>}
         {r.costs.length > 0 && (
           <ul className="parcel-list">
             {r.costs.map((c, i) => <li key={i}><span>{c.label}</span><ExternalLink url={c.sourceUrl}>Dokument kosztu</ExternalLink></li>)}
