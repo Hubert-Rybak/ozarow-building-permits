@@ -17,6 +17,8 @@ EVENT_KEYS = frozenset('id title date sourceUrl'.split())
 FACT_KEYS = frozenset('label value sourceUrl'.split())
 FEATURE_KEYS = frozenset({'type', 'geometry', 'properties'})
 PROPERTY_KEYS = frozenset('id accuracy sourceUrl parcelId note fetchedAt sourceUpdatedAt'.split())
+LINK_KEYS = frozenset('id kind recordIds basis sourceUrl'.split())
+LINK_KINDS = frozenset({'documented', 'probable'})
 COUNT_KEYS = frozenset('records mapped geometries bySource'.split())
 RECORD_TYPES = frozenset('project budget-task procurement funding planning-case proposal news regional'.split())
 INVESTORS = frozenset('municipal county national private mixed unknown'.split())
@@ -224,6 +226,27 @@ def validate_record(record):
             require(props['parcelId'] is not None and feature['geometry']['type'] in {'Polygon','MultiPolygon'}, 'Parcel geometry requires exact parcel ID and polygon')
 
 
+def validate_links(links, records):
+    seen, pairs = set(), set()
+    for link in items(links, 'links'):
+        keys(link, LINK_KEYS, 'link')
+        require(type(link['kind']) is str and link['kind'] in LINK_KINDS, 'Invalid link kind')
+        ids = link['recordIds']
+        strings(ids, 'link.recordIds', unique=True, nonempty=True)
+        require(len(ids) == 2 and ids == sorted(ids), 'Link joins exactly two sorted record IDs')
+        require(all(i in records for i in ids), 'Link must join existing records')
+        require(link['id'] == link['kind'] + ':' + '|'.join(ids), 'Link ID must derive from kind and records')
+        require(link['id'] not in seen, 'Duplicate link ID')
+        seen.add(link['id'])
+        require(tuple(ids) not in pairs, 'One link per record pair')
+        pairs.add(tuple(ids))
+        text(link['basis'], 'link.basis', nonempty=True)
+        if link['kind'] == 'documented':
+            safe_url(link['sourceUrl'], 'link.sourceUrl')
+        else:
+            require(link['sourceUrl'] is None, 'Probable link has no source document')
+
+
 def counts_for(records, sources):
     by_source = Counter(r['sourceId'] for r in records)
     return dict(records=len(records), mapped=sum(bool(r['geometries']) for r in records),
@@ -234,7 +257,8 @@ def counts_for(records, sources):
 def validate_dataset(dataset, prior=None):
     """Reject malformed schema, unsafe exposure, inconsistent joins and source-level loss."""
     scan_keys(dataset)
-    keys(dataset, DATASET_KEYS, 'dataset')
+    # 'links' was added after the first published generation; older priors lack it.
+    keys(dataset, DATASET_KEYS | ({'links'} if type(dataset) is dict and 'links' in dataset else set()), 'dataset')
     require(type(dataset['schemaVersion']) is int and dataset['schemaVersion'] == 1, 'Unsupported schemaVersion')
     timestamp(dataset['generatedAt'], 'generatedAt', utc=True)
     strings(dataset['warnings'], 'dataset.warnings')
@@ -270,6 +294,7 @@ def validate_dataset(dataset, prior=None):
         source_native_ids.add(native_id)
     for record in records.values():
         require(all(ref in records and ref != record['id'] for ref in record['relatedIds']), 'relatedIds must join exact other record IDs')
+    validate_links(dataset.get('links', []), records)
     keys(dataset['counts'], COUNT_KEYS, 'counts')
     for key in 'records mapped geometries'.split(): integer(dataset['counts'][key], 'counts.'+key)
     require(type(dataset['counts']['bySource']) is dict, 'counts.bySource must be dictionary')

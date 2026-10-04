@@ -18,6 +18,7 @@ interface InvestmentDataset {
   generatedAt: string; // ISO8601 UTC
   records: InvestmentRecord[];
   sources: InvestmentSource[];
+  links: InvestmentLink[]; // brak klucza tylko w generacjach sprzed powiązań
   warnings: string[];
   counts: { records: number; mapped: number; geometries: number; bySource: Record<string, number> };
 }
@@ -52,7 +53,19 @@ interface InvestmentRecord {
 
 Wszystkie powyższe klucze wymagane; puste listy/puste stringi/null jako jawne braki, bez nadmiarowych kluczy. Prawidłowe URL tylko https/http bez userinfo, unsafe schemes i sekretów. Source metadata timestamps ISO; rekordowe `statusAsOf` data YYYY-MM-DD lub null. `sourceUpdatedAt` ISO lub null. Koszty nieujemne, finite; brak to null, nie zero. Zalecane money kinds: `reported`, `annual-plan`, `total-outlay`, `annual-limit`, `tender-financing`, `offer`, `contract`, `actual`, `project-total`, `eu-contribution`, `eligible`, `proposal-estimate`. Nie sumować różnego rodzaju kwot ani kosztów wielu źródeł tego samego przedsięwzięcia.
 
-Liczniki oznaczają **rekordy źródłowe**, nie unikalne budowy. Jedna sprawa środowiskowa grupuje wiele publikacji w events. Między źródłami nie scalać na fuzzy title; używać udokumentowanych relatedIds. Nie wmawiać, że budżet, zgłoszenie BO, grant lub postępowanie oznacza rozpoczętą budowę. Prywatne B+R i projekty wielogminne są także informacją, niekoniecznie fizyczną inwestycją.
+```ts
+interface InvestmentLink {
+  id: string; // `${kind}:${recordIds.join('|')}`
+  kind: 'documented' | 'probable';
+  recordIds: [string, string]; // posortowane, istniejące, różne rekordy; jedno powiązanie na parę
+  basis: string; // dlaczego te wpisy są połączone, po polsku
+  sourceUrl: string | null; // documented: dokument łączący; probable: zawsze null
+}
+```
+
+Powiązania nie scalają rekordów i nie sumują kwot. `documented` wymaga oficjalnego dokumentu wskazującego obie strony (dziś: zarządzenia burmistrza o komisji przetargowej z pozycją budżetu i znakiem RZP). `probable` to wzajemnie najlepsze dopasowanie w obrębie pary typów źródeł: wspólny rok, wspólna miejscowość/ulica w nazwie, zgodny rodzaj robót i brak drugiego równie dobrego kandydata. Krok powiązań jest odporny na błędy: przy nieczytelnych dokumentach zachowuje poprzednie udokumentowane powiązania istniejących rekordów i publikuje ostrzeżenie.
+
+Liczniki oznaczają **rekordy źródłowe**, nie unikalne budowy. Jedna sprawa środowiskowa grupuje wiele publikacji w events. Między źródłami nie scalać na fuzzy title; używać udokumentowanych relatedIds/links, a dopasowania nazw publikować wyłącznie jako `probable` z uzasadnieniem. Nie wmawiać, że budżet, zgłoszenie BO, grant lub postępowanie oznacza rozpoczętą budowę. Prywatne B+R i projekty wielogminne są także informacją, niekoniecznie fizyczną inwestycją.
 
 ## API adapterów / rozłączna własność
 

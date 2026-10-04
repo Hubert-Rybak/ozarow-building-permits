@@ -6,6 +6,10 @@ import {
   investmentDefaults,
   investmentsCsv,
   investmentUrl,
+  isTechnicalFact,
+  linkIndex,
+  linkedRecords,
+  placeHistory,
 } from "../../src/investments";
 
 import { fixture } from "./investment-fixtures";
@@ -315,5 +319,69 @@ describe("one investment result set", () => {
     expect(csv).not.toContain('\r\n"test:2";');
     expect(csv).toContain("'=TEST formula");
     expect(csv).toContain("multi-municipality");
+  });
+});
+
+describe("cross-source links", () => {
+  const withLinks = () => {
+    const d = fixture() as ReturnType<typeof fixture> & { links?: unknown[] };
+    const third = { ...d.records[1], id: "test:3", sourceRecordId: "3", title: "TEST ONLY tender", relatedIds: [] };
+    d.records.push(third);
+    d.sources[0].recordCount = 3;
+    d.counts = { ...d.counts, records: 3, bySource: { test: 3 } };
+    d.links = [
+      { id: "probable:test:2|test:3", kind: "probable", recordIds: ["test:2", "test:3"], basis: "TEST ONLY same place", sourceUrl: null },
+    ];
+    return d;
+  };
+
+  it("accepts generations with and without links and rejects broken ones", () => {
+    expect(parseInvestments(fixture()).links).toBeUndefined();
+    expect(parseInvestments(withLinks()).links).toHaveLength(1);
+    const broken: Record<string, unknown>[] = [
+      { recordIds: ["test:3", "test:2"] },
+      { recordIds: ["test:2", "test:404"], id: "probable:test:2|test:404" },
+      { kind: "other" },
+      { sourceUrl: "https://example.org/x" },
+      { id: "probable:other" },
+      { kind: "documented", id: "documented:test:2|test:3" },
+    ];
+    for (const change of broken) {
+      const d = withLinks();
+      Object.assign(d.links![0] as object, change);
+      expect(() => parseInvestments(d), JSON.stringify(change)).toThrow();
+    }
+  });
+
+  it("walks one hop further and weakens the path to the weakest link", () => {
+    const d = parseInvestments(withLinks());
+    const byId = new Map(d.records.map(r => [r.id, r]));
+    const entries = linkedRecords(byId.get("test:1")!, linkIndex(d.links!, d.records), byId);
+    expect(entries.map(e => [e.record.id, e.kind, e.via?.id ?? null])).toEqual([
+      ["test:2", "documented", null],
+      ["test:3", "probable", "test:2"],
+    ]);
+    expect(entries[0].basis).toMatch(/w samym źródle/);
+  });
+
+  it("finds the same place in earlier map entries only", () => {
+    const d = parseInvestments(fixture());
+    const base = d.records[0];
+    const at = (id: string, title: string, lon: number, year: number, sourceId = "municipal-map") => ({
+      ...base, id, sourceId, title, years: [year],
+      geometries: [{ ...base.geometries[0], geometry: { type: "Point" as const, coordinates: [lon, 52.2] } }],
+    });
+    const now = at("m:445", "Rozbudowa placu zabaw w Parku Ołtarzewskim", 20.8, 2026);
+    const all = [now, at("m:6", "Rozbudowa placu zabaw w Ołtarzewie – etap II", 20.8005, 2020),
+      at("m:7", "Budowa chodnika w Ołtarzewie", 20.8001, 2021),
+      at("m:8", "Rozbudowa placu zabaw w Ołtarzewie", 20.81, 2024),
+      at("b:1", "Rozbudowa placu zabaw w Ołtarzewie", 20.8, 2026, "budget")];
+    expect(placeHistory(now, all).map(h => h.record.id)).toEqual(["m:6"]);
+  });
+
+  it("keeps raw source fields out of the documents list", () => {
+    expect(isTechnicalFact({ label: "OBJECTID", value: "445", sourceUrl: "https://services-eu1.arcgis.com/x/FeatureServer/17/query?where=1" })).toBe(true);
+    expect(isTechnicalFact({ label: "Status / etap API", value: "Agreement", sourceUrl: "https://ezamowienia.gov.pl/x" })).toBe(true);
+    expect(isTechnicalFact({ label: "Uchwała", value: "Nr XXX", sourceUrl: "https://bip.ozarow-mazowiecki.pl/a,1.html" })).toBe(false);
   });
 });

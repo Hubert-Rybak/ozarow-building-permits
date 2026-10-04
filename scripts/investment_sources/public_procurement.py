@@ -5,6 +5,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from urllib.parse import quote
 from bs4 import BeautifulSoup
+from .tender_results import first_opening, latest_selection, parse_financing, parse_selection
 from .public import BIP, EZ, record, fact, cost, event, iso, day, clean, categorize, list_articles, menu_node, safe_url, text
 
 TENDER_ID = re.compile(r'ocds-148610-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![0-9a-f-])', re.I)
@@ -148,31 +149,63 @@ def attach_bip(r, articles):
             fact(r, 'Dokument BIP', attachment['name'], link)
 
 
-def explicit_offer_evidence(client, r, documents):
-    """Only parse the verified unambiguous selected-offer PDF for this exact case.
+def document_url(tid, doc):
+    return EZ + 'mp-readmodels/api/Tender/DownloadDocument/' + tid + '/' + doc['objectId']
 
-    Other monetary PDFs remain linked: guessing a price from any currency line
-    would conflate opening-offer lists, financing, estimates and final contracts.
+
+def pdf_text(client, url):
+    return ' '.join(page.get_text() for page in client.pdf(url))
+
+
+def part_label(price):
+    if not price['part']:
+        return ''
+    return ' — część ' + price['part'] + (': ' + price['name'] if price['name'] else '')
+
+
+def tender_result_evidence(client, r, documents):
+    """Winner/price and reserved amounts from the authority's own notices.
+
+    Returns (urls actually read, problem or None). A document that cannot be
+    read or parsed unambiguously stays a plain link and never stops the source.
     """
-    if r['sourceRecordId'] != 'ocds-148610-e75ac4dd-1c85-4c03-9ce9-e97e05e963cf':
-        return
-    selected = [d for d in documents if d.get('objectId') == r['sourceRecordId'] + '_11' and d.get('tenderDocumentState') == 'Published' and not d.get('deleteDate')]
-    if not selected:
-        return
-    # Endpoint verified in initial official research; objectId discovered anew.
-    url = EZ + 'mp-readmodels/api/Tender/DownloadDocument/' + r['sourceRecordId'] + '/' + selected[0]['objectId']
-    doc = client.pdf(url)
-    txt = clean(' '.join(p.get_text() for p in doc))
-    if 'INSTALNIKA' in txt and re.search(r'4\s*193\s*070(?:[,.]00)?', txt) and 'wybor' in txt.lower():
-        cost(r, 'offer', 4193070, 'Wybrana oferta INSTALNIKA — brutto; nie potwierdzony koszt końcowy', url=url)
-        fact(r, 'Wybrany wykonawca (oferta)', 'INSTALNIKA', url)
-    return url
+    tid = r['sourceRecordId']
+    urls, problems = [], []
+    opening = first_opening(documents)
+    if opening:
+        url = document_url(tid, opening)
+        try:
+            reserved = parse_financing(pdf_text(client, url))
+            urls.append(url)
+            api_amount = next((c['amount'] for c in r['costs'] if c['kind'] == 'tender-financing'), None)
+            for item in reserved:
+                if item['part'] is None and api_amount is not None:
+                    continue
+                label = 'Kwota przeznaczona na sfinansowanie' + (' — część ' + item['part'] if item['part'] else '') + ' (nie cena oferty/umowy)'
+                cost(r, 'tender-financing', item['amount'], label, url=url)
+        except Exception as exc:  # noqa: BLE001 — a bad PDF must not drop the source
+            problems.append('otwarcie ofert: ' + str(exc))
+    selection = latest_selection(documents)
+    if selection:
+        url = document_url(tid, selection)
+        try:
+            result = parse_selection(pdf_text(client, url))
+            urls.append(url)
+            fact(r, 'Wybrany wykonawca (oferta)', result['winner'], url)
+            for price in result['prices']:
+                cost(r, 'offer', price['amount'], 'Wybrana oferta' + part_label(price) + ' — ' + result['winner'] + '; brutto, nie koszt końcowy', url=url)
+            if result['contractDate']:
+                r['dates'].append({'kind': 'planned-contract', 'date': result['contractDate'],
+                                   'label': 'Planowane podpisanie umowy (wg informacji o wyborze oferty)', 'sourceUrl': url})
+        except Exception as exc:  # noqa: BLE001 — a bad PDF must not drop the source
+            problems.append('wybór oferty: ' + str(exc))
+    return urls, ('; '.join(problems) or None)
 
 
 def load_procurement(client, fetched=None):
     leaves, year = procurement_leaves(client)
     records, count_articles, count_docs, linked = {}, 0, 0, 0
-    no_ids = []
+    no_ids, unread = [], []
     for leaf in leaves:
         entries = list_articles(client, leaf['id'])
         articles = [client.json(BIP + 'api/articles/' + entry['id']) for entry in entries]
@@ -202,9 +235,11 @@ def load_procurement(client, fetched=None):
                         raise ValueError('ID / zamawiający niezgodny z gminą')
                     docs = client.json(documents_url)
                     r = parse_tender(data, docs, client.fetched_at(tender_url, documents_url))
-                    offer_url = explicit_offer_evidence(client, r, docs)
-                    if offer_url:
-                        r['fetchedAt'] = client.fetched_at(tender_url, documents_url, offer_url)
+                    result_urls, problem = tender_result_evidence(client, r, docs)
+                    if result_urls:
+                        r['fetchedAt'] = client.fetched_at(tender_url, documents_url, *result_urls)
+                    if problem:
+                        unread.append(r['sourceRecordId'] + ' (' + problem + ')')
                     count_docs += sum(d.get('tenderDocumentState') == 'Published' and not d.get('deleteDate') for d in docs)
                     records[key] = r
                 attach_bip(records[key], articles)
@@ -215,7 +250,9 @@ def load_procurement(client, fetched=None):
     notes = []
     if no_ids:
         notes.append('Zamówienia bez zweryfikowanego ID eZamówień zachowano jako karty BIP: ' + ', '.join(no_ids))
-    notes.append('Komplet odkrytych kart zamówień BIP ' + year + ', nie pełny eksport wszystkich zamówień gminy poza BIP. CPV/ceny ofert i umów tylko gdy bezpośrednio zweryfikowane; pozostałe dokumenty są linkowane.')
+    if unread:
+        notes.append('Nie odczytano jednoznacznie wyniku/kwot z PDF (pozostają linki): ' + ', '.join(unread))
+    notes.append('Komplet odkrytych kart zamówień BIP ' + year + ', nie pełny eksport wszystkich zamówień gminy poza BIP. CPV i ceny wybranych ofert tylko z jednoznacznych informacji zamawiającego o wyborze oferty; pozostałe dokumenty są linkowane.')
     coverage = f'Rocznik {year}: {len(leaves)} menu/kart; {count_articles} artykułów (pełna paginacja); {linked} kart z ID; {len(records)} rekordów; {count_docs} opublikowanych dokumentów eZamówień; bez ID: {len(no_ids)}.'
     updated = max((r['sourceUpdatedAt'] for r in records.values() if r['sourceUpdatedAt']), default=None)
     return list(records.values()), coverage, updated, notes

@@ -203,10 +203,26 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 .nearby-main strong { font-size: 15px; font-weight: 600; color: var(--ink); }
 .nearby-main span { font-size: 13px; color: var(--muted); }
 .nearby-distance { flex-shrink: 0; font-size: 13px; color: var(--muted); padding-top: 2px; }
+.linked-list { display: flex; flex-direction: column; gap: 8px; }
+.linked-item { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.linked-item.documented { border-color: #9DB9E3; }
+.linked-item.probable { border-style: dashed; }
+.linked-main { width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 10px 12px; border: 0; background: transparent; text-align: left; font-size: 14px; }
+.linked-main:hover { background: var(--line-soft); }
+.link-badge { font-size: 12px; font-weight: 700; border-radius: 6px; padding: 1px 6px; }
+.link-badge.documented { color: var(--accent-ink); background: var(--accent-soft); }
+.link-badge.probable { color: #7A4B00; background: #FFF1D6; }
+.linked-cost { font-size: 13px; color: var(--ink-2); }
+.linked-basis { margin: 0; padding: 8px 12px; border-top: 1px solid var(--line-soft); font-size: 13px; color: var(--muted); }
+.history-list { list-style: none; margin: 0; padding: 0; }
+.history-list button { width: 100%; display: flex; align-items: flex-start; gap: 10px; min-height: 52px; padding: 8px 0; border: 0; border-bottom: 1px solid var(--line-soft); background: transparent; text-align: left; }
+.history-year { flex-shrink: 0; min-width: 44px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.tech-row { display: contents; }
 .tech-details { border-top: 1px solid var(--line); padding-top: 4px; }
 .tech-details > summary { min-height: 44px; display: flex; align-items: center; font-size: 15px; font-weight: 600; color: var(--ink-2); }
 .tech-details dl { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 8px 12px; font-size: 14px; }
 .tech-details dt { color: var(--muted); }
+.tech-details dd { overflow-wrap: anywhere; }
 .parcel-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; font-size: 13px; }
 .parcel-list li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; padding-bottom: 6px; border-bottom: 1px solid var(--line-soft); }
 .parcel-list code { font-size: 12px; overflow-wrap: anywhere; }
