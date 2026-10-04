@@ -233,9 +233,27 @@ describe("phone bottom sheet", () => {
     expect(screen.queryByRole("heading", { level: 2, name: "TEST: budowa domu" })).not.toBeInTheDocument();
     expect(map.props?.selectedKey).toBeNull();
     expect(map.props?.fitToken).toBe(fits);
+    expect(map.props?.restoreToken).toBe(1);
     fireEvent.click(screen.getByRole("button", { name: "Powiększ panel" }));
     fireEvent.click(screen.getByRole("button", { name: "Powiększ panel" }));
     expect(panel).toHaveClass("sheet-full");
+    fireEvent.click(screen.getByRole("button", { name: "TEST: puste miejsce mapy" }));
+    expect(panel).toHaveClass("sheet-peek");
+  });
+  it("returns to the sheet size the card opened from, but lets a full-height list give way to the map", async () => {
+    mobile(true);
+    const { container } = await load();
+    const panel = container.querySelector(".panel")!;
+    fireEvent.click(screen.getByRole("button", { name: "Powiększ panel" }));
+    expect(panel).toHaveClass("sheet-half");
+    fireEvent.click(screen.getByRole("button", { name: /TEST: budowa domu/ }));
+    fireEvent.click(screen.getByRole("button", { name: "TEST: wybierz inwestycję" }));
+    fireEvent.click(screen.getByRole("button", { name: "TEST: puste miejsce mapy" }));
+    expect(panel).toHaveClass("sheet-half");
+    expect(map.props?.selectedKey).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Powiększ panel" }));
+    expect(panel).toHaveClass("sheet-full");
+    fireEvent.click(screen.getByRole("button", { name: "TEST: wybierz działkę" }));
     fireEvent.click(screen.getByRole("button", { name: "TEST: puste miejsce mapy" }));
     expect(panel).toHaveClass("sheet-peek");
   });

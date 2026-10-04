@@ -133,6 +133,11 @@ export default function App() {
   const [locating, setLocating] = useState(false);
   const [locateMessage, setLocateMessage] = useState<string | null>(null);
   const origin = useRef<"list" | "map">("list");
+  const [restoreToken, setRestoreToken] = useState(0);
+  // The sheet size before the current selection, so dismissing it returns to the same view.
+  const sheetBefore = useRef<Sheet>("peek");
+  const now = useRef({ selection, sheet });
+  now.current = { selection, sheet };
   const restore = useRef<{ origin: "list" | "map"; id: string } | null>(null);
   const aboutOpener = useRef<HTMLElement | null>(null);
   const overview = useRef<HTMLButtonElement>(null);
@@ -196,6 +201,7 @@ export default function App() {
 
   const select = useCallback((layer: Layer, id: string, from: "list" | "map" = "map") => {
     origin.current = from;
+    if (!now.current.selection) sheetBefore.current = now.current.sheet;
     setMode(layer);
     setLayers(prev => ({ ...prev, [layer]: true }));
     setSelection({ layer, id });
@@ -221,12 +227,17 @@ export default function App() {
     if (mobile) setSheet(origin.current === "list" ? "half" : "peek");
   }, [selection, mobile]);
 
-  // Phone: a tap on empty map dismisses the card and lowers the sheet, leaving the map in view as is.
+  // Phone: a tap on empty map dismisses the card and returns to the map and sheet as they were before
+  // it opened (a full-height list gives way to the map). Without a card it just lowers the sheet.
   const keepView = useRef(false);
   const dismiss = useCallback(() => {
     if (!mobile || (!selection && sheet === "peek")) return;
-    setSelection(null);
-    if (sheet !== "peek") { keepView.current = true; setSheet("peek"); }
+    const next = selection && sheetBefore.current !== "full" ? sheetBefore.current : "peek";
+    if (selection) {
+      setSelection(null);
+      setRestoreToken(n => n + 1);
+    }
+    if (sheet !== next) { keepView.current = true; setSheet(next); }
   }, [mobile, selection, sheet]);
 
   // A filter change that hides the selected record closes its card.
@@ -427,7 +438,7 @@ export default function App() {
       <main className="stage">
         <section className="map-area" aria-label="Mapa">
           <RadarMap items={items} selectedKey={selectedKey} insets={insets} fitToken={fitToken} fitAllToken={fitAllToken}
-            userLocation={userLocation} onSelect={(layer, id) => select(layer, id, "map")} onBackgroundClick={dismiss} />
+            userLocation={userLocation} onSelect={(layer, id) => select(layer, id, "map")} onBackgroundClick={dismiss} restoreToken={restoreToken} />
           <div className="map-controls">
             <div className={`layer-card${legendOpen || !mobile ? " open" : ""}`}>
               {mobile && (
