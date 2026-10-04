@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-03T16:25:06.953249Z",
+  "generatedAt": "2026-10-04T09:59:18.651733Z",
   "recordCount": 447,
   "parcelCount": 842,
   "matchedRecordCount": 370,
   "partialRecordCount": 29,
   "unresolvedRecordCount": 48,
-  "coverage": "Cała gmina Ożarów Mazowiecki (miasto i obszar wiejski): daty wpływu 2025-01-01–2026-10-03; faktyczne wpisy 2025-01-09–2026-09-23. Wnioski/decyzje: CSV mazowieckie; zgłoszenia: CSV krajowy od 2022. Obrysy ze stanu ULDK podczas pobrania (cache do 30 dni), nie historyczne.",
+  "coverage": "Cała gmina Ożarów Mazowiecki (miasto i obszar wiejski): daty wpływu 2025-01-01–2026-10-04; faktyczne wpisy 2025-01-09–2026-09-23. Wnioski/decyzje: CSV mazowieckie; zgłoszenia: CSV krajowy od 2022. Obrysy ze stanu ULDK podczas pobrania (cache do 30 dni), nie historyczne.",
   "warnings": [
     "Decyzja w CSV nie oznacza pozwolenia: eksport nie podaje wyniku rozstrzygnięcia. Wniosek i zgłoszenie są odrębnymi rodzajami wpisów.",
     "Powtarzające się wiersze działek połączono według identyfikatora systemowego GUNB; wniosek z odnotowaną decyzją to jeden wpis typu decyzja.",
@@ -31,25 +31,25 @@
     {
       "name": "GUNB permit",
       "url": "https://wyszukiwarka.gunb.gov.pl/pliki_pobranie/wynik_mazowieckie.zip",
-      "downloadedAt": "2026-10-03T16:22:54.136191Z",
-      "sha256": "35517ddf8cc53a168c75a14d5d9f7e6ec29fcea807bbb39a9f8d3cd00a34887e",
+      "downloadedAt": "2026-10-04T09:56:58.639634Z",
+      "sha256": "36eee7ec70b089a90d3c122b454c5e185e7bfb2b315bb0785a0f74e74d569b51",
       "byteCount": 46241653,
-      "httpLastModified": "Fri, 02 Oct 2026 21:35:13 GMT",
-      "httpETag": "\"2c19775-65ce24ebb0480\""
+      "httpLastModified": "Sat, 03 Oct 2026 21:35:07 GMT",
+      "httpETag": "\"2c19775-65cf66c3bfca6\""
     },
     {
       "name": "GUNB notification",
       "url": "https://wyszukiwarka.gunb.gov.pl/pliki_pobranie/wynik_zgloszenia_2022_up.zip",
-      "downloadedAt": "2026-10-03T16:23:06.808373Z",
-      "sha256": "eee98e1835c53b649cec6fecaa5e41f144fdc38af8b5e9c45e9f8fc44a48df62",
+      "downloadedAt": "2026-10-04T09:57:09.477844Z",
+      "sha256": "af6bfbd32ba54bed15ef645face57f925e84c9f0b9f2b613a442cce5f93603c4",
       "byteCount": 25711067,
-      "httpLastModified": "Fri, 02 Oct 2026 21:36:10 GMT",
-      "httpETag": "\"18851db-65ce2521b94a0\""
+      "httpLastModified": "Sat, 03 Oct 2026 21:36:04 GMT",
+      "httpETag": "\"18851db-65cf66f996fe6\""
     }
   ],
   "dateRange": {
     "requestedStart": "2025-01-01",
-    "requestedEnd": "2026-10-03",
+    "requestedEnd": "2026-10-04",
     "actualStart": "2025-01-09",
     "actualEnd": "2026-09-23"
   },
