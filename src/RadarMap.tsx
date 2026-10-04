@@ -28,6 +28,8 @@ interface Props {
   fitToken: number;
   /** Increment to show every item even while something is selected. */
   fitAllToken?: number;
+  /** Bumped to return to the view the map had before the current selection. */
+  restoreToken?: number;
   /** The viewer's own position; it stays in the browser and is only drawn on the map. */
   userLocation?: UserLocation | null;
 }
@@ -73,7 +75,7 @@ function clusterIcon(members: MapItem[]) {
   return L.divIcon({ html: element, className: "radar-marker-wrap", iconSize: [size, size] });
 }
 
-export default function RadarMap({ items, selectedKey, onSelect, insets, fitToken, fitAllToken = 0, userLocation = null, onBackgroundClick }: Props) {
+export default function RadarMap({ items, selectedKey, onSelect, insets, fitToken, fitAllToken = 0, userLocation = null, onBackgroundClick, restoreToken = 0 }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const drawn = useRef<L.LayerGroup | null>(null);
@@ -81,6 +83,7 @@ export default function RadarMap({ items, selectedKey, onSelect, insets, fitToke
   latest.current = { items, selectedKey, onSelect, insets, onBackgroundClick };
   const redraw = useRef<() => void>(() => {});
   const fitted = useRef(false);
+  const freeView = useRef<{ center: L.LatLng; zoom: number } | null>(null);
   const [tileError, setTileError] = useState(false);
 
   const padding = () => {
@@ -127,6 +130,10 @@ export default function RadarMap({ items, selectedKey, onSelect, insets, fitToke
     const update = () => redraw.current();
     m.on("zoomend moveend", update);
     m.on("click", () => latest.current.onBackgroundClick?.());
+    // The last view without a selection, to return to once the card is dismissed.
+    m.on("moveend", () => {
+      if (!latest.current.selectedKey) freeView.current = { center: m.getCenter(), zoom: m.getZoom() };
+    });
     const observer = new ResizeObserver(() => m.invalidateSize({ animate: false }));
     observer.observe(container.current);
     return () => {
@@ -228,6 +235,12 @@ export default function RadarMap({ items, selectedKey, onSelect, insets, fitToke
   useEffect(() => {
     if (fitAllToken) frame("all");
   }, [fitAllToken]);
+  useEffect(() => {
+    const view = freeView.current;
+    if (!restoreToken || !view || !map.current) return;
+    map.current.invalidateSize({ animate: false });
+    map.current.setView(view.center, view.zoom, { animate: false });
+  }, [restoreToken]);
   const located = useRef<L.LayerGroup | null>(null);
   useEffect(() => {
     const m = map.current;

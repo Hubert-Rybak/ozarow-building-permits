@@ -91,6 +91,17 @@ describe("unified radar map", () => {
     fireEvent.click(v.container.querySelector(".leaflet-container")!);
     expect(onBackgroundClick).toHaveBeenCalledTimes(1);
   });
+  it("returns to the view it had before the selection, ignoring moves made while a card was open", () => {
+    const v = mount([item("a", [52.2, 20.8], { areas: [square(20.8, 52.2)] }), item("b", [52.3, 20.9])]);
+    v.map.setView([52.25, 20.85], 13, { animate: false });
+    v.rerender(<RadarMap {...v.props} selectedKey="p:a" fitToken={1} />);
+    expect(v.map.getZoom()).toBeGreaterThan(13);
+    v.map.setView([52.1, 20.6], 15, { animate: false });
+    v.rerender(<RadarMap {...v.props} selectedKey={null} fitToken={1} restoreToken={1} />);
+    expect(v.map.getZoom()).toBe(13);
+    expect(v.map.getCenter().lat).toBeCloseTo(52.25, 5);
+    expect(v.map.getCenter().lng).toBeCloseTo(20.85, 5);
+  });
   it("draws the viewer's position with its accuracy and frames it, without making it clickable", () => {
     const v = mount([item("a", [52.3, 20.9])]);
     const fit = vi.spyOn(v.map, "fitBounds");
