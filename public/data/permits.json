@@ -1,13 +1,42 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T10:47:28.535470Z",
+  "generatedAt": "2026-10-09T10:46:28.070433Z",
   "source": {
     "name": "GUNB RWDZ",
     "url": "https://wyszukiwarka.gunb.gov.pl/pobranie.html",
-    "downloadedAt": "2026-10-08T10:45:39.600228Z",
-    "coverage": "Cała gmina Ożarów Mazowiecki (miasto i obszar wiejski): daty wpływu 2025-01-01–2026-10-08; faktyczne wpisy 2025-01-09–2026-09-23. Wnioski/decyzje: CSV mazowieckie; zgłoszenia: CSV krajowy od 2022. Obrysy ze stanu ULDK podczas pobrania (cache do 30 dni), nie historyczne."
+    "downloadedAt": "2026-10-09T10:44:19.790298Z",
+    "coverage": "Cała gmina Ożarów Mazowiecki (miasto i obszar wiejski): daty wpływu 2025-01-01–2026-10-09; faktyczne wpisy 2025-01-09–2026-09-23. Wnioski/decyzje: CSV mazowieckie; zgłoszenia: CSV krajowy od 2022. Obrysy ze stanu ULDK podczas pobrania (cache do 30 dni), nie historyczne."
   },
   "records": [
+    {
+      "id": "notification:ST-MZ-OZ/ZGŁOSZENIE/7065/2026",
+      "kind": "notification",
+      "title": "Budowa — infrastruktura wodno-kanalizacyjna",
+      "description": "Bezpieczny skrót rodzaju inwestycji. Swobodny opis GUNB pominięto ze względu na możliwość występowania danych osobowych.",
+      "applicationDate": "2026-09-23",
+      "decisionDate": null,
+      "decisionNumber": null,
+      "status": "Brak sprzeciwu",
+      "locality": "Ożarów Mazowiecki",
+      "street": "",
+      "municipality": "Ożarów Mazowiecki (miasto i obszar wiejski)",
+      "cadastralRegion": "143206_4.0002",
+      "parcelNumbers": [
+        "12/5",
+        "13/4",
+        "169/1",
+        "172/1"
+      ],
+      "parcelIds": [
+        "143206_4.0002.13/4",
+        "143206_4.0002.169/1",
+        "143206_4.0002.172/1"
+      ],
+      "category": "XXVI",
+      "sourceUrl": "https://wyszukiwarka.gunb.gov.pl/pliki_pobranie/wynik_zgloszenia_2022_up.zip",
+      "geometryStatus": "partial",
+      "geometryNote": "Potwierdzone obrysy ULDK: 3/4. Brak wiarygodnej odpowiedzi ULDK: 1 (możliwy podział działki, błąd źródła lub usługi)."
+    },
     {
       "id": "notification:ST-MZ-OZ/ZGŁOSZENIE/6890/2026",
       "kind": "notification",

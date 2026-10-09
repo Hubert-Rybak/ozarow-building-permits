@@ -1,18 +1,18 @@
 {
-  "generatedAt": "2026-10-08T10:47:28.535470Z",
-  "recordCount": 448,
-  "parcelCount": 843,
+  "generatedAt": "2026-10-09T10:46:28.070433Z",
+  "recordCount": 449,
+  "parcelCount": 846,
   "matchedRecordCount": 371,
-  "partialRecordCount": 29,
+  "partialRecordCount": 30,
   "unresolvedRecordCount": 48,
-  "coverage": "Cała gmina Ożarów Mazowiecki (miasto i obszar wiejski): daty wpływu 2025-01-01–2026-10-08; faktyczne wpisy 2025-01-09–2026-09-23. Wnioski/decyzje: CSV mazowieckie; zgłoszenia: CSV krajowy od 2022. Obrysy ze stanu ULDK podczas pobrania (cache do 30 dni), nie historyczne.",
+  "coverage": "Cała gmina Ożarów Mazowiecki (miasto i obszar wiejski): daty wpływu 2025-01-01–2026-10-09; faktyczne wpisy 2025-01-09–2026-09-23. Wnioski/decyzje: CSV mazowieckie; zgłoszenia: CSV krajowy od 2022. Obrysy ze stanu ULDK podczas pobrania (cache do 30 dni), nie historyczne.",
   "warnings": [
     "Decyzja w CSV nie oznacza pozwolenia: eksport nie podaje wyniku rozstrzygnięcia. Wniosek i zgłoszenie są odrębnymi rodzajami wpisów.",
     "Powtarzające się wiersze działek połączono według identyfikatora systemowego GUNB; wniosek z odnotowaną decyzją to jeden wpis typu decyzja.",
     "CSV może zawierać błędy/nieaktualne numery działek; nie korygowano identyfikatorów według nazw miejscowości.",
     "Import obejmuje datę wpływu w wybranym zakresie, nie wszystkie decyzje wydane w tym okresie dla starszych wniosków; brak danych sprzed zakresu.",
     "W bieżącym wycinku CSV każdy wniosek ma odnotowaną decyzję; nie ma wpisów typu sam wniosek. Nie oznacza braku nierozpatrzonych wniosków w gminie — eksport CSV nie gwarantuje ich kompletności.",
-    "ULDK nie potwierdził 92 odwołań po ograniczonych próbach. Mogą to być zmienione działki, błędy CSV lub odpowiedzi usługi.",
+    "ULDK nie potwierdził 93 odwołań po ograniczonych próbach. Mogą to być zmienione działki, błędy CSV lub odpowiedzi usługi.",
     "Nieprawidłowe, obce lub niejednoznaczne odwołania katastralne: 35 wierszy CSV; zachowano wpisy wybrane po TERC bez zgadywania geometrii."
   ],
   "sources": [
@@ -31,30 +31,30 @@
     {
       "name": "GUNB permit",
       "url": "https://wyszukiwarka.gunb.gov.pl/pliki_pobranie/wynik_mazowieckie.zip",
-      "downloadedAt": "2026-10-08T10:45:26.892014Z",
-      "sha256": "2ef20b500bf238f843998a14454ce4b4ca1962233211e48aed12825dcc900256",
-      "byteCount": 46291773,
-      "httpLastModified": "Wed, 07 Oct 2026 21:35:07 GMT",
-      "httpETag": "\"2c25b3d-65d46e3981824\""
+      "downloadedAt": "2026-10-09T10:44:09.072358Z",
+      "sha256": "44596c32b9d3b71ae23d4cce65232d7d36898d3e7412e9ad83f55b59a41a48c5",
+      "byteCount": 46310129,
+      "httpLastModified": "Thu, 08 Oct 2026 21:35:09 GMT",
+      "httpETag": "\"2c2a2f1-65d5b01885fbb\""
     },
     {
       "name": "GUNB notification",
       "url": "https://wyszukiwarka.gunb.gov.pl/pliki_pobranie/wynik_zgloszenia_2022_up.zip",
-      "downloadedAt": "2026-10-08T10:45:39.600228Z",
-      "sha256": "3eb16d6f3ee92cf15a4843fe406b5f2b48df805b30738c02c8c484c866940860",
-      "byteCount": 25765083,
-      "httpLastModified": "Wed, 07 Oct 2026 21:36:03 GMT",
-      "httpETag": "\"18924db-65d46e6ea3124\""
+      "downloadedAt": "2026-10-09T10:44:19.790298Z",
+      "sha256": "1e43d47192037d51a138b1b72aa9e7c45ed8486333f18e0faeb93e8308716a20",
+      "byteCount": 25786255,
+      "httpLastModified": "Thu, 08 Oct 2026 21:36:09 GMT",
+      "httpETag": "\"189778f-65d5b0519b43b\""
     }
   ],
   "dateRange": {
     "requestedStart": "2025-01-01",
-    "requestedEnd": "2026-10-08",
+    "requestedEnd": "2026-10-09",
     "actualStart": "2025-01-09",
     "actualEnd": "2026-09-23"
   },
   "kindCounts": {
-    "notification": 101,
+    "notification": 102,
     "decision": 347
   },
   "localityCounts": {
@@ -74,7 +74,7 @@
     "Mory": 7,
     "Myszczyn": 6,
     "Ołtarzew": 11,
-    "Ożarów Mazowiecki": 119,
+    "Ożarów Mazowiecki": 120,
     "Pilaszków": 7,
     "Piotrkówek Duży": 1,
     "Piotrkówek Mały": 5,
@@ -93,7 +93,7 @@
   },
   "rawStatistics": {
     "permit": {
-      "totalRows": 692781,
+      "totalRows": 693023,
       "scopedRows": 5602,
       "dateFilteredRows": 4838,
       "invalidDateRows": 0,
@@ -101,8 +101,8 @@
       "invalidParcelRows": 18
     },
     "notification": {
-      "totalRows": 931282,
-      "scopedRows": 939,
+      "totalRows": 931887,
+      "scopedRows": 943,
       "dateFilteredRows": 591,
       "invalidDateRows": 0,
       "missingIdRows": 0,
@@ -110,17 +110,17 @@
     }
   },
   "geometryCoverage": {
-    "candidateParcelCount": 935,
-    "attemptedParcelCount": 935,
-    "confirmedParcelCount": 843,
-    "failedParcelCount": 92,
+    "candidateParcelCount": 939,
+    "attemptedParcelCount": 939,
+    "confirmedParcelCount": 846,
+    "failedParcelCount": 93,
     "unattemptedParcelCount": 0,
     "strategy": "newest applications first; full exact-ID validation",
     "maxParcels": 0,
     "reusedParcelCount": 843,
-    "freshParcelCount": 0,
+    "freshParcelCount": 3,
     "downloadedAtStart": "2026-10-02T21:44:00.391116Z",
-    "downloadedAtEnd": "2026-10-06T10:33:02.969537Z"
+    "downloadedAtEnd": "2026-10-09T10:44:40.351494Z"
   },
   "cadastralRegions": [
     {
@@ -351,6 +351,7 @@
   ],
   "failedParcelIds": [
     "143206_4.0001.82/1",
+    "143206_4.0002.12/5",
     "143206_4.0002.390",
     "143206_4.0003.78/118",
     "143206_4.0005.3/6",
@@ -451,5 +452,5 @@
     "rawSourceCacheShared": false,
     "maximumLossFraction": 0.2
   },
-  "publicEvidenceResponseCount": 889
+  "publicEvidenceResponseCount": 892
 }
