@@ -1,6 +1,6 @@
 {
   "type": "FeatureCollection",
-  "generatedAt": "2026-10-09T10:46:28.070433Z",
+  "generatedAt": "2026-10-10T10:02:11.915679Z",
   "features": [
     {
       "type": "Feature",
@@ -3693,6 +3693,7 @@
         "parcelNumber": "95/11",
         "region": "0004",
         "permitIds": [
+          "permit:ST-MZ-OZ/WNIOSEK/26539/2026",
           "permit:ST-MZ-OZ/WNIOSEK/27405/2026"
         ],
         "sourceUrl": "https://uldk.gugik.gov.pl/?request=GetParcelById&id=143206_4.0004.95%2F11&result=geom_wkt%2Cid&srid=4326"
@@ -3814,6 +3815,84 @@
           "permit:ST-MZ-OZ/WNIOSEK/26537/2026"
         ],
         "sourceUrl": "https://uldk.gugik.gov.pl/?request=GetParcelById&id=143206_4.0004.95%2F14&result=geom_wkt%2Cid&srid=4326"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              20.799414614272,
+              52.223901226687
+            ],
+            [
+              20.7994792068281,
+              52.2241820230691
+            ],
+            [
+              20.7992282632471,
+              52.2242038860496
+            ],
+            [
+              20.7991636726483,
+              52.2239229996563
+            ],
+            [
+              20.799414614272,
+              52.223901226687
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "143206_4.0004.95/7",
+        "parcelNumber": "95/7",
+        "region": "0004",
+        "permitIds": [
+          "permit:ST-MZ-OZ/WNIOSEK/26539/2026"
+        ],
+        "sourceUrl": "https://uldk.gugik.gov.pl/?request=GetParcelById&id=143206_4.0004.95%2F7&result=geom_wkt%2Cid&srid=4326"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              20.7997301497597,
+              52.2241602494313
+            ],
+            [
+              20.7994792068281,
+              52.2241820230691
+            ],
+            [
+              20.799414614272,
+              52.223901226687
+            ],
+            [
+              20.7996655556516,
+              52.2238794531839
+            ],
+            [
+              20.7997301497597,
+              52.2241602494313
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "143206_4.0004.95/8",
+        "parcelNumber": "95/8",
+        "region": "0004",
+        "permitIds": [
+          "permit:ST-MZ-OZ/WNIOSEK/26539/2026"
+        ],
+        "sourceUrl": "https://uldk.gugik.gov.pl/?request=GetParcelById&id=143206_4.0004.95%2F8&result=geom_wkt%2Cid&srid=4326"
       }
     },
     {

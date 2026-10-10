@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T10:46:28.070433Z",
+  "generatedAt": "2026-10-10T10:02:11.915679Z",
   "source": {
     "name": "GUNB RWDZ",
     "url": "https://wyszukiwarka.gunb.gov.pl/pobranie.html",
-    "downloadedAt": "2026-10-09T10:44:19.790298Z",
-    "coverage": "Cała gmina Ożarów Mazowiecki (miasto i obszar wiejski): daty wpływu 2025-01-01–2026-10-09; faktyczne wpisy 2025-01-09–2026-09-23. Wnioski/decyzje: CSV mazowieckie; zgłoszenia: CSV krajowy od 2022. Obrysy ze stanu ULDK podczas pobrania (cache do 30 dni), nie historyczne."
+    "downloadedAt": "2026-10-10T09:59:55.639085Z",
+    "coverage": "Cała gmina Ożarów Mazowiecki (miasto i obszar wiejski): daty wpływu 2025-01-01–2026-10-10; faktyczne wpisy 2025-01-09–2026-09-23. Wnioski/decyzje: CSV mazowieckie; zgłoszenia: CSV krajowy od 2022. Obrysy ze stanu ULDK podczas pobrania (cache do 30 dni), nie historyczne."
   },
   "records": [
     {
@@ -438,6 +438,34 @@
       "sourceUrl": "https://wyszukiwarka.gunb.gov.pl/pliki_pobranie/wynik_mazowieckie.zip",
       "geometryStatus": "unresolved",
       "geometryNote": "Potwierdzone obrysy ULDK: 0/1. niejednoznaczne lub nieprawidłowe odwołania w CSV: 1."
+    },
+    {
+      "id": "permit:ST-MZ-OZ/WNIOSEK/26539/2026",
+      "kind": "decision",
+      "title": "Budowa — infrastruktura gazowa",
+      "description": "Bezpieczny skrót rodzaju inwestycji. Swobodny opis GUNB pominięto ze względu na możliwość występowania danych osobowych.",
+      "applicationDate": "2026-08-27",
+      "decisionDate": "2026-10-09",
+      "decisionNumber": "1065/26",
+      "status": "Decyzja odnotowana — wynik nieudostępniony w CSV",
+      "locality": "Ożarów Mazowiecki",
+      "street": "",
+      "municipality": "Ożarów Mazowiecki (miasto i obszar wiejski)",
+      "cadastralRegion": "143206_4.0004",
+      "parcelNumbers": [
+        "95/11",
+        "95/7",
+        "95/8"
+      ],
+      "parcelIds": [
+        "143206_4.0004.95/11",
+        "143206_4.0004.95/7",
+        "143206_4.0004.95/8"
+      ],
+      "category": "XXVI",
+      "sourceUrl": "https://wyszukiwarka.gunb.gov.pl/pliki_pobranie/wynik_mazowieckie.zip",
+      "geometryStatus": "matched",
+      "geometryNote": "Potwierdzone obrysy ULDK: 3/3."
     },
     {
       "id": "permit:ST-MZ-OZ/WNIOSEK/26537/2026",
